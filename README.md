@@ -73,7 +73,6 @@
 
 ## 🚀 
 
-### 3. Chạy dev server
 ```bash
 https://2-phim.vercel.app/
 ```
