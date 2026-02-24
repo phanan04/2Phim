@@ -71,28 +71,12 @@
 
 ---
 
-## 🚀 Chạy local
-
-### 1. Clone repo
-```bash
-git clone https://github.com/phanan04/2Phim.git
-cd 2Phim
-npm install
-```
-
-### 2. Tạo file `.env.local`
-```env
-TMDB_API_KEY=your_tmdb_api_key_here
-```
-
-> Lấy API key miễn phí tại [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
+## 🚀 
 
 ### 3. Chạy dev server
 ```bash
-npm run dev
+https://2-phim.vercel.app/
 ```
-
-Mở [http://localhost:3000](http://localhost:3000) trên trình duyệt.
 
 ---
 
