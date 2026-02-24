@@ -12,6 +12,10 @@ export const TMDB_IMG = {
     path ? `${TMDB_IMAGE_BASE}/${size}${path}` : "/placeholder-backdrop.svg",
 };
 
+// A tiny 10×15 gray JPEG encoded as base64 for blur placeholder
+export const TMDB_BLUR_PLACEHOLDER =
+  "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAUAA8DASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAABQQG/8QAIhAAAQQCAgMBAAAAAAAAAAAAAQIDBBEhBRIxQVH/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8Ar1Nc1GG4NaSCFjJIwCe5HzwPPfjFLQ6pIxsDXuYY3R/G3YUfmACQQMkevPbFVtq8zG2UjWNBDGFzBgnkj5zjjHxipO1RRoHtexrmB2OQCAQOf8xQB//Z";
+
 // AutoEmbed - server: 1 (default), 2, 3, 4
 export const AUTOEMBED = {
   movie: (tmdbId: string | number, server = 1) =>

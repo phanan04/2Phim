@@ -140,3 +140,15 @@ export async function getMovieGenres() {
 export async function getTVGenres() {
   return tmdbFetch<{ genres: { id: number; name: string }[] }>("/genre/tv/list");
 }
+
+export async function getNowPlayingMovies(page = 1) {
+  return tmdbFetch<TMDBSearchResponse<TMDBMovie>>("/movie/now_playing", {
+    page: String(page),
+  });
+}
+
+export async function getUpcomingMovies(page = 1) {
+  return tmdbFetch<TMDBSearchResponse<TMDBMovie>>("/movie/upcoming", {
+    page: String(page),
+  });
+}

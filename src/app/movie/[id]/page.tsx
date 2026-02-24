@@ -7,9 +7,12 @@ import { VideoPlayer } from "@/components/VideoPlayer";
 import { Section } from "@/components/HomeSection";
 import { TrailerButton } from "@/components/TrailerButton";
 import { WatchlistButton } from "@/components/WatchlistButton";
+import { ShareButton } from "@/components/ShareButton";
 import { CastCarousel } from "@/components/CastCarousel";
 import { getMovieDetails, getMovieCredits, getMovieVideos, getSimilarMovies, TMDBConfigError } from "@/lib/tmdb";
 import { TMDB_IMG } from "@/lib/constants";
+import { TrackView } from "@/components/TrackView";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export const revalidate = 86400;
 
@@ -68,6 +71,7 @@ export default async function MoviePage({ params }: Props) {
 
   return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
+      <TrackView id={movie.id} title={movie.title} poster_path={movie.poster_path} type="movie" vote_average={movie.vote_average} date={movie.release_date} />
       {/* Backdrop */}
       <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
         <Image src={backdrop} alt={movie.title} fill className="object-cover" priority sizes="100vw" />
@@ -75,7 +79,8 @@ export default async function MoviePage({ params }: Props) {
       </div>
 
       <div className="container mx-auto px-4 -mt-32 relative z-10 pb-16">
-        <div className="flex flex-col md:flex-row gap-8">
+        <Breadcrumb items={[{ label: "Phim", href: "/movies" }, { label: movie.title }]} />
+        <div className="flex flex-col md:flex-row gap-8 mt-4">
           {/* Poster */}
           <div className="shrink-0">
             <div className="relative w-48 md:w-64 aspect-2/3 rounded-xl overflow-hidden shadow-2xl shadow-black/60 mx-auto md:mx-0">
@@ -138,6 +143,7 @@ export default async function MoviePage({ params }: Props) {
                 date: movie.release_date,
               }} />
               <TrailerButton youtubeKey={trailerKey} title={movie.title} />
+              <ShareButton title={movie.title} />
             </div>
           </div>
         </div>

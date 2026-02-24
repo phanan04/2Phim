@@ -7,14 +7,18 @@ import { EpisodeSelector } from "@/components/EpisodeSelector";
 import { Section } from "@/components/HomeSection";
 import { TrailerButton } from "@/components/TrailerButton";
 import { WatchlistButton } from "@/components/WatchlistButton";
+import { ShareButton } from "@/components/ShareButton";
 import { CastCarousel } from "@/components/CastCarousel";
 import { getTVDetails, getTVSeason, getTVCredits, getTVVideos, getSimilarTV, TMDBConfigError } from "@/lib/tmdb";
 import { TMDB_IMG } from "@/lib/constants";
+import { TrackView } from "@/components/TrackView";
+import { Breadcrumb } from "@/components/Breadcrumb";
 
 export const revalidate = 86400;
 
 interface Props {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ s?: string; ep?: string }>;
 }
 
 export async function generateMetadata({ params }: Props) {
@@ -39,8 +43,11 @@ export async function generateMetadata({ params }: Props) {
   }
 }
 
-export default async function TVPage({ params }: Props) {
+export default async function TVPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const { s, ep } = await searchParams;
+  const initialSeason = s ? Math.max(1, parseInt(s, 10)) : undefined;
+  const initialEpisode = ep ? Math.max(1, parseInt(ep, 10)) : undefined;
 
   let show;
   try {
@@ -79,6 +86,7 @@ export default async function TVPage({ params }: Props) {
 
   return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
+      <TrackView id={show.id} title={show.name} poster_path={show.poster_path} type="tv" vote_average={show.vote_average} date={show.first_air_date} />
       {/* Backdrop */}
       <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
         <Image src={backdrop} alt={show.name} fill className="object-cover" priority sizes="100vw" />
@@ -86,7 +94,8 @@ export default async function TVPage({ params }: Props) {
       </div>
 
       <div className="container mx-auto px-4 -mt-32 relative z-10 pb-16">
-        <div className="flex flex-col md:flex-row gap-8">
+        <Breadcrumb items={[{ label: "TV Show", href: "/tv" }, { label: show.name }]} />
+        <div className="flex flex-col md:flex-row gap-8 mt-4">
           {/* Poster */}
           <div className="shrink-0">
             <div className="relative w-48 md:w-64 aspect-2/3 rounded-xl overflow-hidden shadow-2xl shadow-black/60 mx-auto md:mx-0">
@@ -144,6 +153,7 @@ export default async function TVPage({ params }: Props) {
                 date: show.first_air_date,
               }} />
               <TrailerButton youtubeKey={trailerKey} title={show.name} />
+              <ShareButton title={show.name} />
             </div>
           </div>
         </div>
@@ -160,7 +170,7 @@ export default async function TVPage({ params }: Props) {
           <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
             <Play className="size-6 text-red-500 fill-red-500" /> Xem TV Show
           </h2>
-          <EpisodeSelector show={show} seasons={seasons} initialSeasonData={firstSeason} />
+          <EpisodeSelector show={show} seasons={seasons} initialSeasonData={firstSeason} initialSeason={initialSeason} initialEpisode={initialEpisode} />
         </div>
 
         {/* Similar */}

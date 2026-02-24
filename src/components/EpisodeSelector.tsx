@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { VideoPlayer } from "@/components/VideoPlayer";
+import { useContinueWatching } from "@/hooks/useContinueWatching";
 import type { TMDBSeasonDetail, TMDBTVShow } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -10,25 +12,58 @@ interface EpisodeSelectorProps {
   show: TMDBTVShow;
   seasons: number[];
   initialSeasonData: TMDBSeasonDetail;
+  initialSeason?: number;
+  initialEpisode?: number;
 }
 
-export function EpisodeSelector({ show, seasons, initialSeasonData }: EpisodeSelectorProps) {
-  const [selectedSeason, setSelectedSeason] = useState(initialSeasonData.season_number);
-  const [selectedEpisode, setSelectedEpisode] = useState(1);
+export function EpisodeSelector({
+  show,
+  seasons,
+  initialSeasonData,
+  initialSeason,
+  initialEpisode,
+}: EpisodeSelectorProps) {
+  const router = useRouter();
+  const { saveProgress } = useContinueWatching();
+  const [selectedSeason, setSelectedSeason] = useState(initialSeason ?? initialSeasonData.season_number);
+  const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode ?? 1);
   const [seasonData, setSeasonData] = useState(initialSeasonData);
   const [loadingSeason, setLoadingSeason] = useState(false);
 
-  const loadSeason = async (seasonNum: number) => {
+  // If initialSeason differs from initialSeasonData, load the correct season
+  useEffect(() => {
+    if (initialSeason && initialSeason !== initialSeasonData.season_number) {
+      loadSeason(initialSeason, initialEpisode ?? 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateURL = (season: number, episode: number) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("s", String(season));
+    url.searchParams.set("ep", String(episode));
+    router.replace(url.pathname + url.search, { scroll: false });
+  };
+
+  const loadSeason = async (seasonNum: number, startEpisode = 1) => {
     setLoadingSeason(true);
     try {
       const res = await fetch(`/api/tv-season?id=${show.id}&season=${seasonNum}`);
       const data = await res.json();
       setSeasonData(data);
       setSelectedSeason(seasonNum);
-      setSelectedEpisode(1);
+      setSelectedEpisode(startEpisode);
+      updateURL(seasonNum, startEpisode);
+      saveProgress(show.id, show.name, show.poster_path, seasonNum, startEpisode);
     } finally {
       setLoadingSeason(false);
     }
+  };
+
+  const handleEpisodeSelect = (epNum: number) => {
+    setSelectedEpisode(epNum);
+    updateURL(selectedSeason, epNum);
+    saveProgress(show.id, show.name, show.poster_path, selectedSeason, epNum);
   };
 
   return (
@@ -80,7 +115,7 @@ export function EpisodeSelector({ show, seasons, initialSeasonData }: EpisodeSel
             {seasonData.episodes.map((ep) => (
               <button
                 key={ep.episode_number}
-                onClick={() => setSelectedEpisode(ep.episode_number)}
+                onClick={() => handleEpisodeSelect(ep.episode_number)}
                 className={cn(
                   "aspect-square rounded-lg text-sm font-semibold transition-all",
                   selectedEpisode === ep.episode_number

@@ -1,6 +1,7 @@
 "use client";
 
 import { Bookmark } from "lucide-react";
+import { toast } from "sonner";
 import { useWatchlist, type WatchlistItem } from "@/hooks/useWatchlist";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,11 @@ export function CardBookmark({ item }: Props) {
         e.preventDefault();
         e.stopPropagation();
         toggle(item);
+        if (saved) {
+          toast("Đã xóa khỏi yêu thích");
+        } else {
+          toast.success("Đã thêm vào yêu thích");
+        }
       }}
       title={saved ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
       className={cn(

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { CardBookmark } from "@/components/CardBookmark";
-import { TMDB_IMG } from "@/lib/constants";
+import { TMDB_IMG, TMDB_BLUR_PLACEHOLDER } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { TMDBMovie, TMDBTVShow } from "@/types";
 
@@ -37,6 +37,8 @@ export function MovieCard({ type, data }: Props) {
           fill
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 15vw"
           className="object-cover transition-opacity duration-300"
+          placeholder="blur"
+          blurDataURL={TMDB_BLUR_PLACEHOLDER}
         />
         {/* Hover overlay */}
         <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">

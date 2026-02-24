@@ -24,6 +24,7 @@ export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -62,6 +63,7 @@ export function Navbar() {
         const results: SearchResult[] = data.results?.slice(0, 6) ?? [];
         searchCache.set(trimmed, results);
         setSearchResults(results);
+        setSelectedIndex(-1);
         setShowDropdown(true);
       } catch { /* ignore */ }
     }, 300);
@@ -108,7 +110,25 @@ export function Navbar() {
               ref={inputRef}
               value={query}
               onChange={handleInputChange}
-              onKeyDown={(e) => e.key === "Escape" && setShowDropdown(false)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  setShowDropdown(false);
+                  setSelectedIndex(-1);
+                } else if (e.key === "ArrowDown") {
+                  e.preventDefault();
+                  setSelectedIndex((prev) => Math.min(prev + 1, searchResults.length - 1));
+                } else if (e.key === "ArrowUp") {
+                  e.preventDefault();
+                  setSelectedIndex((prev) => Math.max(prev - 1, -1));
+                } else if (e.key === "Enter" && selectedIndex >= 0 && searchResults[selectedIndex]) {
+                  e.preventDefault();
+                  const result = searchResults[selectedIndex];
+                  router.push(result.media_type === "movie" ? `/movie/${result.id}` : `/tv/${result.id}`);
+                  setShowDropdown(false);
+                  setQuery("");
+                  setSelectedIndex(-1);
+                }
+              }}
               onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
               onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
               placeholder="Tìm phim, TV show..."
@@ -117,13 +137,19 @@ export function Navbar() {
             {/* Live search dropdown */}
             {showDropdown && searchResults.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden">
-                {searchResults.map((result) => (
+                {searchResults.map((result, index) => (
                   <Link
                     key={`${result.media_type}-${result.id}`}
                     href={result.media_type === "movie" ? `/movie/${result.id}` : `/tv/${result.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 transition-colors",
+                      selectedIndex === index
+                        ? "bg-gray-100 dark:bg-white/10"
+                        : "hover:bg-gray-50 dark:hover:bg-white/10"
+                    )}
+                    onMouseEnter={() => setSelectedIndex(index)}
                     onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => { setShowDropdown(false); setQuery(""); }}
+                    onClick={() => { setShowDropdown(false); setQuery(""); setSelectedIndex(-1); }}
                   >
                       <div className="relative w-8 h-12 shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-gray-800">
                       {result.poster_path && (

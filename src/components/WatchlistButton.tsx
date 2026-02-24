@@ -1,6 +1,7 @@
 "use client";
 
 import { Bookmark } from "lucide-react";
+import { toast } from "sonner";
 import { useWatchlist, type WatchlistItem } from "@/hooks/useWatchlist";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,11 @@ export function WatchlistButton({ item, className }: Props) {
         e.preventDefault();
         e.stopPropagation();
         toggle(item);
+        if (saved) {
+          toast("Đã xóa khỏi danh sách yêu thích");
+        } else {
+          toast.success(`Đã lưu "${item.title}" vào yêu thích`);
+        }
       }}
       title={saved ? "Xóa khỏi danh sách" : "Lưu vào danh sách"}
       className={cn(

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { TMDB_IMG } from "@/lib/constants";
+import { TMDB_IMG, TMDB_BLUR_PLACEHOLDER } from "@/lib/constants";
 import type { TMDBCast } from "@/types";
 
 interface Props {
@@ -26,6 +26,8 @@ export function CastCarousel({ cast }: Props) {
                   fill
                   className="object-cover"
                   sizes="64px"
+                  placeholder="blur"
+                  blurDataURL={TMDB_BLUR_PLACEHOLDER}
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-gray-500 text-xl select-none">
