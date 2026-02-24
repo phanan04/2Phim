@@ -74,10 +74,10 @@ export function MovieCard({ type, data }: Props) {
 
       {/* Title below */}
       <div className="mt-2 px-0.5">
-        <p className="text-white text-sm font-medium line-clamp-1 group-hover:text-red-400 transition-colors">
+        <p className="text-gray-900 dark:text-white text-sm font-medium line-clamp-1 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">
           {title}
         </p>
-        <p className="text-gray-400 text-xs mt-0.5">{year}</p>
+        <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">{year}</p>
       </div>
     </Link>
   );
