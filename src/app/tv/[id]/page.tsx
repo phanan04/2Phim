@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Star, Calendar, Play, Tv } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,19 @@ export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   try {
     const show = await getTVDetails(id);
-    return { title: `${show.name} — 2Phim`, description: show.overview };
+    const image = show.backdrop_path
+      ? `https://image.tmdb.org/t/p/w1280${show.backdrop_path}`
+      : undefined;
+    return {
+      title: `${show.name} — 2Phim`,
+      description: show.overview,
+      openGraph: {
+        title: show.name,
+        description: show.overview,
+        images: image ? [{ url: image, width: 1280, height: 720 }] : [],
+      },
+      twitter: { card: "summary_large_image", images: image ? [image] : [] },
+    };
   } catch {
     return { title: "2Phim" };
   }
@@ -109,9 +122,11 @@ export default async function TVPage({ params }: Props) {
             {show.genres && show.genres.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {show.genres.map((g) => (
-                  <Badge key={g.id} variant="secondary" className="bg-white/10 text-gray-200">
-                    {g.name}
-                  </Badge>
+                  <Link key={g.id} href={`/genre/${g.id}?type=tv`}>
+                    <Badge variant="secondary" className="bg-white/10 text-gray-200 hover:bg-white/20 cursor-pointer transition-colors">
+                      {g.name}
+                    </Badge>
+                  </Link>
                 ))}
               </div>
             )}

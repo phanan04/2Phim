@@ -27,12 +27,12 @@ export default async function HomePage() {
     return (
       <main className="min-h-screen bg-gray-950 text-white">
         <div className="container mx-auto px-4 py-8 space-y-10">
-          {hero && <HeroBanner item={hero} type="movie" />}
-          <Section title="🔥 Phim Thịnh Hành" movies={trending.results.slice(1, 21)} />
-          <Section title="📺 TV Show Nổi Bật" shows={trendingTV.results.slice(0, 20)} />
-          <Section title="🎬 Phim Phổ Biến" movies={popular.results.slice(0, 20)} />
-          <Section title="⭐ Phim Đánh Giá Cao" movies={topRated.results.slice(0, 20)} />
-          <Section title="📺 TV Show Phổ Biến" shows={popularTV.results.slice(0, 20)} />
+          {hero && <HeroBanner items={trending.results.slice(0, 5)} type="movie" />}
+          <Section title="🔥 Phim Thịnh Hành" movies={trending.results.slice(1, 21)} viewAllHref="/movies" />
+          <Section title="📺 TV Show Nổi Bật" shows={trendingTV.results.slice(0, 20)} viewAllHref="/tv" />
+          <Section title="🎬 Phim Phổ Biến" movies={popular.results.slice(0, 20)} viewAllHref="/movies" />
+          <Section title="⭐ Phim Đánh Giá Cao" movies={topRated.results.slice(0, 20)} viewAllHref="/movies" />
+          <Section title="📺 TV Show Phổ Biến" shows={popularTV.results.slice(0, 20)} viewAllHref="/tv" />
         </div>
       </main>
     );

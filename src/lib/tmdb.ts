@@ -116,3 +116,27 @@ export async function getSimilarMovies(id: string | number) {
 export async function getSimilarTV(id: string | number) {
   return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>(`/tv/${id}/recommendations`);
 }
+
+export async function discoverMoviesByGenre(genreId: string | number, page = 1) {
+  return tmdbFetch<TMDBSearchResponse<TMDBMovie>>("/discover/movie", {
+    with_genres: String(genreId),
+    sort_by: "popularity.desc",
+    page: String(page),
+  });
+}
+
+export async function discoverTVByGenre(genreId: string | number, page = 1) {
+  return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>("/discover/tv", {
+    with_genres: String(genreId),
+    sort_by: "popularity.desc",
+    page: String(page),
+  });
+}
+
+export async function getMovieGenres() {
+  return tmdbFetch<{ genres: { id: number; name: string }[] }>("/genre/movie/list");
+}
+
+export async function getTVGenres() {
+  return tmdbFetch<{ genres: { id: number; name: string }[] }>("/genre/tv/list");
+}

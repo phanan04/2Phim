@@ -1,11 +1,9 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Bookmark } from "lucide-react";
+import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { CardBookmark } from "@/components/CardBookmark";
 import { TMDB_IMG } from "@/lib/constants";
-import { useWatchlist } from "@/hooks/useWatchlist";
 import { cn } from "@/lib/utils";
 import type { TMDBMovie, TMDBTVShow } from "@/types";
 
@@ -22,17 +20,6 @@ export function MovieCard({ type, data }: Props) {
   const year = date ? new Date(date).getFullYear() : "N/A";
   const href = type === "movie" ? `/movie/${data.id}` : `/tv/${data.id}`;
   const poster = TMDB_IMG.poster(data.poster_path, "w342");
-
-  const { toggle, isInList } = useWatchlist();
-  const saved = isInList(data.id, type);
-  const watchlistItem = {
-    id: data.id,
-    type,
-    title,
-    poster_path: data.poster_path,
-    vote_average: data.vote_average,
-    date: date ?? "",
-  };
 
   const ratingColor =
     data.vote_average >= 7
@@ -68,17 +55,15 @@ export function MovieCard({ type, data }: Props) {
           </div>
         </div>
 
-        {/* Watchlist button */}
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(watchlistItem); }}
-          className={cn(
-            "absolute top-2 left-2 p-1.5 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10",
-            saved ? "bg-red-600 text-white" : "bg-black/70 text-gray-300 hover:bg-black/90"
-          )}
-          title={saved ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
-        >
-          <Bookmark className={cn("size-3.5", saved && "fill-white")} />
-        </button>
+        {/* Bookmark — client island, does not affect SSR of this component */}
+        <CardBookmark item={{
+          id: data.id,
+          type,
+          title,
+          poster_path: data.poster_path,
+          vote_average: data.vote_average,
+          date: date ?? "",
+        }} />
 
         {/* Colored rating badge */}
         <div className={cn("absolute top-2 right-2 flex items-center gap-1 bg-black/70 rounded-full px-2 py-0.5 text-xs font-bold", ratingColor)}>

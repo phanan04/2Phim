@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { Star, Clock, Calendar, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,19 @@ export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   try {
     const movie = await getMovieDetails(id);
-    return { title: `${movie.title} — 2Phim`, description: movie.overview };
+    const image = movie.backdrop_path
+      ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+      : undefined;
+    return {
+      title: `${movie.title} — 2Phim`,
+      description: movie.overview,
+      openGraph: {
+        title: movie.title,
+        description: movie.overview,
+        images: image ? [{ url: image, width: 1280, height: 720 }] : [],
+      },
+      twitter: { card: "summary_large_image", images: image ? [image] : [] },
+    };
   } catch {
     return { title: "2Phim" };
   }
@@ -102,9 +115,11 @@ export default async function MoviePage({ params }: Props) {
             {movie.genres && movie.genres.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {movie.genres.map((g) => (
-                  <Badge key={g.id} variant="secondary" className="bg-white/10 text-gray-200">
-                    {g.name}
-                  </Badge>
+                  <Link key={g.id} href={`/genre/${g.id}?type=movie`}>
+                    <Badge variant="secondary" className="bg-white/10 text-gray-200 hover:bg-white/20 cursor-pointer transition-colors">
+                      {g.name}
+                    </Badge>
+                  </Link>
                 ))}
               </div>
             )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MovieCard } from "@/components/MovieCard";
@@ -10,9 +11,10 @@ interface SectionProps {
   title: string;
   movies?: TMDBMovie[];
   shows?: TMDBTVShow[];
+  viewAllHref?: string;
 }
 
-export function Section({ title, movies, shows }: SectionProps) {
+export function Section({ title, movies, shows, viewAllHref }: SectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: "left" | "right") => {
@@ -24,7 +26,15 @@ export function Section({ title, movies, shows }: SectionProps) {
     <section className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {viewAllHref && (
+            <Link
+              href={viewAllHref}
+              className="text-sm text-gray-400 hover:text-white transition-colors mr-1"
+            >
+              Xem thêm →
+            </Link>
+          )}
           <Button
             size="icon"
             variant="ghost"

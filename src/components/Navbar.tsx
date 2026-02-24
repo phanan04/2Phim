@@ -4,17 +4,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef } from "react";
-import { Film, Tv, Search, Menu, X, Bookmark } from "lucide-react";
+import { useTheme } from "next-themes";
+import { Film, Tv, Search, Menu, X, Bookmark, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { TMDB_IMG } from "@/lib/constants";
 
+// Module-level cache so it persists across re-renders (session lifetime)
+type SearchResult = { id: number; media_type: string; poster_path: string | null; title?: string; name?: string };
+const searchCache = new Map<string, SearchResult[]>();
+
 export function Navbar() {
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState<{ id: number; media_type: string; poster_path: string | null; title?: string; name?: string }[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -41,10 +47,19 @@ export function Navbar() {
       return;
     }
     searchTimeoutRef.current = setTimeout(async () => {
+      const trimmed = val.trim();
+      // Check cache first
+      if (searchCache.has(trimmed)) {
+        setSearchResults(searchCache.get(trimmed)!);
+        setShowDropdown(true);
+        return;
+      }
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(val.trim())}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
         const data = await res.json();
-        setSearchResults(data.results?.slice(0, 6) ?? []);
+        const results: SearchResult[] = data.results?.slice(0, 6) ?? [];
+        searchCache.set(trimmed, results);
+        setSearchResults(results);
         setShowDropdown(true);
       } catch { /* ignore */ }
     }, 300);
@@ -144,6 +159,17 @@ export function Navbar() {
             Tìm
           </Button>
         </form>
+
+        {/* Theme toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="hidden md:flex text-gray-300 hover:text-white"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          aria-label="Toggle theme"
+        >
+          {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </Button>
 
         {/* Mobile menu button */}
         <Button
