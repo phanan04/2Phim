@@ -126,6 +126,14 @@ export interface TMDBCredits {
   crew: TMDBCast[];
 }
 
+export interface TMDBVideo {
+  id: string;
+  key: string;
+  name: string;
+  type: string;
+  site: string;
+}
+
 export type MediaType = "movie" | "tv";
 
 export interface SearchResult {

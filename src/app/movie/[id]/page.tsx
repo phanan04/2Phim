@@ -1,13 +1,16 @@
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-
-export const revalidate = 86400; // ISR: rebuild at most once per day
 import { Star, Clock, Calendar, Play } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import { Section } from "@/components/HomeSection";
-import { getMovieDetails, getMovieCredits, getTrendingMovies, TMDBConfigError } from "@/lib/tmdb";
+import { TrailerButton } from "@/components/TrailerButton";
+import { WatchlistButton } from "@/components/WatchlistButton";
+import { CastCarousel } from "@/components/CastCarousel";
+import { getMovieDetails, getMovieCredits, getMovieVideos, getSimilarMovies, TMDBConfigError } from "@/lib/tmdb";
 import { TMDB_IMG } from "@/lib/constants";
+
+export const revalidate = 86400;
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -17,9 +20,9 @@ export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   try {
     const movie = await getMovieDetails(id);
-    return { title: `${movie.title} — CineStream`, description: movie.overview };
+    return { title: `${movie.title} — 2Phim`, description: movie.overview };
   } catch {
-    return { title: "CineStream" };
+    return { title: "2Phim" };
   }
 }
 
@@ -34,10 +37,14 @@ export default async function MoviePage({ params }: Props) {
     notFound();
   }
 
-  const [credits, similar] = await Promise.all([
+  const [credits, videos, similar] = await Promise.all([
     getMovieCredits(id).catch(() => ({ cast: [], crew: [] })),
-    getTrendingMovies().catch(() => ({ results: [] })),
+    getMovieVideos(id).catch(() => ({ results: [] })),
+    getSimilarMovies(id).catch(() => ({ results: [] })),
   ]);
+
+  const trailerKey =
+    videos.results.find((v) => v.site === "YouTube" && v.type === "Trailer")?.key ?? null;
 
   const backdrop = TMDB_IMG.backdrop(movie.backdrop_path);
   const poster = TMDB_IMG.poster(movie.poster_path, "w500");
@@ -105,22 +112,27 @@ export default async function MoviePage({ params }: Props) {
             {/* Overview */}
             <p className="text-gray-300 leading-relaxed max-w-2xl">{movie.overview}</p>
 
-            {/* Cast */}
-            {credits.cast.length > 0 && (
-              <div>
-                <span className="text-gray-400 text-sm">
-                  Diễn viên:{" "}
-                  <span className="text-white">
-                    {credits.cast
-                      .slice(0, 5)
-                      .map((c) => c.name)
-                      .join(", ")}
-                  </span>
-                </span>
-              </div>
-            )}
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-3 pt-1">
+              <WatchlistButton item={{
+                id: movie.id,
+                type: "movie",
+                title: movie.title,
+                poster_path: movie.poster_path,
+                vote_average: movie.vote_average,
+                date: movie.release_date,
+              }} />
+              <TrailerButton youtubeKey={trailerKey} title={movie.title} />
+            </div>
           </div>
         </div>
+
+        {/* Cast */}
+        {credits.cast.length > 0 && (
+          <div className="mt-8">
+            <CastCarousel cast={credits.cast} />
+          </div>
+        )}
 
         {/* Video Player */}
         <div className="mt-10">
@@ -131,10 +143,10 @@ export default async function MoviePage({ params }: Props) {
         </div>
 
         {/* Similar */}
-        {similar.results.length > 1 && (
+        {similar.results.length > 0 && (
           <div className="mt-10">
             <Section
-              title="Phim Tương Tự"
+              title="🎬 Phìm Tương Tự"
               movies={similar.results.filter((m) => m.id !== movie.id).slice(0, 20)}
             />
           </div>

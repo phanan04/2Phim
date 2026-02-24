@@ -5,6 +5,7 @@ import type {
   TMDBSearchResponse,
   TMDBCredits,
   TMDBSeasonDetail,
+  TMDBVideo,
 } from "@/types";
 
 export class TMDBConfigError extends Error {
@@ -98,4 +99,20 @@ export async function getTVShowsByTmdbIds(ids: string[]) {
   return results
     .filter((r): r is PromiseFulfilledResult<TMDBTVShow> => r.status === "fulfilled")
     .map((r) => r.value);
+}
+
+export async function getMovieVideos(id: string | number) {
+  return tmdbFetch<{ results: TMDBVideo[] }>(`/movie/${id}/videos`);
+}
+
+export async function getTVVideos(id: string | number) {
+  return tmdbFetch<{ results: TMDBVideo[] }>(`/tv/${id}/videos`);
+}
+
+export async function getSimilarMovies(id: string | number) {
+  return tmdbFetch<TMDBSearchResponse<TMDBMovie>>(`/movie/${id}/recommendations`);
+}
+
+export async function getSimilarTV(id: string | number) {
+  return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>(`/tv/${id}/recommendations`);
 }

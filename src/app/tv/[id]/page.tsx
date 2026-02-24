@@ -1,13 +1,16 @@
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
-
-export const revalidate = 86400; // ISR: rebuild at most once per day
 import { Star, Calendar, Play, Tv } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EpisodeSelector } from "@/components/EpisodeSelector";
 import { Section } from "@/components/HomeSection";
-import { getTVDetails, getTVSeason, getTrendingTV, TMDBConfigError } from "@/lib/tmdb";
+import { TrailerButton } from "@/components/TrailerButton";
+import { WatchlistButton } from "@/components/WatchlistButton";
+import { CastCarousel } from "@/components/CastCarousel";
+import { getTVDetails, getTVSeason, getTVCredits, getTVVideos, getSimilarTV, TMDBConfigError } from "@/lib/tmdb";
 import { TMDB_IMG } from "@/lib/constants";
+
+export const revalidate = 86400;
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -17,9 +20,9 @@ export async function generateMetadata({ params }: Props) {
   const { id } = await params;
   try {
     const show = await getTVDetails(id);
-    return { title: `${show.name} — CineStream`, description: show.overview };
+    return { title: `${show.name} — 2Phim`, description: show.overview };
   } catch {
-    return { title: "CineStream" };
+    return { title: "2Phim" };
   }
 }
 
@@ -39,7 +42,7 @@ export default async function TVPage({ params }: Props) {
     (_, i) => i + 1
   );
 
-  const [firstSeason, trending] = await Promise.all([
+  const [firstSeason, credits, videos, similar] = await Promise.all([
     getTVSeason(id, 1).catch(() => ({
       id: 0,
       name: "Season 1",
@@ -49,8 +52,13 @@ export default async function TVPage({ params }: Props) {
       overview: "",
       poster_path: null,
     })),
-    getTrendingTV().catch(() => ({ results: [] })),
+    getTVCredits(id).catch(() => ({ cast: [], crew: [] })),
+    getTVVideos(id).catch(() => ({ results: [] })),
+    getSimilarTV(id).catch(() => ({ results: [] })),
   ]);
+
+  const trailerKey =
+    videos.results.find((v) => v.site === "YouTube" && v.type === "Trailer")?.key ?? null;
 
   const backdrop = TMDB_IMG.backdrop(show.backdrop_path);
   const poster = TMDB_IMG.poster(show.poster_path, "w500");
@@ -109,8 +117,28 @@ export default async function TVPage({ params }: Props) {
             )}
 
             <p className="text-gray-300 leading-relaxed max-w-2xl">{show.overview}</p>
+
+            {/* Action buttons */}
+            <div className="flex flex-wrap gap-3 pt-1">
+              <WatchlistButton item={{
+                id: show.id,
+                type: "tv",
+                title: show.name,
+                poster_path: show.poster_path,
+                vote_average: show.vote_average,
+                date: show.first_air_date,
+              }} />
+              <TrailerButton youtubeKey={trailerKey} title={show.name} />
+            </div>
           </div>
         </div>
+
+        {/* Cast */}
+        {credits.cast.length > 0 && (
+          <div className="mt-8">
+            <CastCarousel cast={credits.cast} />
+          </div>
+        )}
 
         {/* Episode Selector + Player */}
         <div className="mt-10">
@@ -121,11 +149,11 @@ export default async function TVPage({ params }: Props) {
         </div>
 
         {/* Similar */}
-        {trending.results.length > 0 && (
+        {similar.results.length > 0 && (
           <div className="mt-10">
             <Section
-              title="TV Show Tương Tự"
-              shows={trending.results.filter((s) => s.id !== show.id).slice(0, 20)}
+              title="📺 TV Show Tương Tự"
+              shows={similar.results.filter((s) => s.id !== show.id).slice(0, 20)}
             />
           </div>
         )}

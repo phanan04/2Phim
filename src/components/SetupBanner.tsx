@@ -1,4 +1,4 @@
-import { KeyRound, ExternalLink, Terminal, CheckCircle } from "lucide-react";
+import { KeyRound, ExternalLink, Terminal } from "lucide-react";
 
 export function SetupBanner() {
   return (

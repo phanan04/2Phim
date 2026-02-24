@@ -20,18 +20,26 @@ function SearchResults() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults([]);
-      return;
-    }
-    setLoading(true);
-    fetch(`/api/search?q=${encodeURIComponent(query)}`)
-      .then((r) => r.json())
-      .then((data) => {
-        setResults(data.results ?? []);
-        setTotal(data.total_results ?? 0);
-      })
-      .finally(() => setLoading(false));
+    if (!query.trim()) return;
+    let cancelled = false;
+    // All setState calls inside async callback to avoid synchronous effect side-effects
+    Promise.resolve(query).then(async (q) => {
+      if (cancelled) return;
+      setLoading(true);
+      try {
+        const r = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        const data = await r.json();
+        if (!cancelled) {
+          setResults(data.results ?? []);
+          setTotal(data.total_results ?? 0);
+        }
+      } catch {
+        if (!cancelled) setResults([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
   }, [query]);
 
   if (!query.trim()) {
@@ -48,7 +56,7 @@ function SearchResults() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="flex gap-3 bg-gray-900 rounded-xl p-3">
-            <Skeleton className="w-16 shrink-0 aspect-[2/3] rounded-lg bg-gray-800" />
+            <Skeleton className="w-16 shrink-0 aspect-2/3 rounded-lg bg-gray-800" />
             <div className="flex-1 space-y-2 py-1">
               <Skeleton className="h-4 w-full bg-gray-800" />
               <Skeleton className="h-3 w-3/4 bg-gray-800" />
@@ -64,7 +72,7 @@ function SearchResults() {
     return (
       <div className="flex flex-col items-center justify-center py-32 text-gray-500 gap-4">
         <Search className="size-16 opacity-30" />
-        <p className="text-lg">Không tìm thấy kết quả cho "{query}"</p>
+        <p className="text-lg">Không tìm thấy kết quả cho &ldquo;{query}&rdquo;</p>
       </div>
     );
   }
@@ -73,7 +81,7 @@ function SearchResults() {
     <div className="space-y-4">
       <p className="text-gray-400 text-sm">
         Tìm thấy <span className="text-white font-semibold">{total.toLocaleString()}</span> kết
-        quả cho "{query}"
+        quả cho &ldquo;{query}&rdquo;
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {results.map((item) => {
@@ -88,7 +96,7 @@ function SearchResults() {
           return (
             <Link key={`${item.media_type}-${item.id}`} href={href}>
               <div className="flex gap-3 bg-gray-900 hover:bg-gray-800 transition-colors rounded-xl p-3 group">
-                <div className="relative w-16 shrink-0 aspect-[2/3] rounded-lg overflow-hidden">
+                <div className="relative w-16 shrink-0 aspect-2/3 rounded-lg overflow-hidden">
                   <Image
                     src={TMDB_IMG.poster(item.poster_path, "w185")}
                     alt={title}

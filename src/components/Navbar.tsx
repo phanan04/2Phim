@@ -1,18 +1,23 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState, useCallback, useRef } from "react";
-import { Film, Tv, Search, Menu, X } from "lucide-react";
+import { Film, Tv, Search, Menu, X, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { TMDB_IMG } from "@/lib/constants";
 
 export function Navbar() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchResults, setSearchResults] = useState<{ id: number; media_type: string; poster_path: string | null; title?: string; name?: string }[]>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
@@ -20,10 +25,30 @@ export function Navbar() {
       if (query.trim()) {
         router.push(`/search?q=${encodeURIComponent(query.trim())}`);
         setMenuOpen(false);
+        setShowDropdown(false);
       }
     },
     [query, router]
   );
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setQuery(val);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    if (!val.trim()) {
+      setSearchResults([]);
+      setShowDropdown(false);
+      return;
+    }
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(val.trim())}`);
+        const data = await res.json();
+        setSearchResults(data.results?.slice(0, 6) ?? []);
+        setShowDropdown(true);
+      } catch { /* ignore */ }
+    }, 300);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
@@ -32,7 +57,7 @@ export function Navbar() {
         <Link href="/" className="flex items-center gap-2 font-bold text-xl text-white shrink-0">
           <Film className="size-6 text-red-500" />
           <span className="hidden sm:inline">
-            <span className="text-red-500">Cine</span>Stream
+            <span className="text-red-500">2</span>Phim
           </span>
         </Link>
 
@@ -48,6 +73,11 @@ export function Navbar() {
               <Tv className="size-4" /> TV Show
             </Button>
           </Link>
+          <Link href="/watchlist">
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white gap-1.5">
+              <Bookmark className="size-4" /> Yêu thích
+            </Button>
+          </Link>
         </nav>
 
         {/* Search */}
@@ -60,10 +90,55 @@ export function Navbar() {
             <Input
               ref={inputRef}
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={handleInputChange}
+              onKeyDown={(e) => e.key === "Escape" && setShowDropdown(false)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+              onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
               placeholder="Tìm phim, TV show..."
               className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-red-500"
             />
+            {/* Live search dropdown */}
+            {showDropdown && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden">
+                {searchResults.map((result) => (
+                  <Link
+                    key={`${result.media_type}-${result.id}`}
+                    href={result.media_type === "movie" ? `/movie/${result.id}` : `/tv/${result.id}`}
+                    className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/10 transition-colors"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => { setShowDropdown(false); setQuery(""); }}
+                  >
+                    <div className="relative w-8 h-12 shrink-0 rounded overflow-hidden bg-gray-800">
+                      {result.poster_path && (
+                        <Image
+                          src={TMDB_IMG.poster(result.poster_path, "w185")}
+                          alt={result.title ?? result.name ?? ""}
+                          fill
+                          className="object-cover"
+                          sizes="32px"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white text-sm font-medium line-clamp-1">
+                        {result.title || result.name}
+                      </p>
+                      <p className="text-gray-400 text-xs">
+                        {result.media_type === "movie" ? "Phim" : "TV Show"}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+                <Link
+                  href={`/search?q=${encodeURIComponent(query)}`}
+                  className="block px-3 py-2.5 text-center text-red-400 hover:text-red-300 text-xs border-t border-white/10 transition-colors"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => { setShowDropdown(false); setQuery(""); }}
+                >
+                  Xem tất cả kết quả →
+                </Link>
+              </div>
+            )}
           </div>
           <Button type="submit" size="sm" className="bg-red-600 hover:bg-red-700 shrink-0">
             Tìm
@@ -103,7 +178,7 @@ export function Navbar() {
               Tìm
             </Button>
           </form>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Link href="/movies" onClick={() => setMenuOpen(false)}>
               <Button variant="ghost" size="sm" className="text-gray-300 gap-1.5">
                 <Film className="size-4" /> Phim
@@ -112,6 +187,11 @@ export function Navbar() {
             <Link href="/tv" onClick={() => setMenuOpen(false)}>
               <Button variant="ghost" size="sm" className="text-gray-300 gap-1.5">
                 <Tv className="size-4" /> TV Show
+              </Button>
+            </Link>
+            <Link href="/watchlist" onClick={() => setMenuOpen(false)}>
+              <Button variant="ghost" size="sm" className="text-gray-300 gap-1.5">
+                <Bookmark className="size-4" /> Yêu thích
               </Button>
             </Link>
           </div>
