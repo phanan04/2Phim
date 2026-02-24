@@ -78,7 +78,7 @@ export function VideoPlayer({ tmdbId, type, season = 1, episode = 1 }: VideoPlay
     <div className="space-y-3">
       {/* Server switcher */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-gray-400 text-xs shrink-0">Nguồn:</span>
+        <span className="text-gray-500 dark:text-gray-400 text-xs shrink-0">Nguồn:</span>
         {SERVERS.map((s) => {
           const isHD = s.id === "2embed" || s.id === "vidlink";
           return (
@@ -90,8 +90,8 @@ export function VideoPlayer({ tmdbId, type, season = 1, episode = 1 }: VideoPlay
                 activeServer === s.id
                   ? "bg-red-600 border-red-600 text-white"
                   : isHD
-                  ? "bg-transparent border-yellow-500/50 text-yellow-400 hover:border-yellow-400 hover:text-yellow-300"
-                  : "bg-transparent border-white/20 text-gray-400 hover:border-white/50 hover:text-white"
+                  ? "bg-transparent border-yellow-500/50 text-yellow-600 dark:text-yellow-400 hover:border-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300"
+                  : "bg-transparent border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:border-gray-500 dark:hover:border-white/50 hover:text-gray-900 dark:hover:text-white"
               )}
             >
               {s.label}
@@ -100,7 +100,7 @@ export function VideoPlayer({ tmdbId, type, season = 1, episode = 1 }: VideoPlay
         })}
         <button
           onClick={() => { setLoaded(false); setIframeKey((k) => k + 1); }}
-          className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
+          className="ml-auto flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <RefreshCw className="size-3" /> Tải lại
         </button>

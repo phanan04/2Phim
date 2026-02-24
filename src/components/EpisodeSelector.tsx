@@ -41,13 +41,13 @@ export function EpisodeSelector({ show, seasons, initialSeasonData }: EpisodeSel
         episode={selectedEpisode}
       />
 
-      <div className="text-sm text-gray-400 text-center">
+      <div className="text-sm text-gray-500 dark:text-gray-400 text-center">
         Đang xem: S{selectedSeason} E{selectedEpisode}
       </div>
 
       {/* Season Selector */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold">Chọn mùa</h3>
+        <h3 className="text-gray-900 dark:text-white font-semibold">Chọn mùa</h3>
         <div className="flex flex-wrap gap-2">
           {seasons.map((s) => (
             <Button
@@ -59,7 +59,7 @@ export function EpisodeSelector({ show, seasons, initialSeasonData }: EpisodeSel
               className={cn(
                 selectedSeason === s
                   ? "bg-red-600 hover:bg-red-700 border-red-600"
-                  : "border-white/20 text-gray-300 hover:text-white"
+                  : "border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               )}
             >
               Mùa {s}
@@ -74,7 +74,7 @@ export function EpisodeSelector({ show, seasons, initialSeasonData }: EpisodeSel
           Tập phim — {seasonData.name}
         </h3>
         {loadingSeason ? (
-          <div className="text-gray-400 text-sm">Đang tải danh sách tập...</div>
+          <div className="text-gray-500 dark:text-gray-400 text-sm">Đang tải danh sách tập...</div>
         ) : (
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-2">
             {seasonData.episodes.map((ep) => (
@@ -85,7 +85,7 @@ export function EpisodeSelector({ show, seasons, initialSeasonData }: EpisodeSel
                   "aspect-square rounded-lg text-sm font-semibold transition-all",
                   selectedEpisode === ep.episode_number
                     ? "bg-red-600 text-white shadow-lg shadow-red-500/30"
-                    : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white"
+                    : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
                 )}
               >
                 {ep.episode_number}

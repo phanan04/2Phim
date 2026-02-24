@@ -98,14 +98,14 @@ export default async function TVPage({ params }: Props) {
           <div className="flex-1 space-y-4 pt-2">
             <div>
               <h1 className="text-3xl md:text-4xl font-bold leading-tight">{show.name}</h1>
-              {show.tagline && <p className="text-gray-400 italic mt-1">"{show.tagline}"</p>}
+              {show.tagline && <p className="text-gray-500 dark:text-gray-400 italic mt-1">"{show.tagline}"</p>}
             </div>
 
             <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
               <span className="flex items-center gap-1.5 text-yellow-400 font-semibold">
                 <Star className="size-4 fill-yellow-400" />
                 {show.vote_average.toFixed(1)}
-                <span className="text-gray-400 font-normal">({show.vote_count.toLocaleString()})</span>
+                <span className="text-gray-500 dark:text-gray-400 font-normal">({show.vote_count.toLocaleString()})</span>
               </span>
               {year !== "N/A" && (
                 <span className="flex items-center gap-1.5">
@@ -123,7 +123,7 @@ export default async function TVPage({ params }: Props) {
               <div className="flex flex-wrap gap-2">
                 {show.genres.map((g) => (
                   <Link key={g.id} href={`/genre/${g.id}?type=tv`}>
-                    <Badge variant="secondary" className="bg-white/10 text-gray-200 hover:bg-white/20 cursor-pointer transition-colors">
+                    <Badge variant="secondary" className="bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-white/20 cursor-pointer transition-colors">
                       {g.name}
                     </Badge>
                   </Link>

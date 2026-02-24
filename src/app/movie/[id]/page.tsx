@@ -88,7 +88,7 @@ export default async function MoviePage({ params }: Props) {
             <div>
               <h1 className="text-3xl md:text-4xl font-bold leading-tight">{movie.title}</h1>
               {movie.tagline && (
-                <p className="text-gray-400 italic mt-1">"{movie.tagline}"</p>
+                <p className="text-gray-500 dark:text-gray-400 italic mt-1">"{movie.tagline}"</p>
               )}
             </div>
 
@@ -97,7 +97,7 @@ export default async function MoviePage({ params }: Props) {
               <span className="flex items-center gap-1.5 text-yellow-400 font-semibold">
                 <Star className="size-4 fill-yellow-400" />
                 {movie.vote_average.toFixed(1)}
-                <span className="text-gray-400 font-normal">({movie.vote_count.toLocaleString()})</span>
+                <span className="text-gray-500 dark:text-gray-400 font-normal">({movie.vote_count.toLocaleString()})</span>
               </span>
               {year !== "N/A" && (
                 <span className="flex items-center gap-1.5">
@@ -116,7 +116,7 @@ export default async function MoviePage({ params }: Props) {
               <div className="flex flex-wrap gap-2">
                 {movie.genres.map((g) => (
                   <Link key={g.id} href={`/genre/${g.id}?type=movie`}>
-                    <Badge variant="secondary" className="bg-white/10 text-gray-200 hover:bg-white/20 cursor-pointer transition-colors">
+                    <Badge variant="secondary" className="bg-gray-200 dark:bg-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-white/20 cursor-pointer transition-colors">
                       {g.name}
                     </Badge>
                   </Link>

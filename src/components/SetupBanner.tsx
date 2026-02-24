@@ -2,7 +2,7 @@ import { KeyRound, ExternalLink, Terminal } from "lucide-react";
 
 export function SetupBanner() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center px-4">
       <div className="max-w-2xl w-full space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">
@@ -11,15 +11,15 @@ export function SetupBanner() {
               <KeyRound className="size-10 text-red-400" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white">Cần cấu hình API Key</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Cần cấu hình API Key</h1>
           <p className="text-gray-400">
             Ứng dụng cần TMDB API Key để lấy thông tin phim và hình ảnh.
           </p>
         </div>
 
         {/* Steps */}
-        <div className="bg-gray-900 rounded-2xl p-6 space-y-5 border border-white/10">
-          <h2 className="font-semibold text-lg text-white">Hướng dẫn cài đặt</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 space-y-5 border border-gray-200 dark:border-white/10">
+          <h2 className="font-semibold text-lg text-gray-900 dark:text-white">Hướng dẫn cài đặt</h2>
 
           <ol className="space-y-4">
             <Step number={1}>
@@ -54,7 +54,7 @@ export function SetupBanner() {
           </ol>
 
           {/* Code block */}
-          <div className="bg-black rounded-xl p-4 font-mono text-sm border border-white/10">
+          <div className="bg-gray-950 rounded-xl p-4 font-mono text-sm border border-gray-300 dark:border-white/10">
             <div className="flex items-center gap-2 mb-3 text-gray-500 text-xs">
               <Terminal className="size-3.5" />
               .env.local
@@ -103,11 +103,11 @@ function Step({
   last?: boolean;
 }) {
   return (
-    <li className={`flex gap-3 ${!last ? "pb-4 border-b border-white/5" : ""}`}>
+    <li className={`flex gap-3 ${!last ? "pb-4 border-b border-gray-200 dark:border-white/5" : ""}`}>
       <div className="shrink-0 flex items-center justify-center size-6 rounded-full bg-red-600 text-white text-xs font-bold mt-0.5">
         {number}
       </div>
-      <p className="text-gray-300 text-sm leading-relaxed">{children}</p>
+      <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">{children}</p>
     </li>
   );
 }

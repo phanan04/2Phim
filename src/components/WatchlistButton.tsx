@@ -25,7 +25,7 @@ export function WatchlistButton({ item, className }: Props) {
         "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all border",
         saved
           ? "bg-red-600 border-red-600 text-white"
-          : "bg-white/10 border-white/20 text-gray-300 hover:bg-white/20 hover:text-white",
+          : "bg-gray-100 dark:bg-white/10 border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white",
         className
       )}
     >
