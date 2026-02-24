@@ -30,7 +30,7 @@ export default function TVPage() {
   }, [page, fetchShows]);
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
           <Tv className="size-8 text-blue-500" /> TV Show Mới Nhất
@@ -46,19 +46,19 @@ export default function TVPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="border-white/20 text-gray-300 hover:text-white gap-1"
+              className="border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1"
             >
               <ChevronLeft className="size-4" /> Trước
             </Button>
-            <span className="text-gray-400 text-sm">
-              Trang <span className="text-white font-semibold">{page}</span> / {pageCount}
+            <span className="text-gray-500 dark:text-gray-400 text-sm">
+              Trang <span className="text-gray-900 dark:text-white font-semibold">{page}</span> / {pageCount}
             </span>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
               disabled={page === pageCount}
-              className="border-white/20 text-gray-300 hover:text-white gap-1"
+              className="border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1"
             >
               Sau <ChevronRight className="size-4" />
             </Button>

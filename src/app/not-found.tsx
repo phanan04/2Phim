@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center px-4">
       <div className="text-center space-y-6 max-w-md">
         {/* Big 404 */}
         <div className="relative">
-          <p className="text-[8rem] md:text-[12rem] font-black text-white/5 leading-none select-none">
+          <p className="text-[8rem] md:text-[12rem] font-black text-gray-900/5 dark:text-white/5 leading-none select-none">
             404
           </p>
           <div className="absolute inset-0 flex items-center justify-center">
@@ -18,7 +18,7 @@ export default function NotFound() {
 
         <div className="space-y-2">
           <h1 className="text-2xl md:text-3xl font-bold">Trang không tồn tại</h1>
-          <p className="text-gray-400">
+          <p className="text-gray-500 dark:text-gray-400">
             Phim hoặc trang bạn tìm kiếm đã bị xóa hoặc không tồn tại.
           </p>
         </div>
@@ -30,7 +30,7 @@ export default function NotFound() {
             </Button>
           </Link>
           <Link href="/search">
-            <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 gap-2 w-full sm:w-auto">
+              <Button variant="outline" className="border-gray-300 dark:border-white/20 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 gap-2 w-full sm:w-auto">
               <Search className="size-4" /> Tìm kiếm phim
             </Button>
           </Link>

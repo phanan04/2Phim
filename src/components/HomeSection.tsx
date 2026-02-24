@@ -25,12 +25,12 @@ export function Section({ title, movies, shows, viewAllHref }: SectionProps) {
   return (
     <section className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
         <div className="flex items-center gap-2">
           {viewAllHref && (
             <Link
               href={viewAllHref}
-              className="text-sm text-gray-400 hover:text-white transition-colors mr-1"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mr-1"
             >
               Xem thêm →
             </Link>

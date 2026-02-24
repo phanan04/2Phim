@@ -78,11 +78,11 @@ export default async function TVPage({ params }: Props) {
   const year = show.first_air_date ? new Date(show.first_air_date).getFullYear() : "N/A";
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
       {/* Backdrop */}
       <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
         <Image src={backdrop} alt={show.name} fill className="object-cover" priority sizes="100vw" />
-        <div className="absolute inset-0 bg-linear-to-t from-gray-950 via-gray-950/40 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-gray-100 dark:from-gray-950 via-gray-100/40 dark:via-gray-950/40 to-transparent" />
       </div>
 
       <div className="container mx-auto px-4 -mt-32 relative z-10 pb-16">
@@ -101,7 +101,7 @@ export default async function TVPage({ params }: Props) {
               {show.tagline && <p className="text-gray-400 italic mt-1">"{show.tagline}"</p>}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-300">
+            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
               <span className="flex items-center gap-1.5 text-yellow-400 font-semibold">
                 <Star className="size-4 fill-yellow-400" />
                 {show.vote_average.toFixed(1)}
@@ -131,7 +131,7 @@ export default async function TVPage({ params }: Props) {
               </div>
             )}
 
-            <p className="text-gray-300 leading-relaxed max-w-2xl">{show.overview}</p>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed max-w-2xl">{show.overview}</p>
 
             {/* Action buttons */}
             <div className="flex flex-wrap gap-3 pt-1">

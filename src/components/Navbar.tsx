@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Film, Tv, Search, Menu, X, Bookmark, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,8 @@ const searchCache = new Map<string, SearchResult[]>();
 export function Navbar() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -66,10 +68,10 @@ export function Navbar() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/80 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-black/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center gap-4 px-4">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-xl text-white shrink-0">
+          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900 dark:text-white shrink-0">
           <Film className="size-6 text-red-500" />
           <span className="hidden sm:inline">
             <span className="text-red-500">2</span>Phim
@@ -79,17 +81,17 @@ export function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1 ml-2">
           <Link href="/movies">
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white gap-1.5">
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1.5">
               <Film className="size-4" /> Phim
             </Button>
           </Link>
           <Link href="/tv">
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white gap-1.5">
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1.5">
               <Tv className="size-4" /> TV Show
             </Button>
           </Link>
           <Link href="/watchlist">
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white gap-1.5">
+            <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1.5">
               <Bookmark className="size-4" /> Yêu thích
             </Button>
           </Link>
@@ -110,20 +112,20 @@ export function Navbar() {
               onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
               onFocus={() => searchResults.length > 0 && setShowDropdown(true)}
               placeholder="Tìm phim, TV show..."
-              className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-gray-400 focus-visible:ring-red-500"
+              className="pl-9 bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:ring-red-500"
             />
             {/* Live search dropdown */}
             {showDropdown && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-gray-900 border border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/20 rounded-xl shadow-2xl z-50 overflow-hidden">
                 {searchResults.map((result) => (
                   <Link
                     key={`${result.media_type}-${result.id}`}
                     href={result.media_type === "movie" ? `/movie/${result.id}` : `/tv/${result.id}`}
-                    className="flex items-center gap-3 px-3 py-2.5 hover:bg-white/10 transition-colors"
+                    className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => { setShowDropdown(false); setQuery(""); }}
                   >
-                    <div className="relative w-8 h-12 shrink-0 rounded overflow-hidden bg-gray-800">
+                      <div className="relative w-8 h-12 shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-gray-800">
                       {result.poster_path && (
                         <Image
                           src={TMDB_IMG.poster(result.poster_path, "w185")}
@@ -135,10 +137,10 @@ export function Navbar() {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium line-clamp-1">
+                      <p className="text-gray-900 dark:text-white text-sm font-medium line-clamp-1">
                         {result.title || result.name}
                       </p>
-                      <p className="text-gray-400 text-xs">
+                      <p className="text-gray-500 dark:text-gray-400 text-xs">
                         {result.media_type === "movie" ? "Phim" : "TV Show"}
                       </p>
                     </div>
@@ -146,7 +148,7 @@ export function Navbar() {
                 ))}
                 <Link
                   href={`/search?q=${encodeURIComponent(query)}`}
-                  className="block px-3 py-2.5 text-center text-red-400 hover:text-red-300 text-xs border-t border-white/10 transition-colors"
+                  className="block px-3 py-2.5 text-center text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300 text-xs border-t border-gray-100 dark:border-white/10 transition-colors"
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => { setShowDropdown(false); setQuery(""); }}
                 >
@@ -161,21 +163,23 @@ export function Navbar() {
         </form>
 
         {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden md:flex text-gray-300 hover:text-white"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
-        </Button>
+        {mounted && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden md:flex text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}
+          </Button>
+        )}
 
         {/* Mobile menu button */}
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden ml-auto text-white"
+          className="md:hidden ml-auto text-gray-900 dark:text-white"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -197,7 +201,7 @@ export function Navbar() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm phim, TV show..."
-                className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-gray-400"
+                className="pl-9 bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-400"
               />
             </div>
             <Button type="submit" size="sm" className="bg-red-600 hover:bg-red-700">
@@ -206,17 +210,17 @@ export function Navbar() {
           </form>
           <div className="flex gap-2 flex-wrap">
             <Link href="/movies" onClick={() => setMenuOpen(false)}>
-              <Button variant="ghost" size="sm" className="text-gray-300 gap-1.5">
+              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 gap-1.5">
                 <Film className="size-4" /> Phim
               </Button>
             </Link>
             <Link href="/tv" onClick={() => setMenuOpen(false)}>
-              <Button variant="ghost" size="sm" className="text-gray-300 gap-1.5">
+              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 gap-1.5">
                 <Tv className="size-4" /> TV Show
               </Button>
             </Link>
             <Link href="/watchlist" onClick={() => setMenuOpen(false)}>
-              <Button variant="ghost" size="sm" className="text-gray-300 gap-1.5">
+              <Button variant="ghost" size="sm" className="text-gray-600 dark:text-gray-300 gap-1.5">
                 <Bookmark className="size-4" /> Yêu thích
               </Button>
             </Link>

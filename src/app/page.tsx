@@ -25,7 +25,7 @@ export default async function HomePage() {
     const hero = trending.results[0];
 
     return (
-      <main className="min-h-screen bg-gray-950 text-white">
+      <main className="min-h-screen bg-gray-100 dark:bg-gray-950">
         <div className="container mx-auto px-4 py-8 space-y-10">
           {hero && <HeroBanner items={trending.results.slice(0, 5)} type="movie" />}
           <Section title="🔥 Phim Thịnh Hành" movies={trending.results.slice(1, 21)} viewAllHref="/movies" />

@@ -7,7 +7,7 @@ export const metadata = {
 
 export default function WatchlistPage() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-950">
       <WatchlistView />
     </main>
   );

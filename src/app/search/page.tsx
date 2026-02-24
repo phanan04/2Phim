@@ -55,12 +55,12 @@ function SearchResults() {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="flex gap-3 bg-gray-900 rounded-xl p-3">
-            <Skeleton className="w-16 shrink-0 aspect-2/3 rounded-lg bg-gray-800" />
+          <div key={i} className="flex gap-3 bg-white dark:bg-gray-900 rounded-xl p-3">
+            <Skeleton className="w-16 shrink-0 aspect-2/3 rounded-lg bg-gray-200 dark:bg-gray-800" />
             <div className="flex-1 space-y-2 py-1">
-              <Skeleton className="h-4 w-full bg-gray-800" />
-              <Skeleton className="h-3 w-3/4 bg-gray-800" />
-              <Skeleton className="h-3 w-1/2 bg-gray-800" />
+              <Skeleton className="h-4 w-full bg-gray-200 dark:bg-gray-800" />
+              <Skeleton className="h-3 w-3/4 bg-gray-200 dark:bg-gray-800" />
+              <Skeleton className="h-3 w-1/2 bg-gray-200 dark:bg-gray-800" />
             </div>
           </div>
         ))}
@@ -79,8 +79,8 @@ function SearchResults() {
 
   return (
     <div className="space-y-4">
-      <p className="text-gray-400 text-sm">
-        Tìm thấy <span className="text-white font-semibold">{total.toLocaleString()}</span> kết
+      <p className="text-gray-500 dark:text-gray-400 text-sm">
+        Tìm thấy <span className="text-gray-900 dark:text-white font-semibold">{total.toLocaleString()}</span> kết
         quả cho &ldquo;{query}&rdquo;
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -95,7 +95,7 @@ function SearchResults() {
 
           return (
             <Link key={`${item.media_type}-${item.id}`} href={href}>
-              <div className="flex gap-3 bg-gray-900 hover:bg-gray-800 transition-colors rounded-xl p-3 group">
+              <div className="flex gap-3 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors rounded-xl p-3 group">
                 <div className="relative w-16 shrink-0 aspect-2/3 rounded-lg overflow-hidden">
                   <Image
                     src={TMDB_IMG.poster(item.poster_path, "w185")}
@@ -106,7 +106,7 @@ function SearchResults() {
                   />
                 </div>
                 <div className="flex-1 min-w-0 py-1 space-y-1">
-                  <h3 className="text-white font-semibold text-sm line-clamp-2 group-hover:text-red-400 transition-colors">
+                  <h3 className="text-gray-900 dark:text-white font-semibold text-sm line-clamp-2 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">
                     {title}
                   </h3>
                   <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ function SearchResults() {
                         </span>
                       )}
                     </Badge>
-                    <span className="text-gray-400 text-xs">{year}</span>
+                    <span className="text-gray-500 dark:text-gray-400 text-xs">{year}</span>
                   </div>
                   <span className="flex items-center gap-1 text-yellow-400 text-xs">
                     <Star className="size-3 fill-yellow-400" />
@@ -143,7 +143,7 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
           <Search className="size-6 text-red-500" /> Tìm Kiếm

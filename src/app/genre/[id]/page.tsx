@@ -70,7 +70,7 @@ export default async function GenrePage({ params, searchParams }: Props) {
   if (items.length === 0) notFound();
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
+      <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
       <div className="container mx-auto px-4 py-10 space-y-8">
         {/* Header */}
         <div className="space-y-3">
@@ -88,8 +88,8 @@ export default async function GenrePage({ params, searchParams }: Props) {
               href={`/genre/${id}?type=movie`}
               className={`px-4 py-1.5 rounded-full border transition-colors ${
                 type !== "tv"
-                  ? "bg-white text-gray-900 border-white font-semibold"
-                  : "border-white/20 text-gray-400 hover:text-white"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white font-semibold"
+                  : "border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               Phim
@@ -98,8 +98,8 @@ export default async function GenrePage({ params, searchParams }: Props) {
               href={`/genre/${id}?type=tv`}
               className={`px-4 py-1.5 rounded-full border transition-colors ${
                 type === "tv"
-                  ? "bg-white text-gray-900 border-white font-semibold"
-                  : "border-white/20 text-gray-400 hover:text-white"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900 border-gray-900 dark:border-white font-semibold"
+                  : "border-gray-300 dark:border-white/20 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               TV Show

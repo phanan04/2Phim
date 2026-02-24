@@ -17,11 +17,11 @@ export function WatchlistView() {
   if (!items.length) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-5 text-center px-4">
-        <div className="w-20 h-20 rounded-full bg-gray-800 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center">
           <Bookmark className="size-10 text-gray-600" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-200 mb-2">Danh sách trống</h2>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-2">Danh sách trống</h2>
           <p className="text-gray-500 max-w-sm">
             Bấm vào biểu tượng{" "}
             <Bookmark className="inline size-4" />{" "}
@@ -42,7 +42,7 @@ export function WatchlistView() {
       <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
         <Bookmark className="size-7 text-red-500 fill-red-500" />
         Danh sách của tôi
-        <span className="text-gray-400 text-xl font-normal">({items.length})</span>
+        <span className="text-gray-500 dark:text-gray-400 text-xl font-normal">({items.length})</span>
       </h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
@@ -51,7 +51,7 @@ export function WatchlistView() {
           return (
             <div key={`${item.type}-${item.id}`} className="group relative">
               <Link href={href}>
-                <div className="relative aspect-2/3 rounded-xl overflow-hidden bg-gray-800 shadow-lg transition-transform duration-300 group-hover:scale-105">
+                <div className="relative aspect-2/3 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-800 shadow-lg transition-transform duration-300 group-hover:scale-105">
                   <Image
                     src={TMDB_IMG.poster(item.poster_path, "w342")}
                     alt={item.title}
@@ -69,7 +69,7 @@ export function WatchlistView() {
                     {item.type === "movie" ? "Phim" : "TV"}
                   </div>
                 </div>
-                <p className="mt-2 text-sm font-medium line-clamp-1 text-white group-hover:text-red-400 transition-colors">
+                <p className="mt-2 text-sm font-medium line-clamp-1 text-gray-900 dark:text-white group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">
                   {item.title}
                 </p>
                 <p className={cn("text-xs flex items-center gap-1 mt-0.5", ratingColor(item.vote_average))}>

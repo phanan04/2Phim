@@ -30,7 +30,7 @@ export function MovieCard({ type, data }: Props) {
 
   return (
     <Link href={href} className="group block">
-      <div className="relative overflow-hidden rounded-lg bg-gray-900 aspect-2/3 shadow-lg transition-transform duration-300 group-hover:scale-105 group-hover:shadow-red-500/20 group-hover:shadow-xl">
+      <div className="relative overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-900 aspect-2/3 shadow-lg transition-transform duration-300 group-hover:scale-105 group-hover:shadow-red-500/20 group-hover:shadow-xl">
         <Image
           src={poster}
           alt={title}

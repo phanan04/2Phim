@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body className={`${inter.className} bg-gray-950 antialiased`}>
+      <body className={`${inter.className} bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white antialiased transition-colors duration-300`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <Navbar />
           {children}

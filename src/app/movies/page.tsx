@@ -30,7 +30,7 @@ export default function MoviesPage() {
   }, [page, fetchMovies]);
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
           <Film className="size-8 text-red-500" /> Phim Mới Nhất
@@ -46,13 +46,13 @@ export default function MoviesPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="border-white/20 text-gray-300 hover:text-white gap-1"
+              className="border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1"
             >
               <ChevronLeft className="size-4" /> Trước
             </Button>
-            <span className="text-gray-400 text-sm">
+            <span className="text-gray-500 dark:text-gray-400 text-sm">
               Trang{" "}
-              <span className="text-white font-semibold">{page}</span> /{" "}
+              <span className="text-gray-900 dark:text-white font-semibold">{page}</span> /{" "}
               {pageCount}
             </span>
             <Button
@@ -60,7 +60,7 @@ export default function MoviesPage() {
               size="sm"
               onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
               disabled={page === pageCount}
-              className="border-white/20 text-gray-300 hover:text-white gap-1"
+              className="border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1"
             >
               Sau <ChevronRight className="size-4" />
             </Button>
