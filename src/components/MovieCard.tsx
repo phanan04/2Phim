@@ -28,7 +28,6 @@ export function MovieCard({ type, data }: Props) {
           fill
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 15vw"
           className="object-cover transition-opacity duration-300"
-          unoptimized
         />
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">

@@ -1,5 +1,7 @@
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
+
+export const revalidate = 86400; // ISR: rebuild at most once per day
 import { Star, Calendar, Play, Tv } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { EpisodeSelector } from "@/components/EpisodeSelector";
@@ -58,16 +60,16 @@ export default async function TVPage({ params }: Props) {
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Backdrop */}
       <div className="relative h-[50vh] md:h-[60vh] overflow-hidden">
-        <Image src={backdrop} alt={show.name} fill className="object-cover" priority unoptimized />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/40 to-transparent" />
+        <Image src={backdrop} alt={show.name} fill className="object-cover" priority sizes="100vw" />
+        <div className="absolute inset-0 bg-linear-to-t from-gray-950 via-gray-950/40 to-transparent" />
       </div>
 
       <div className="container mx-auto px-4 -mt-32 relative z-10 pb-16">
         <div className="flex flex-col md:flex-row gap-8">
           {/* Poster */}
           <div className="shrink-0">
-            <div className="relative w-48 md:w-64 aspect-[2/3] rounded-xl overflow-hidden shadow-2xl shadow-black/60 mx-auto md:mx-0">
-              <Image src={poster} alt={show.name} fill className="object-cover" unoptimized />
+            <div className="relative w-48 md:w-64 aspect-2/3 rounded-xl overflow-hidden shadow-2xl shadow-black/60 mx-auto md:mx-0">
+              <Image src={poster} alt={show.name} fill className="object-cover" sizes="(max-width: 768px) 192px, 256px" />
             </div>
           </div>
 
