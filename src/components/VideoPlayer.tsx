@@ -3,14 +3,16 @@
 import { useRef, useState } from "react";
 import { Maximize2, Minimize2, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AUTOEMBED, VIDSRC_EMBED, VIDSRC_DOMAINS } from "@/lib/constants";
+import { AUTOEMBED, VIDSRC_EMBED, VIDSRC_DOMAINS, TWOEMBED, VIDLINK } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const SERVERS = [
-  { id: "autoembed-1", label: "Server 1" },
-  { id: "autoembed-2", label: "Server 2" },
-  { id: "autoembed-3", label: "Server 3" },
-  { id: "autoembed-4", label: "Server 4" },
+  { id: "autoembed-1", label: "Auto 1" },
+  { id: "autoembed-2", label: "Auto 2" },
+  { id: "autoembed-3", label: "Auto 3" },
+  { id: "autoembed-4", label: "Auto 4" },
+  { id: "2embed",      label: "HD 2Embed" },
+  { id: "vidlink",     label: "HD VidLink" },
   { id: "vidsrc-0",    label: "VidSrc 1" },
   { id: "vidsrc-1",    label: "VidSrc 2" },
   { id: "vidsrc-2",    label: "VidSrc 3" },
@@ -40,6 +42,16 @@ export function VideoPlayer({ tmdbId, type, season = 1, episode = 1 }: VideoPlay
         ? VIDSRC_EMBED.movie(tmdbId, domain)
         : VIDSRC_EMBED.tv(tmdbId, season, episode, domain);
     }
+    if (server === "2embed") {
+      return type === "movie"
+        ? TWOEMBED.movie(tmdbId)
+        : TWOEMBED.tv(tmdbId, season, episode);
+    }
+    if (server === "vidlink") {
+      return type === "movie"
+        ? VIDLINK.movie(tmdbId)
+        : VIDLINK.tv(tmdbId, season, episode);
+    }
     const serverNum = parseInt(server.replace("autoembed-", ""));
     return type === "movie"
       ? AUTOEMBED.movie(tmdbId, serverNum)
@@ -67,20 +79,25 @@ export function VideoPlayer({ tmdbId, type, season = 1, episode = 1 }: VideoPlay
       {/* Server switcher */}
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-gray-400 text-xs shrink-0">Nguồn:</span>
-        {SERVERS.map((s) => (
-          <button
-            key={s.id}
-            onClick={() => switchServer(s.id)}
-            className={cn(
-              "px-3 py-1 rounded-full text-xs font-medium transition-all border",
-              activeServer === s.id
-                ? "bg-red-600 border-red-600 text-white"
-                : "bg-transparent border-white/20 text-gray-400 hover:border-white/50 hover:text-white"
-            )}
-          >
-            {s.label}
-          </button>
-        ))}
+        {SERVERS.map((s) => {
+          const isHD = s.id === "2embed" || s.id === "vidlink";
+          return (
+            <button
+              key={s.id}
+              onClick={() => switchServer(s.id)}
+              className={cn(
+                "px-3 py-1 rounded-full text-xs font-medium transition-all border",
+                activeServer === s.id
+                  ? "bg-red-600 border-red-600 text-white"
+                  : isHD
+                  ? "bg-transparent border-yellow-500/50 text-yellow-400 hover:border-yellow-400 hover:text-yellow-300"
+                  : "bg-transparent border-white/20 text-gray-400 hover:border-white/50 hover:text-white"
+              )}
+            >
+              {s.label}
+            </button>
+          );
+        })}
         <button
           onClick={() => { setLoaded(false); setIframeKey((k) => k + 1); }}
           className="ml-auto flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
@@ -109,8 +126,7 @@ export function VideoPlayer({ tmdbId, type, season = 1, episode = 1 }: VideoPlay
           src={getSrc(activeServer)}
           className="absolute inset-0 w-full h-full"
           allowFullScreen
-          allow="autoplay; encrypted-media; picture-in-picture"
-          referrerPolicy="origin"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture; web-share"
           onLoad={() => setLoaded(true)}
         />
 

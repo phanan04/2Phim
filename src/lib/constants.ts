@@ -37,6 +37,22 @@ export const VIDSRC_EMBED = {
     `${domain}/embed/tv/${tmdbId}/${season}-${episode}`,
 };
 
+// 2embed.cc - has built-in quality selector (360p/480p/720p/1080p)
+export const TWOEMBED = {
+  movie: (tmdbId: string | number) =>
+    `https://www.2embed.cc/embed/${tmdbId}`,
+  tv: (tmdbId: string | number, season: number, episode: number) =>
+    `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`,
+};
+
+// vidlink.pro - multi-quality HLS player
+export const VIDLINK = {
+  movie: (tmdbId: string | number) =>
+    `https://vidlink.pro/movie/${tmdbId}?autoplay=true`,
+  tv: (tmdbId: string | number, season: number, episode: number) =>
+    `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?autoplay=true`,
+};
+
 export const VIDSRC_API = {
   latestMovies: (page: number, domain = VIDSRC_BASE) => `${domain}/movies/latest/page-${page}.json`,
   latestTV: (page: number, domain = VIDSRC_BASE) => `${domain}/tvshows/latest/page-${page}.json`,
