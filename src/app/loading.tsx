@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomeLoading() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f]">
+    <main className="min-h-screen">
       {/* Hero skeleton */}
       <Skeleton className="w-full h-screen max-h-[720px] bg-white/5" />
 

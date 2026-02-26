@@ -51,7 +51,7 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
 
       {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/50 to-black/10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f]/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-gray-50 dark:from-[#0f0f0f] via-gray-50/20 dark:via-[#0f0f0f]/20 to-transparent" />
 
       {/* ✅ FIX 2: Content ở bottom-left như Mvoov design, không phải center */}
       <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 lg:px-24 pb-20 md:pb-24 max-w-3xl">

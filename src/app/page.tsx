@@ -32,7 +32,7 @@ export default async function HomePage() {
     const hero = trending.results[0];
 
     return (
-      <main className="min-h-screen bg-[#0f0f0f]">
+      <main className="min-h-screen">
         {/* Hero — edge to edge, overlaps the fixed navbar */}
         {hero && (
           <HeroBanner items={trending.results.slice(0, 5)} type="movie" />

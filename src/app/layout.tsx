@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning>
       <body
-        className={`${inter.className} bg-[#0f0f0f] text-white antialiased`}
+        className={`${inter.className} bg-gray-50 dark:bg-[#0f0f0f] text-gray-950 dark:text-white antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <Navbar />

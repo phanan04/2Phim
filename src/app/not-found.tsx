@@ -3,7 +3,7 @@ import { Film, Home, Search } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center px-4">
+    <main className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center space-y-8 max-w-md">
         {/* Big 404 */}
         <div className="relative">

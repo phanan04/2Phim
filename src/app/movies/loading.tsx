@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MoviesLoading() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f] pt-24">
+    <main className="min-h-screen pt-24">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16">
         <Skeleton className="h-8 w-52 bg-white/8 rounded-lg mb-8" />
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">

@@ -135,7 +135,7 @@ function SearchResults() {
 
 export default function SearchPage() {
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white pt-24">
+    <main className="min-h-screen pt-24">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16 space-y-8">
         <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
           <Search className="size-7 text-white/60" />

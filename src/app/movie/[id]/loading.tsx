@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function MovieLoading() {
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white">
+    <div className="min-h-screen">
       {/* Backdrop skeleton */}
       <Skeleton className="w-full h-[55vh] md:h-[65vh] bg-white/5" />
 

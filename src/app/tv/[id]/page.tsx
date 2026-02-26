@@ -80,14 +80,14 @@ export default async function TVDetailPage({ params, searchParams }: Props) {
   const year = show.first_air_date ? new Date(show.first_air_date).getFullYear() : "N/A";
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-white">
+    <div className="min-h-screen">
       <TrackView id={show.id} title={show.name} poster_path={show.poster_path} type="tv" vote_average={show.vote_average} date={show.first_air_date} />
 
       {/* Backdrop hero */}
       <div className="relative h-[55vh] md:h-[65vh] overflow-hidden">
         <Image src={backdrop} alt={show.name} fill className="object-cover" priority sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f]/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0f0f0f]/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-50 dark:from-[#0f0f0f] via-gray-50/50 dark:via-[#0f0f0f]/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-gray-50 dark:from-[#0f0f0f]/60 to-transparent" />
       </div>
 
       <div className="max-w-[1400px] mx-auto px-6 md:px-10 -mt-40 relative z-10 pb-20">

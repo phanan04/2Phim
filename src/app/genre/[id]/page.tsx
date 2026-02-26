@@ -63,7 +63,7 @@ export default async function GenrePage({ params, searchParams }: Props) {
   const buildHref = (p: number) => `/genre/${id}?type=${type}&page=${p}`;
 
   return (
-    <main className="min-h-screen bg-[#0f0f0f] text-white pt-24">
+    <main className="min-h-screen pt-24">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16 space-y-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-white/40">
