@@ -5,7 +5,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-black/60 mt-16">
+    <footer className="border-t border-white/8 bg-[#0a0a0a] mt-16">
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
           {/* Brand */}
@@ -101,7 +101,7 @@ export function Footer() {
         </div>
 
         {/* Bottom bar */}
-          <div className="mt-10 pt-6 border-t border-gray-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-10 pt-6 border-t border-gray-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-500 text-xs">
             © {year} 2Phim. Website chỉ dùng cho mục đích học tập.
           </p>

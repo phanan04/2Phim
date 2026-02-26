@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Play, ChevronRight, Info } from "lucide-react";
 import { TMDB_IMG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { TMDBMovie, TMDBTVShow } from "@/types";
@@ -18,7 +18,7 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
 
   useEffect(() => {
     if (items.length <= 1) return;
-    const id = setInterval(() => setCurrent((c) => (c + 1) % items.length), 6000);
+    const id = setInterval(() => setCurrent((c) => (c + 1) % items.length), 7000);
     return () => clearInterval(id);
   }, [items.length]);
 
@@ -29,19 +29,18 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
   const date = "release_date" in item ? item.release_date : item.first_air_date;
   const year = date ? new Date(date).getFullYear() : "";
   const href = type === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
-  const backdrop = TMDB_IMG.backdrop(item.backdrop_path);
 
   return (
-    <div className="relative w-full h-[60vh] md:h-[70vh] overflow-hidden rounded-2xl">
-      {/* Prerender all backdrops, show current */}
+    <div className="relative w-full" style={{ height: "calc(100vh - 64px)", minHeight: 480, maxHeight: 720 }}>
+      {/* Background images */}
       {items.slice(0, 5).map((it, i) => (
         <Image
           key={it.id}
-          src={TMDB_IMG.backdrop(it.backdrop_path)}
+          src={TMDB_IMG.backdrop(it.backdrop_path, "original")}
           alt={"title" in it ? it.title : it.name}
           fill
           className={cn(
-            "object-cover transition-opacity duration-700",
+            "object-cover transition-opacity duration-1000",
             i === current ? "opacity-100" : "opacity-0"
           )}
           priority={i === 0}
@@ -49,35 +48,66 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
         />
       ))}
 
-      <div className="absolute inset-0 bg-linear-to-r from-black/90 via-black/40 to-transparent" />
-      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
+      {/* Gradient overlays — matches Mvoov design */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/50 to-black/10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
 
-      <div className="absolute bottom-0 left-0 p-8 max-w-2xl">
-        <h1 className="text-3xl md:text-5xl font-bold text-white mb-3 leading-tight">{title}</h1>
-        <p className="text-gray-300 text-sm md:text-base line-clamp-3 mb-4">{item.overview}</p>
-        <div className="flex items-center gap-3">
-          <Link href={href} prefetch>
-            <Button className="bg-red-600 hover:bg-red-700 text-white gap-2 px-6">
-              ▶ Xem ngay
-            </Button>
-          </Link>
-          <span className="text-gray-400 text-sm">{year}</span>
-          <span className="text-yellow-400 text-sm font-semibold">
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-3xl">
+        {/* Badge */}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="bg-white text-black text-xs font-bold px-2 py-0.5 rounded">
+            {type === "movie" ? "PHIM" : "TV SHOW"}
+          </span>
+          {year && <span className="text-white/60 text-sm">{year}</span>}
+          <span className="text-white/60 text-sm">
             ★ {item.vote_average.toFixed(1)}
           </span>
         </div>
+
+        {/* Title */}
+        <h1
+          className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4 drop-shadow-2xl"
+          style={{ textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}
+        >
+          {title}
+        </h1>
+
+        {/* Overview */}
+        <p className="text-white/75 text-sm md:text-base leading-relaxed line-clamp-3 mb-8 max-w-lg">
+          {item.overview || "Không có mô tả."}
+        </p>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-4">
+          <Link href={href} prefetch>
+            <button className="flex items-center gap-2.5 bg-white text-black font-bold px-7 py-3 rounded-full text-sm hover:bg-white/90 active:scale-95 transition-all duration-150 shadow-lg shadow-black/30">
+              <Play className="size-4 fill-black" />
+              Xem Ngay
+            </button>
+          </Link>
+          <Link href={href} prefetch>
+            <button className="flex items-center gap-2 text-white/80 font-semibold text-sm hover:text-white transition-colors">
+              Chi Tiết
+              <ChevronRight className="size-4" />
+            </button>
+          </Link>
+        </div>
       </div>
 
-      {/* Dots */}
+      {/* Slide indicators */}
       {items.length > 1 && (
-        <div className="absolute bottom-5 right-6 flex gap-1.5">
+        <div className="absolute bottom-8 left-8 md:left-16 lg:left-24 flex gap-1.5">
           {items.slice(0, 5).map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
               className={cn(
-                "rounded-full transition-all duration-300",
-                i === current ? "w-6 h-2 bg-red-500" : "w-2 h-2 bg-white/40 hover:bg-white/70"
+                "rounded-full transition-all duration-400 h-1",
+                i === current
+                  ? "w-8 bg-white"
+                  : "w-2 bg-white/30 hover:bg-white/60"
               )}
             />
           ))}
