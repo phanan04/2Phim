@@ -1,28 +1,36 @@
 import Link from "next/link";
-import { Film, Github, Heart } from "lucide-react";
+import { Github } from "lucide-react";
 
 export function Footer() {
   const year = new Date().getFullYear();
 
+  const links = [
+    { href: "/", label: "Trang chủ" },
+    { href: "/movies", label: "Phim" },
+    { href: "/tv", label: "TV Show" },
+    { href: "/search", label: "Tìm kiếm" },
+    { href: "/watchlist", label: "Yêu thích" },
+  ];
+
   return (
     <footer className="border-t border-white/8 bg-[#0a0a0a] mt-16">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-10">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           {/* Brand */}
-          <div className="space-y-3">
-            <Link href="/" className="flex items-center gap-2 font-bold text-xl text-gray-900 dark:text-white w-fit">
-              <Film className="size-5 text-red-500" />
-              <span>
-                <span className="text-red-500">2</span>Phim
-              </span>
+          <div className="space-y-2.5">
+            <Link href="/" className="flex items-center gap-2 w-fit group">
+              <div className="size-7 rounded-md bg-white flex items-center justify-center font-black text-black text-base leading-none">
+                2
+              </div>
+              <span className="font-extrabold text-lg text-white tracking-tight">Phim</span>
             </Link>
-            <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-              Xem phim và TV show miễn phí, chất lượng cao. Dữ liệu phim cung cấp bởi{" "}
+            <p className="text-white/40 text-xs leading-relaxed max-w-xs">
+              Xem phim & TV show miễn phí. Dữ liệu cung cấp bởi{" "}
               <a
                 href="https://www.themoviedb.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-red-400 hover:text-red-300 transition-colors"
+                className="text-white/60 hover:text-white transition-colors underline underline-offset-2"
               >
                 TMDB
               </a>
@@ -30,95 +38,34 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Navigation */}
-          <div className="space-y-3">
-            <h3 className="text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wider">Khám phá</h3>
-            <ul className="space-y-2">
-              {[
-                { href: "/", label: "Trang chủ" },
-                { href: "/movies", label: "Phim lẻ" },
-                { href: "/tv", label: "TV Show" },
-                { href: "/search", label: "Tìm kiếm" },
-              ].map(({ href, label }) => (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm transition-colors"
-                  >
-                    {label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Powered by */}
-          <div className="space-y-3">
-            <h3 className="text-gray-900 dark:text-white font-semibold text-sm uppercase tracking-wider">Nguồn phim</h3>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-              <li>
-                <a
-                  href="https://player.autoembed.cc"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  AutoEmbed
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.2embed.cc"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  2Embed
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://vidlink.pro"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  VidLink
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://vidsrc.me"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  VidSrc
-                </a>
-              </li>
-            </ul>
-          </div>
+          {/* Nav links */}
+          <nav className="flex flex-wrap gap-x-6 gap-y-2">
+            {links.map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="text-white/40 hover:text-white text-sm transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-gray-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-gray-500 text-xs">
-            © {year} 2Phim. Website chỉ dùng cho mục đích học tập.
+        {/* Bottom */}
+        <div className="mt-8 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-white/30 text-xs">
+            © {year} 2Phim — Chỉ dùng cho mục đích học tập.
           </p>
-          <div className="flex items-center gap-4">
-            <a
-              href="https://github.com/phanan04/2Phim"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white text-xs transition-colors"
-            >
-              <Github className="size-3.5" />
-              GitHub
-            </a>
-            <span className="flex items-center gap-1 text-gray-500 text-xs">
-              Made with <Heart className="size-3 text-red-500 fill-red-500" /> bằng Next.js
-            </span>
-          </div>
+          <a
+            href="https://github.com/phanan04/2Phim"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-white/30 hover:text-white text-xs transition-colors"
+          >
+            <Github className="size-3.5" />
+            GitHub
+          </a>
         </div>
       </div>
     </footer>

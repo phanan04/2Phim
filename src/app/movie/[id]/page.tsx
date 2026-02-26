@@ -179,7 +179,7 @@ export default async function MoviePage({ params }: Props) {
         {similar.results.length > 0 && (
           <div className="mt-14">
             <Section
-              title="🎬 Phim Tương Tự"
+              title="Phim Tương Tự"
               movies={similar.results.filter((m) => m.id !== movie.id).slice(0, 20)}
             />
           </div>

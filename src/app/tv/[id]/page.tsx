@@ -190,7 +190,7 @@ export default async function TVDetailPage({ params, searchParams }: Props) {
         {similar.results.length > 0 && (
           <div className="mt-14">
             <Section
-              title="📺 TV Show Tương Tự"
+              title="TV Show Tương Tự"
               shows={similar.results.filter((s) => s.id !== show.id).slice(0, 20)}
             />
           </div>

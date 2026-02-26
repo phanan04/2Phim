@@ -45,7 +45,7 @@ export default async function HomePage() {
 
           {/* Trending movies */}
           <Section
-            title="🔥 Phim Thịnh Hành"
+            title="Phim Thịnh Hành"
             movies={trending.results.slice(1, 21)}
             viewAllHref="/movies"
           />
@@ -58,35 +58,35 @@ export default async function HomePage() {
 
           {/* TV Shows */}
           <Section
-            title="📺 TV Show Nổi Bật"
+            title="TV Show Nổi Bật"
             shows={trendingTV.results.slice(0, 20)}
             viewAllHref="/tv"
           />
 
           {/* Top rated */}
           <Section
-            title="⭐ Đánh Giá Cao Nhất"
+            title="Đánh Giá Cao Nhất"
             movies={topRated.results.slice(0, 20)}
             viewAllHref="/movies"
           />
 
           {/* Now playing */}
           <Section
-            title="🎬 Đang Chiếu Rạp"
+            title="Đang Chiếu Rạp"
             movies={nowPlaying.results.slice(0, 20)}
             viewAllHref="/movies"
           />
 
           {/* Popular TV */}
           <Section
-            title="📺 TV Show Phổ Biến"
+            title="TV Show Phổ Biến"
             shows={popularTV.results.slice(0, 20)}
             viewAllHref="/tv"
           />
 
           {/* Upcoming */}
           <Section
-            title="📅 Sắp Ra Mắt"
+            title="Sắp Ra Mắt"
             movies={upcoming.results.slice(0, 20)}
             viewAllHref="/movies"
           />
