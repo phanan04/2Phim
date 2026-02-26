@@ -3,8 +3,8 @@ import { Film, Tv, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { MovieGrid } from "@/components/MovieGrid";
 import {
-  discoverMoviesByGenre,
-  discoverTVByGenre,
+  discoverMovies,
+  discoverTVShows,
   getMovieGenres,
   getTVGenres,
   TMDBConfigError,
@@ -36,18 +36,18 @@ export default async function GenrePage({ params, searchParams }: Props) {
   const page = Math.max(1, parseInt(pageParam ?? "1", 10));
 
   let genreName = "Thể loại";
-  let movies: Awaited<ReturnType<typeof discoverMoviesByGenre>>["results"] = [];
-  let shows: Awaited<ReturnType<typeof discoverTVByGenre>>["results"] = [];
+  let movies: Awaited<ReturnType<typeof discoverMovies>>["results"] = [];
+  let shows: Awaited<ReturnType<typeof discoverTVShows>>["results"] = [];
   let totalPages = 1;
 
   try {
     if (type === "tv") {
-      const [genreList, data] = await Promise.all([getTVGenres(), discoverTVByGenre(id, page)]);
+      const [genreList, data] = await Promise.all([getTVGenres(), discoverTVShows({ genre: Number(id), page })]);
       shows = data.results;
       totalPages = Math.min(data.total_pages, 500);
       genreName = genreList.genres.find((g) => String(g.id) === id)?.name ?? "Thể loại";
     } else {
-      const [genreList, data] = await Promise.all([getMovieGenres(), discoverMoviesByGenre(id, page)]);
+      const [genreList, data] = await Promise.all([getMovieGenres(), discoverMovies({ genre: Number(id), page })]);
       movies = data.results;
       totalPages = Math.min(data.total_pages, 500);
       genreName = genreList.genres.find((g) => String(g.id) === id)?.name ?? "Thể loại";
