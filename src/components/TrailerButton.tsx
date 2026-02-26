@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Youtube, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Props {
   youtubeKey: string | null;
@@ -16,22 +15,21 @@ export function TrailerButton({ youtubeKey, title }: Props) {
 
   return (
     <>
-      <Button
-        variant="outline"
-        className="border-gray-300 dark:border-white/30 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 gap-2"
+      <button
         onClick={() => setOpen(true)}
+        className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/40 transition-all"
       >
         <Youtube className="size-4 text-red-500" />
-        Xem Trailer
-      </Button>
+        Trailer
+      </button>
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm p-4"
           onClick={() => setOpen(false)}
         >
           <div
-            className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl"
+            className="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
             onClick={(e) => e.stopPropagation()}
           >
             <button

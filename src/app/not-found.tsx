@@ -1,38 +1,37 @@
 import Link from "next/link";
 import { Film, Home, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center px-4">
-      <div className="text-center space-y-6 max-w-md">
+    <main className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center px-4">
+      <div className="text-center space-y-8 max-w-md">
         {/* Big 404 */}
         <div className="relative">
-          <p className="text-[8rem] md:text-[12rem] font-black text-gray-900/5 dark:text-white/5 leading-none select-none">
+          <p className="text-[10rem] md:text-[14rem] font-black text-white/5 leading-none select-none">
             404
           </p>
           <div className="absolute inset-0 flex items-center justify-center">
-            <Film className="size-20 text-red-500 opacity-80" />
+            <Film className="size-20 text-red-500 opacity-70" />
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h1 className="text-2xl md:text-3xl font-bold">Trang không tồn tại</h1>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-white/40 text-sm leading-relaxed">
             Phim hoặc trang bạn tìm kiếm đã bị xóa hoặc không tồn tại.
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/">
-            <Button className="bg-red-600 hover:bg-red-700 gap-2 w-full sm:w-auto">
+            <button className="flex items-center gap-2 bg-white text-black font-semibold px-6 py-2.5 rounded-full text-sm hover:bg-white/90 transition-colors w-full sm:w-auto justify-center">
               <Home className="size-4" /> Về trang chủ
-            </Button>
+            </button>
           </Link>
           <Link href="/search">
-              <Button variant="outline" className="border-gray-300 dark:border-white/20 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 gap-2 w-full sm:w-auto">
+            <button className="flex items-center gap-2 bg-white/10 border border-white/20 text-white font-semibold px-6 py-2.5 rounded-full text-sm hover:bg-white/20 transition-colors w-full sm:w-auto justify-center">
               <Search className="size-4" /> Tìm kiếm phim
-            </Button>
+            </button>
           </Link>
         </div>
       </div>

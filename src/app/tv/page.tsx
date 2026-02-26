@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Tv, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { MovieGrid } from "@/components/MovieGrid";
 import type { TMDBTVShow } from "@/types";
 
@@ -30,38 +29,35 @@ export default function TVPage() {
   }, [page, fetchShows]);
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-950 text-gray-900 dark:text-white">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8 flex items-center gap-3">
-          <Tv className="size-8 text-blue-500" /> TV Show Mới Nhất
+    <main className="min-h-screen bg-[#0f0f0f] text-white pt-24">
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16 space-y-8">
+        <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+          <Tv className="size-7 text-blue-400" />
+          TV Show Mới Nhất
         </h1>
 
         <MovieGrid shows={shows} loading={loading} />
 
         {/* Pagination */}
         {!loading && pageCount > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-10">
-            <Button
-              variant="outline"
-              size="sm"
+          <div className="flex items-center justify-center gap-3 pt-4">
+            <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="size-4" /> Trước
-            </Button>
-            <span className="text-gray-500 dark:text-gray-400 text-sm">
-              Trang <span className="text-gray-900 dark:text-white font-semibold">{page}</span> / {pageCount}
+            </button>
+            <span className="text-white/50 text-sm">
+              Trang <span className="text-white font-semibold">{page}</span> / {pageCount}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
               disabled={page === pageCount}
-              className="border-gray-300 dark:border-white/20 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white gap-1"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/10 text-white text-sm font-medium hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               Sau <ChevronRight className="size-4" />
-            </Button>
+            </button>
           </div>
         )}
       </div>

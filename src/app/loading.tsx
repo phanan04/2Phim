@@ -2,20 +2,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HomeLoading() {
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-950">
-      <div className="container mx-auto px-4 py-8 space-y-10">
-        {/* Hero skeleton */}
-        <Skeleton className="w-full h-[60vh] md:h-[70vh] rounded-2xl bg-gray-200 dark:bg-gray-800" />
+    <main className="min-h-screen bg-[#0f0f0f]">
+      {/* Hero skeleton */}
+      <Skeleton className="w-full h-screen max-h-[720px] bg-white/5" />
 
+      <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-10 space-y-12">
         {/* Section skeletons */}
         {Array.from({ length: 3 }).map((_, i) => (
           <div key={i} className="space-y-4">
-            <Skeleton className="h-7 w-56 bg-gray-200 dark:bg-gray-800 rounded" />
-            <div className="flex gap-4 overflow-hidden">
-              {Array.from({ length: 7 }).map((_, j) => (
+            <Skeleton className="h-6 w-48 bg-white/8 rounded-lg" />
+            <div className="flex gap-3 overflow-hidden">
+              {Array.from({ length: 8 }).map((_, j) => (
                 <Skeleton
                   key={j}
-                  className="shrink-0 w-36 sm:w-44 aspect-2/3 rounded-lg bg-gray-200 dark:bg-gray-800"
+                  className="shrink-0 w-[160px] aspect-[2/3] rounded-xl bg-white/8"
                 />
               ))}
             </div>
