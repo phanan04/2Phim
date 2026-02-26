@@ -7,10 +7,10 @@ import { CardBookmark } from "@/components/CardBookmark";
 import type { TMDBMovie, TMDBTVShow } from "@/types";
 
 type Props =
-  | { type: "movie"; data: TMDBMovie }
-  | { type: "tv"; data: TMDBTVShow };
+  | { type: "movie"; data: TMDBMovie; priority?: boolean }
+  | { type: "tv"; data: TMDBTVShow; priority?: boolean };
 
-export function MovieCard({ type, data }: Props) {
+export function MovieCard({ type, data, priority = false }: Props) {
   const title = type === "movie" ? (data as TMDBMovie).title : (data as TMDBTVShow).name;
   const date =
     type === "movie"
@@ -30,7 +30,7 @@ export function MovieCard({ type, data }: Props) {
   return (
     <Link href={href} className="group block">
       {/* Poster */}
-      <div className="relative overflow-hidden rounded-xl bg-white/5 aspect-[2/3] shadow-lg transition-all duration-300 group-hover:scale-[1.04] group-hover:shadow-2xl group-hover:shadow-black/50 group-hover:z-10">
+      <div className="relative overflow-hidden rounded-xl bg-gray-100 dark:bg-white/5 aspect-[2/3] shadow-lg transition-all duration-300 group-hover:scale-[1.04] group-hover:shadow-2xl group-hover:shadow-black/50 group-hover:z-10">
         <Image
           src={poster}
           alt={title}
@@ -39,23 +39,25 @@ export function MovieCard({ type, data }: Props) {
           className="object-cover transition-opacity duration-300"
           placeholder="blur"
           blurDataURL={TMDB_BLUR_PLACEHOLDER}
+          priority={priority}
+          loading={priority ? "eager" : "lazy"}
+          quality={60}
         />
 
-        {/* Hover overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+        {/* Hover overlay — hidden on mobile to boost performance & prevent stuck tap effects */}
+        <div className="hidden md:flex absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex-col justify-end p-3">
           {/* Play button */}
           <div className="flex justify-center mb-3">
-            <div className="size-10 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
+            <div className="size-10 rounded-full bg-white/20 border border-white/30 flex items-center justify-center">
               <Play className="size-4 fill-white text-white ml-0.5" />
             </div>
           </div>
           <p className="text-white text-xs font-semibold line-clamp-2 text-center">{title}</p>
         </div>
 
-        {/* Rating pill — top right */}
         <div
           className={cn(
-            "absolute top-2 right-2 flex items-center gap-0.5 bg-black/70 backdrop-blur-sm rounded-full px-2 py-0.5 text-xs font-bold",
+            "absolute top-2 right-2 flex items-center gap-0.5 bg-black/80 rounded-full px-2 py-0.5 text-xs font-bold",
             ratingColor
           )}
         >

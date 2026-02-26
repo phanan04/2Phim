@@ -8,7 +8,19 @@ export function BackToTop() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > 400);
+    // Batch scroll read inside rAF to avoid forced reflow
+    let ticking = false;
+    const onScroll = () => {
+      // Read DOM state before queuing rAF to avoid forced synchronous layout
+      const currentScrollY = window.scrollY;
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setVisible(currentScrollY > 400);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);

@@ -8,11 +8,28 @@ import { TrailerButton } from "@/components/TrailerButton";
 import { WatchlistButton } from "@/components/WatchlistButton";
 import { ShareButton } from "@/components/ShareButton";
 import { CastCarousel } from "@/components/CastCarousel";
-import { getMovieDetails, getMovieCredits, getMovieVideos, getSimilarMovies, TMDBConfigError } from "@/lib/tmdb";
+import {
+  getMovieDetails,
+  getMovieCredits,
+  getMovieVideos,
+  getSimilarMovies,
+  getTrendingMovies,
+  TMDBConfigError,
+} from "@/lib/tmdb";
 import { TMDB_IMG } from "@/lib/constants";
 import { TrackView } from "@/components/TrackView";
 
 export const revalidate = 86400;
+
+// Pre-render the top-20 trending movies at build time for instant loads
+export async function generateStaticParams() {
+  try {
+    const { results } = await getTrendingMovies();
+    return results.slice(0, 20).map((m) => ({ id: String(m.id) }));
+  } catch {
+    return [];
+  }
+}
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -91,16 +108,16 @@ export default async function MoviePage({ params }: Props) {
           {/* Info */}
           <div className="flex-1 space-y-5 pt-2">
             {/* Breadcrumb-style nav */}
-            <div className="flex items-center gap-2 text-sm text-white/40">
-              <Link href="/movies" className="hover:text-white transition-colors">Phim</Link>
+            <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-white/40">
+              <Link href="/movies" className="hover:text-gray-900 dark:hover:text-white transition-colors">Phim</Link>
               <span>/</span>
-              <span className="text-white/70 line-clamp-1">{movie.title}</span>
+              <span className="text-gray-600 dark:text-white/70 line-clamp-1">{movie.title}</span>
             </div>
 
             <div>
               <h1 className="text-3xl md:text-5xl font-extrabold leading-tight tracking-tight">{movie.title}</h1>
               {movie.tagline && (
-                <p className="text-white/40 italic mt-2 text-sm">&ldquo;{movie.tagline}&rdquo;</p>
+                <p className="text-gray-400 dark:text-white/40 italic mt-2 text-sm">&ldquo;{movie.tagline}&rdquo;</p>
               )}
             </div>
 
@@ -112,12 +129,12 @@ export default async function MoviePage({ params }: Props) {
                 <span className="text-amber-400/60 font-normal text-xs">({movie.vote_count.toLocaleString()})</span>
               </span>
               {year !== "N/A" && (
-                <span className="flex items-center gap-1.5 bg-white/10 text-white/70 px-3 py-1 rounded-full text-sm">
+                <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/70 px-3 py-1 rounded-full text-sm">
                   <Calendar className="size-3.5" /> {year}
                 </span>
               )}
               {runtime && (
-                <span className="flex items-center gap-1.5 bg-white/10 text-white/70 px-3 py-1 rounded-full text-sm">
+                <span className="flex items-center gap-1.5 bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/70 px-3 py-1 rounded-full text-sm">
                   <Clock className="size-3.5" /> {runtime}
                 </span>
               )}
@@ -128,7 +145,7 @@ export default async function MoviePage({ params }: Props) {
               <div className="flex flex-wrap gap-2">
                 {movie.genres.map((g) => (
                   <Link key={g.id} href={`/genre/${g.id}?type=movie`}>
-                    <span className="px-3 py-1 rounded-full border border-white/15 text-white/60 hover:border-white/40 hover:text-white text-xs transition-colors cursor-pointer">
+                    <span className="px-3 py-1 rounded-full border border-gray-200 dark:border-white/15 text-gray-600 dark:text-white/60 hover:border-gray-400 dark:hover:border-white/40 hover:text-gray-900 dark:hover:text-white text-xs transition-colors cursor-pointer">
                       {g.name}
                     </span>
                   </Link>
@@ -137,7 +154,7 @@ export default async function MoviePage({ params }: Props) {
             )}
 
             {/* Overview */}
-            <p className="text-white/65 leading-relaxed max-w-2xl text-sm md:text-base">{movie.overview}</p>
+            <p className="text-gray-600 dark:text-white/65 leading-relaxed max-w-2xl text-sm md:text-base">{movie.overview}</p>
 
             {/* Action buttons */}
             <div className="flex flex-wrap gap-3 pt-1">

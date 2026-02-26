@@ -39,8 +39,8 @@ export function GenreFilterSection({ movies = [], shows = [] }: Props) {
                         key={g.id}
                         onClick={() => setActiveGenre(g.id)}
                         className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${activeGenre === g.id
-                                ? "bg-white text-black shadow-lg shadow-white/10"
-                                : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                                ? "bg-gray-900 dark:bg-white text-white dark:text-black shadow-lg shadow-black/10 dark:shadow-white/10"
+                                : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white"
                             }`}
                     >
                         {g.label}
@@ -50,14 +50,14 @@ export function GenreFilterSection({ movies = [], shows = [] }: Props) {
 
             {/* Section title */}
             <div className="flex items-center justify-between">
-                <h2 className="text-lg md:text-xl font-bold text-white tracking-tight">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white tracking-tight">
                     {activeGenre === 0 ? "🎭 Phim Phổ Biến" : `🎭 ${GENRES.find(g => g.id === activeGenre)?.label}`}
                 </h2>
             </div>
 
             {/* Movie grid row (scrollable) */}
             <div
-                className="flex gap-3 overflow-x-auto pb-1 snap-x snap-mandatory"
+                className="flex gap-3 overflow-x-auto overscroll-x-contain pb-1 snap-x snap-mandatory"
                 style={{ scrollbarWidth: "none" }}
             >
                 {filtered.slice(0, 20).map((movie) => (
@@ -66,7 +66,7 @@ export function GenreFilterSection({ movies = [], shows = [] }: Props) {
                     </div>
                 ))}
                 {filtered.length === 0 && (
-                    <p className="text-white/40 text-sm py-8">Không có phim nào trong thể loại này.</p>
+                    <p className="text-gray-400 dark:text-white/40 text-sm py-8">Không có phim nào trong thể loại này.</p>
                 )}
             </div>
         </section>

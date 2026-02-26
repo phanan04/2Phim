@@ -1,8 +1,12 @@
+import dynamic from "next/dynamic";
 import { HeroBanner } from "@/components/HeroBanner";
-import { Section } from "@/components/HomeSection";
-import { RecentlyViewedSection } from "@/components/RecentlyViewedSection";
-import { GenreFilterSection } from "@/components/GenreFilterSection";
 import { SetupBanner } from "@/components/SetupBanner";
+
+// Dynamically import client components below the fold to defer hydration JS and reduce initial bundle size
+const Section = dynamic(() => import("@/components/HomeSection").then((mod) => mod.Section));
+const RecentlyViewedSection = dynamic(() => import("@/components/RecentlyViewedSection").then((mod) => mod.RecentlyViewedSection));
+const GenreFilterSection = dynamic(() => import("@/components/GenreFilterSection").then((mod) => mod.GenreFilterSection));
+
 import {
   getTrendingMovies,
   getTrendingTV,
@@ -13,6 +17,7 @@ import {
   getUpcomingMovies,
   TMDBConfigError,
 } from "@/lib/tmdb";
+import { TMDB_IMG } from "@/lib/constants";
 
 export const revalidate = 3600;
 
@@ -30,9 +35,9 @@ export default async function HomePage() {
       ]);
 
     const hero = trending.results[0];
-
     return (
       <main className="min-h-screen">
+
         {/* Hero — edge to edge, overlaps the fixed navbar */}
         {hero && (
           <HeroBanner items={trending.results.slice(0, 5)} type="movie" />
@@ -43,17 +48,18 @@ export default async function HomePage() {
           {/* Recently viewed */}
           <RecentlyViewedSection />
 
+          {/* Now playing - Nóng nhất ngoài rạp lên trên cùng */}
+          <Section
+            title="Đang Chiếu Rạp"
+            movies={nowPlaying.results.slice(0, 20)}
+            viewAllHref="/movies"
+          />
+
           {/* Trending movies */}
           <Section
             title="Phim Thịnh Hành"
             movies={trending.results.slice(1, 21)}
             viewAllHref="/movies"
-          />
-
-          {/* Genre filter + browse section */}
-          <GenreFilterSection
-            movies={popular.results.slice(0, 30)}
-            shows={popularTV.results.slice(0, 20)}
           />
 
           {/* TV Shows */}
@@ -63,17 +69,10 @@ export default async function HomePage() {
             viewAllHref="/tv"
           />
 
-          {/* Top rated */}
+          {/* Sắp ra mắt - Dành cho người xem chờ đợi */}
           <Section
-            title="Đánh Giá Cao Nhất"
-            movies={topRated.results.slice(0, 20)}
-            viewAllHref="/movies"
-          />
-
-          {/* Now playing */}
-          <Section
-            title="Đang Chiếu Rạp"
-            movies={nowPlaying.results.slice(0, 20)}
+            title="Sắp Ra Mắt"
+            movies={upcoming.results.slice(0, 20)}
             viewAllHref="/movies"
           />
 
@@ -84,10 +83,16 @@ export default async function HomePage() {
             viewAllHref="/tv"
           />
 
-          {/* Upcoming */}
+          {/* Genre filter + browse section */}
+          <GenreFilterSection
+            movies={popular.results.slice(0, 30)}
+            shows={popularTV.results.slice(0, 20)}
+          />
+
+          {/* Top rated - Hơi cũ nên để cuối */}
           <Section
-            title="Sắp Ra Mắt"
-            movies={upcoming.results.slice(0, 20)}
+            title="Tuyệt Tác Đánh Giá Cao"
+            movies={topRated.results.slice(0, 20)}
             viewAllHref="/movies"
           />
         </div>

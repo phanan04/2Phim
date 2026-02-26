@@ -30,12 +30,12 @@ export function WatchlistButton({ item, className }: Props) {
       className={cn(
         "flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all border",
         saved
-          ? "bg-white text-black border-white"
-          : "bg-white/10 border-white/20 text-white hover:bg-white/20 hover:border-white/40",
+          ? "bg-gray-900 dark:bg-white text-white dark:text-black border-gray-900 dark:border-white"
+          : "bg-gray-100 dark:bg-white/10 border-gray-200 dark:border-white/20 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 hover:border-gray-300 dark:hover:border-white/40",
         className
       )}
     >
-      <Bookmark className={cn("size-4", saved && "fill-black")} />
+      <Bookmark className={cn("size-4", saved && "fill-white dark:fill-black")} />
       {saved ? "Đã lưu" : "Lưu phim"}
     </button>
   );

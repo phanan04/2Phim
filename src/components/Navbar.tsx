@@ -16,7 +16,24 @@ type SearchResult = {
   title?: string;
   name?: string;
 };
+
+// LRU-style cache: cap at 50 entries to avoid memory leaks
+const MAX_CACHE = 50;
 const searchCache = new Map<string, SearchResult[]>();
+function setCache(key: string, value: SearchResult[]) {
+  if (searchCache.size >= MAX_CACHE) {
+    const firstKey = searchCache.keys().next().value;
+    if (firstKey) searchCache.delete(firstKey);
+  }
+  searchCache.set(key, value);
+}
+
+const navLinks = [
+  { href: "/", label: "Trang Chủ" },
+  { href: "/movies", label: "Phim" },
+  { href: "/tv", label: "TV Show" },
+  { href: "/watchlist", label: "Yêu Thích" },
+];
 
 export function Navbar() {
   const router = useRouter();
@@ -35,17 +52,36 @@ export function Navbar() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [scrolled, setScrolled] = useState(!isHomePage);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (!isHomePage) {
       setScrolled(true);
       return;
     }
-    const onScroll = () => setScrolled(window.scrollY > 80);
+    let ticking = false;
+    const onScroll = () => {
+      // Read DOM safely outside of rAF
+      const currentScrollY = window.scrollY;
+      
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrolled(currentScrollY > 80);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, [isHomePage]);
+
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+    };
+  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -53,6 +89,18 @@ export function Navbar() {
     setQuery("");
     setShowDropdown(false);
   }, [pathname]);
+
+  // Lock body scroll on mobile when menu is open (using class to avoid conflicts)
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.classList.add("mobile-nav-open");
+    } else {
+      document.body.classList.remove("mobile-nav-open");
+    }
+    return () => {
+      document.body.classList.remove("mobile-nav-open");
+    };
+  }, [menuOpen]);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
@@ -84,46 +132,59 @@ export function Navbar() {
           return;
         }
         try {
-          const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`);
+          if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+          }
+          abortControllerRef.current = new AbortController();
+
+          const res = await fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, {
+            signal: abortControllerRef.current.signal,
+          });
           const data = await res.json();
           const results: SearchResult[] = data.results?.slice(0, 6) ?? [];
-          searchCache.set(trimmed, results);
+          setCache(trimmed, results);
           setSearchResults(results);
           setSelectedIndex(-1);
           setShowDropdown(true);
-        } catch { /* ignore */ }
+        } catch (err: any) {
+          if (err.name !== "AbortError") {
+            // ignore
+          }
+        }
       }, 300);
     },
     []
   );
 
-  const navLinks = [
-    { href: "/", label: "Trang Chủ" },
-    { href: "/movies", label: "Phim" },
-    { href: "/tv", label: "TV Show" },
-    { href: "/watchlist", label: "Yêu Thích" },
-  ];
-
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        scrolled
-          ? "bg-white/96 dark:bg-[#0f0f0f]/96 backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/40 border-b border-gray-200 dark:border-transparent"
-          : "bg-gradient-to-b from-black/80 via-black/20 to-transparent"
-      )}
-    >
-      <div className="max-w-[1600px] mx-auto flex h-16 items-center gap-6 px-6 md:px-10">
+    <header className="fixed top-0 left-0 right-0 z-50 overflow-hidden" style={{ contain: "layout style" }}>
+      {/* Gradient layer — always present on hero, fades when scrolled */}
+      <div
+        className={cn(
+          "absolute inset-0 bg-gradient-to-b from-black/80 via-black/20 to-transparent transition-opacity duration-300 pointer-events-none",
+          scrolled ? "opacity-0" : "opacity-100"
+        )}
+      />
+      {/* Solid background */}
+      <div
+        className={cn(
+          "absolute inset-0 backdrop-blur-md border-b border-gray-200 dark:border-white/8",
+          "bg-white/95 dark:bg-[#0f0f0f]/95 shadow-md shadow-black/5 dark:shadow-black/40",
+          "transition-opacity duration-300 ease-in-out pointer-events-none",
+          scrolled ? "opacity-100" : "opacity-0"
+        )}
+      />
+      <div className="relative max-w-[1600px] mx-auto flex h-16 items-center gap-6 px-6 md:px-10">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 shrink-0 group">
           <div className={cn(
-            "size-8 rounded-lg flex items-center justify-center font-black text-lg leading-none select-none transition-colors",
-            scrolled ? "bg-gray-900 text-white dark:bg-white dark:text-black" : "bg-white text-black"
+            "size-8 rounded-lg flex items-center justify-center font-black text-lg leading-none select-none transition-all shadow-lg group-hover:scale-105",
+            scrolled ? "bg-gradient-to-br from-red-600 to-rose-500 text-white shadow-red-500/20" : "bg-white text-red-600 shadow-white/20"
           )}>
             2
           </div>
           <span className={cn(
-            "font-extrabold text-xl tracking-tight",
+            "font-extrabold text-xl tracking-tight transition-colors",
             scrolled ? "text-gray-950 dark:text-white" : "text-white"
           )}>Phim</span>
         </Link>
@@ -158,6 +219,8 @@ export function Navbar() {
                 <div className="relative">
                   <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 size-4 pointer-events-none", scrolled ? "text-gray-400 dark:text-white/40" : "text-white/40")} />
                   <input
+                    type="search"
+                    enterKeyHint="search"
                     value={query}
                     onChange={handleInputChange}
                     onKeyDown={(e) => {
@@ -185,17 +248,17 @@ export function Navbar() {
                     placeholder="Tìm phim, TV show..."
                     autoFocus
                     className={cn(
-                      "w-64 pl-9 pr-4 py-2 rounded-full text-sm focus:outline-none transition-all",
+                      "w-64 pl-9 pr-4 py-2 rounded-full text-sm outline-none transition-all duration-300 focus:w-72",
                       scrolled
-                        ? "bg-gray-100 dark:bg-white/10 border border-transparent dark:border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus:border-gray-300 dark:focus:border-white/40"
-                        : "bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:border-white/40"
+                        ? "bg-gray-100 dark:bg-white/10 border border-transparent dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-white/40 focus:border-red-500/40 focus:ring-4 focus:ring-red-500/10 focus:bg-white dark:focus:bg-[#1a1a1a]"
+                        : "bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:border-white/50 focus:bg-black/50 backdrop-blur-sm"
                     )}
                   />
 
                   {showDropdown && searchResults.length > 0 && (
                     <div className={cn(
-                      "absolute top-full left-0 right-0 mt-2 rounded-2xl shadow-2xl z-50 overflow-hidden",
-                      scrolled ? "bg-white dark:bg-[#1c1c1c] border border-gray-200 dark:border-white/10" : "bg-[#1c1c1c] border border-white/10"
+                      "absolute top-full left-0 right-0 mt-3 rounded-2xl shadow-2xl z-50 overflow-hidden backdrop-blur-xl animate-in fade-in slide-in-from-top-2 duration-200",
+                      scrolled ? "bg-white/95 dark:bg-[#1a1a1a]/90 border border-gray-200 dark:border-white/10" : "bg-black/60 border border-white/10"
                     )}>
                       {searchResults.map((result, index) => (
                         <Link
@@ -296,53 +359,64 @@ export function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      <div className={cn("md:hidden overflow-hidden transition-all duration-300", menuOpen ? "max-h-72" : "max-h-0")}>
-        <div className="bg-white/98 dark:bg-[#0f0f0f]/98 backdrop-blur-md border-t border-gray-200 dark:border-white/8 px-6 py-4 flex flex-col gap-3">
-          {/* Search */}
-          <form onSubmit={handleSearch} className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-white/40 pointer-events-none" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Tìm phim, TV show..."
-                className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 dark:border-white/15 bg-gray-50 dark:bg-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 text-sm focus:outline-none"
-              />
-            </div>
-            <button type="submit" className="px-4 py-2 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black text-sm font-semibold shrink-0">
-              Tìm
-            </button>
-          </form>
+      <div
+        className={cn(
+          "md:hidden grid transition-[grid-template-rows] duration-300 ease-in-out",
+          menuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="bg-white/98 dark:bg-[#0f0f0f]/98 backdrop-blur-md border-t border-gray-200 dark:border-white/8 px-6 py-4 flex flex-col gap-3">
 
-          {/* Links */}
-          <div className="flex flex-wrap gap-2">
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={cn(
-                    "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
-                    isActive ? "bg-gray-900 text-white dark:bg-white dark:text-black" : "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 hover:bg-gray-200 dark:hover:bg-white/20"
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-
-            {/* Theme toggle mobile */}
-            {mounted && (
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors flex items-center gap-1.5"
-              >
-                {theme === "dark" ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />}
-                {theme === "dark" ? "Sáng" : "Tối"}
+            {/* Search */}
+            <form onSubmit={handleSearch} className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-white/40 pointer-events-none" />
+                <input
+                  type="search"
+                  enterKeyHint="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Tìm phim, TV show..."
+                  className="w-full pl-9 pr-4 py-2 rounded-full border border-gray-200 dark:border-white/15 bg-gray-50 dark:bg-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/40 text-sm focus:outline-none"
+                />
+              </div>
+              <button type="submit" className="px-4 py-2 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black text-sm font-semibold shrink-0">
+                Tìm
               </button>
-            )}
+            </form>
+
+            {/* Links */}
+            <div className="flex flex-wrap gap-2">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={cn(
+                      "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      isActive ? "bg-gray-900 text-white dark:bg-white dark:text-black" : "bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 hover:bg-gray-200 dark:hover:bg-white/20"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+
+              {/* Theme toggle mobile */}
+              {mounted && (
+                <button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="px-4 py-1.5 rounded-full text-sm font-medium bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white/80 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors flex items-center gap-1.5"
+                >
+                  {theme === "dark" ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />}
+                  {theme === "dark" ? "Sáng" : "Tối"}
+                </button>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

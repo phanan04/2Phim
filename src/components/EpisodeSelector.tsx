@@ -105,7 +105,7 @@ export function EpisodeSelector({
 
       {/* Episode List */}
       <div className="space-y-3">
-        <h3 className="text-white font-semibold">
+        <h3 className="text-gray-900 dark:text-white font-semibold">
           Tập phim — {seasonData.name}
         </h3>
         {loadingSeason ? (

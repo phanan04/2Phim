@@ -15,14 +15,18 @@ export class TMDBConfigError extends Error {
   }
 }
 
-async function tmdbFetch<T>(path: string, params: Record<string, string> = {}): Promise<T> {
+async function tmdbFetch<T>(
+  path: string,
+  params: Record<string, string> = {},
+  revalidate = 3600
+): Promise<T> {
   if (!TMDB_API_KEY) throw new TMDBConfigError();
   const url = new URL(`${TMDB_BASE}${path}`);
   url.searchParams.set("api_key", TMDB_API_KEY);
   for (const [k, v] of Object.entries(params)) {
     url.searchParams.set(k, v);
   }
-  const res = await fetch(url.toString(), { next: { revalidate: 3600 } });
+  const res = await fetch(url.toString(), { next: { revalidate } });
   if (!res.ok) {
     if (res.status === 401) throw new TMDBConfigError();
     throw new Error(`TMDB error ${res.status}: ${path}`);
@@ -38,23 +42,24 @@ export async function searchMulti(query: string, page = 1) {
 }
 
 export async function getMovieDetails(id: string | number) {
-  return tmdbFetch<TMDBMovie>(`/movie/${id}`);
+  return tmdbFetch<TMDBMovie>(`/movie/${id}`, {}, 86400);
 }
 
 export async function getMovieCredits(id: string | number) {
-  return tmdbFetch<TMDBCredits>(`/movie/${id}/credits`);
+  return tmdbFetch<TMDBCredits>(`/movie/${id}/credits`, {}, 86400);
 }
 
 export async function getTVDetails(id: string | number) {
-  return tmdbFetch<TMDBTVShow>(`/tv/${id}`);
+  return tmdbFetch<TMDBTVShow>(`/tv/${id}`, {}, 86400);
 }
 
 export async function getTVCredits(id: string | number) {
-  return tmdbFetch<TMDBCredits>(`/tv/${id}/credits`);
+  return tmdbFetch<TMDBCredits>(`/tv/${id}/credits`, {}, 86400);
 }
 
 export async function getTVSeason(id: string | number, season: number) {
-  return tmdbFetch<TMDBSeasonDetail>(`/tv/${id}/season/${season}`);
+  // Season details rarely change — cache for 7 days
+  return tmdbFetch<TMDBSeasonDetail>(`/tv/${id}/season/${season}`, {}, 604800);
 }
 
 export async function getTrendingMovies(page = 1) {
@@ -117,20 +122,53 @@ export async function getSimilarTV(id: string | number) {
   return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>(`/tv/${id}/recommendations`);
 }
 
-export async function discoverMoviesByGenre(genreId: string | number, page = 1) {
-  return tmdbFetch<TMDBSearchResponse<TMDBMovie>>("/discover/movie", {
-    with_genres: String(genreId),
-    sort_by: "popularity.desc",
-    page: String(page),
-  });
+export async function discoverMovies(params: {
+  page?: number;
+  genre?: number;
+  sortBy?: string;
+  year?: number;
+}) {
+  const query: Record<string, string> = {
+    page: String(params.page || 1),
+    sort_by: params.sortBy || "popularity.desc",
+  };
+  if (params.genre && params.genre > 0) {
+    query.with_genres = String(params.genre);
+  }
+  if (params.year) {
+    query.primary_release_year = String(params.year);
+  }
+  
+  // Filter out obscure movies if sorting by newest or rating
+  if (params.sortBy === "vote_average.desc" || params.sortBy === "primary_release_date.desc") {
+    query["vote_count.gte"] = "100";
+  }
+
+  return tmdbFetch<TMDBSearchResponse<TMDBMovie>>("/discover/movie", query);
 }
 
-export async function discoverTVByGenre(genreId: string | number, page = 1) {
-  return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>("/discover/tv", {
-    with_genres: String(genreId),
-    sort_by: "popularity.desc",
-    page: String(page),
-  });
+export async function discoverTVShows(params: {
+  page?: number;
+  genre?: number;
+  sortBy?: string;
+  year?: number;
+}) {
+  const query: Record<string, string> = {
+    page: String(params.page || 1),
+    sort_by: params.sortBy || "popularity.desc",
+  };
+  if (params.genre && params.genre > 0) {
+    query.with_genres = String(params.genre);
+  }
+  if (params.year) {
+    query.first_air_date_year = String(params.year);
+  }
+  
+  if (params.sortBy === "vote_average.desc" || params.sortBy === "first_air_date.desc") {
+    query["vote_count.gte"] = "100";
+  }
+
+  return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>("/discover/tv", query);
 }
 
 export async function getMovieGenres() {

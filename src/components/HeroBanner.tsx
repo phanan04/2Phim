@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Play, ChevronRight } from "lucide-react";
 import { TMDB_IMG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -15,11 +15,31 @@ interface HeroBannerProps {
 
 export function HeroBanner({ items, type }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Pause autoplay when tab is hidden to save CPU/network
   useEffect(() => {
     if (items.length <= 1) return;
-    const id = setInterval(() => setCurrent((c) => (c + 1) % items.length), 7000);
-    return () => clearInterval(id);
+
+    const start = () => {
+      intervalRef.current = setInterval(
+        () => setCurrent((c) => (c + 1) % items.length),
+        7000
+      );
+    };
+    const stop = () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+
+    start();
+    document.addEventListener("visibilitychange", () => {
+      document.hidden ? stop() : start();
+    });
+
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", stop);
+    };
   }, [items.length]);
 
   const item = items[current];
@@ -31,21 +51,24 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
   const href = type === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
 
   return (
-    // ✅ FIX 1: 100vh vì navbar là fixed (không chiếm DOM height)
     <div className="relative w-full" style={{ height: "100vh", minHeight: 560, maxHeight: 900 }}>
-      {/* Background images */}
+      {/* Background images — only load adjacent slides eagerly */}
       {items.slice(0, 5).map((it, i) => (
         <Image
           key={it.id}
-          src={TMDB_IMG.backdrop(it.backdrop_path, "original")}
+          src={TMDB_IMG.backdrop(it.backdrop_path, "w1280")}
           alt={"title" in it ? it.title : it.name}
           fill
           className={cn(
             "object-cover transition-opacity duration-1000",
             i === current ? "opacity-100" : "opacity-0"
           )}
+          // Only eagerly load the first two slides; rest are lazy
           priority={i === 0}
-          sizes="100vw"
+          loading={i === 0 ? "eager" : "lazy"}
+          fetchPriority={i === 0 ? "high" : "auto"}
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1280px"
+          quality={65}
         />
       ))}
 
@@ -53,7 +76,7 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
       <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/50 to-black/10" />
       <div className="absolute inset-0 bg-gradient-to-t from-gray-50 dark:from-[#0f0f0f] via-gray-50/20 dark:via-[#0f0f0f]/20 to-transparent" />
 
-      {/* ✅ FIX 2: Content ở bottom-left như Mvoov design, không phải center */}
+      {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 lg:px-24 pb-20 md:pb-24 max-w-3xl">
         {/* Badges */}
         <div className="flex items-center gap-2 mb-5">
@@ -67,7 +90,7 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
         {/* Title */}
         <h1
           className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4"
-          style={{ textShadow: "0 2px 30px rgba(0,0,0,0.9)" }}
+          style={{ textShadow: "0 2px 10px rgba(0,0,0,0.8)" }}
         >
           {title}
         </h1>
@@ -79,13 +102,13 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
 
         {/* Buttons */}
         <div className="flex items-center gap-4">
-          <Link href={href} prefetch>
+          <Link href={href}>
             <button className="flex items-center gap-2.5 bg-white text-black font-bold px-7 py-3 rounded-full text-sm hover:bg-white/90 active:scale-95 transition-all duration-150 shadow-lg shadow-black/30">
               <Play className="size-4 fill-black" />
               Xem Ngay
             </button>
           </Link>
-          <Link href={href} prefetch>
+          <Link href={href}>
             <button className="flex items-center gap-1.5 text-white/80 font-semibold text-sm hover:text-white transition-colors">
               Chi Tiết
               <ChevronRight className="size-4" />
@@ -94,13 +117,14 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
         </div>
       </div>
 
-      {/* Slide indicators — above the buttons */}
+      {/* Slide indicators */}
       {items.length > 1 && (
         <div className="absolute bottom-8 right-8 md:right-16 flex gap-1.5">
           {items.slice(0, 5).map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
+              aria-label={`Slide ${i + 1}`}
               className={cn(
                 "rounded-full transition-all duration-300 h-1",
                 i === current

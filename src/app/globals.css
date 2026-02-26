@@ -120,10 +120,27 @@
   * {
     @apply border-border outline-ring/50;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground;
+    /* Optimize text rendering for body — speed over legibility */
+    text-rendering: optimizeSpeed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* High-quality rendering for headings only */
+  h1, h2, h3 {
+    text-rendering: optimizeLegibility;
+  }
+
+  /* content-visibility: auto tells the browser to skip rendering off-screen sections
+     Until the user scrolls near them. Provide a rough intrinsic size to avoid CLS. */
+  section {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 400px;
   }
 
   /* Hide scrollbars globally but keep scroll functionality */
@@ -137,11 +154,48 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(0, 0, 0, 0.15);
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.25);
   }
+}
+
+/* --- FIX SHADCN/RADIX UI LAYOUT SHIFT (Brute-force) --- */
+body.mobile-nav-open {
+  overflow: hidden !important; /* Mobile menu scroll lock */
+}
+
+body {
+  overflow-y: scroll !important; /* Force scrollbar forever */
+  padding-right: 0px !important; /* Override Radix padding jump */
+  margin-right: 0px !important;
+}
+
+html {
+  padding-right: 0px !important; 
+  margin-right: 0px !important;
+}
+
+/* Blanket ban on all scroll-locked padding jumps from Radix */
+[data-scroll-locked] {
+  padding-right: 0px !important;
+  margin-right: 0px !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+
+/* Ensure no wrapper forces a padding right from Radix */
+[data-radix-scroll-area-viewport] {
+  scrollbar-width: none;
 }

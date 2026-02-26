@@ -66,12 +66,12 @@ export default async function GenrePage({ params, searchParams }: Props) {
     <main className="min-h-screen pt-24">
       <div className="max-w-[1600px] mx-auto px-6 md:px-10 pb-16 space-y-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-white/40">
-          <Link href={type === "tv" ? "/tv" : "/movies"} className="hover:text-white transition-colors">
+        <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-white/40">
+          <Link href={type === "tv" ? "/tv" : "/movies"} className="hover:text-gray-900 dark:hover:text-white transition-colors">
             {type === "tv" ? "TV Show" : "Phim"}
           </Link>
           <span>/</span>
-          <span className="text-white/70">{genreName}</span>
+          <span className="text-gray-600 dark:text-white/70">{genreName}</span>
         </div>
 
         {/* Header */}
@@ -90,8 +90,8 @@ export default async function GenrePage({ params, searchParams }: Props) {
             <a
               href={`/genre/${id}?type=movie`}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${type !== "tv"
-                  ? "bg-white text-black"
-                  : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-black"
+                  : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white"
                 }`}
             >
               Phim
@@ -99,14 +99,14 @@ export default async function GenrePage({ params, searchParams }: Props) {
             <a
               href={`/genre/${id}?type=tv`}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${type === "tv"
-                  ? "bg-white text-black"
-                  : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white"
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-black"
+                  : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white"
                 }`}
             >
               TV Show
             </a>
           </div>
-          <p className="text-sm text-white/40">Trang {page} / {totalPages}</p>
+          <p className="text-sm text-gray-400 dark:text-white/40">Trang {page} / {totalPages}</p>
         </div>
 
         {/* Grid */}
@@ -118,7 +118,7 @@ export default async function GenrePage({ params, searchParams }: Props) {
             {page > 1 && (
               <Link
                 href={buildHref(page - 1)}
-                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
               >
                 <ChevronLeft className="size-4" /> Trước
               </Link>
@@ -132,8 +132,8 @@ export default async function GenrePage({ params, searchParams }: Props) {
                   key={p}
                   href={buildHref(p)}
                   className={`w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-colors ${p === page
-                      ? "bg-white text-black"
-                      : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                      ? "bg-gray-900 dark:bg-white text-white dark:text-black"
+                      : "bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white"
                     }`}
                 >
                   {p}
@@ -144,7 +144,7 @@ export default async function GenrePage({ params, searchParams }: Props) {
             {page < totalPages && (
               <Link
                 href={buildHref(page + 1)}
-                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors text-sm"
+                className="flex items-center gap-1 px-4 py-2 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/70 hover:bg-gray-200 dark:hover:bg-white/20 hover:text-gray-900 dark:hover:text-white transition-colors text-sm"
               >
                 Sau <ChevronRight className="size-4" />
               </Link>

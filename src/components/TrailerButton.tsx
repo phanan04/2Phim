@@ -17,7 +17,7 @@ export function TrailerButton({ youtubeKey, title }: Props) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold bg-white/10 border border-white/20 text-white hover:bg-white/20 hover:border-white/40 transition-all"
+        className="flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/20 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-white/20 hover:border-gray-300 dark:hover:border-white/40 transition-all"
       >
         <Youtube className="size-4 text-red-500" />
         Trailer
