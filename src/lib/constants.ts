@@ -62,3 +62,35 @@ export const VIDSRC_API = {
   latestTV: (page: number, domain = VIDSRC_BASE) => `${domain}/tvshows/latest/page-${page}.json`,
   latestEpisodes: (page: number, domain = VIDSRC_BASE) => `${domain}/episodes/latest/page-${page}.json`,
 };
+
+// ─── Nguon C ────────────────────────────────────────────────────────────────
+// Public API: https://phim.nguonc.com/api/
+export const NGUONC_BASE = "https://phim.nguonc.com";
+
+export const NGUONC_API = {
+  latestFilms:  (page: number) => `${NGUONC_BASE}/api/films/phim-moi-cap-nhat?page=${page}`,
+  filmDetail:   (slug: string) => `${NGUONC_BASE}/api/film/${slug}`,
+  search:       (keyword: string, page = 1) => `${NGUONC_BASE}/api/films/search?keyword=${encodeURIComponent(keyword)}&page=${page}`,
+};
+
+// ─── OPhim ──────────────────────────────────────────────────────────────────
+// Public API: https://ophim1.com/ — same format as KKPhim
+export const OPHIM_BASE = "https://ophim1.com";
+export const OPHIM_IMG  = "https://img.ophim.live/uploads/movies/";
+
+export const OPHIM_API = {
+  latestFilms: (page: number) => `${OPHIM_BASE}/danh-sach/phim-moi-cap-nhat?page=${page}`,
+  filmDetail:  (slug: string) => `${OPHIM_BASE}/phim/${slug}`,
+  search:      (keyword: string, page = 1) => `${OPHIM_BASE}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=${page}`,
+};
+
+// ─── KKPhim (via phimapi.com) ────────────────────────────────────────────────
+// KKPhim's public API is served at phimapi.com — identical JSON schema to OPhim
+export const KKPHIM_BASE = "https://phimapi.com";
+export const KKPHIM_IMG  = "https://phimimg.com/upload/vod/";
+
+export const KKPHIM_API = {
+  latestFilms: (page: number) => `${KKPHIM_BASE}/danh-sach/phim-moi-cap-nhat?page=${page}`,
+  filmDetail:  (slug: string) => `${KKPHIM_BASE}/phim/${slug}`,
+  search:      (keyword: string, page = 1) => `${KKPHIM_BASE}/v1/api/tim-kiem?keyword=${encodeURIComponent(keyword)}&page=${page}`,
+};

@@ -145,3 +145,91 @@ export interface SearchResult {
   media_type: MediaType;
   overview: string;
 }
+
+// ─── Nguon C types ───────────────────────────────────────────────────────────
+export interface NguonCItem {
+  name: string;
+  slug: string;
+  original_name: string;
+  thumb_url: string;
+  poster_url: string;
+  created: string;
+  modified: string;
+  description: string;
+  total_episodes: number;
+  current_episode: string;
+  time: string;
+  quality: string;
+  language: string;
+  director: string | null;
+  casts: string | null;
+}
+
+export interface NguonCListResponse {
+  status: string;
+  paginate: {
+    current_page: number;
+    total_page: number;
+    total_items: number;
+    items_per_page: number;
+  };
+  items: NguonCItem[];
+}
+
+export interface NguonCEpisodeItem {
+  name: string;
+  slug: string;
+  embed: string;
+  m3u8: string;
+}
+
+export interface NguonCServer {
+  server_name: string;
+  items: NguonCEpisodeItem[];
+}
+
+export interface NguonCFilmDetail extends NguonCItem {
+  id: string;
+  episodes: NguonCServer[];
+}
+
+export interface NguonCFilmDetailResponse {
+  status: string;
+  movie: NguonCFilmDetail;
+}
+
+// ─── OPhim & KKPhim types (identical schema) ─────────────────────────────────
+export interface OPhimItem {
+  _id: string;
+  name: string;
+  slug: string;
+  origin_name: string;
+  thumb_url: string;
+  poster_url: string;
+  year: number;
+  modified: { time: string };
+  tmdb: {
+    type: string | null;
+    id: string | null;
+    season: number | null;
+    vote_average: number;
+    vote_count: number;
+  };
+}
+
+export interface OPhimListResponse {
+  status: boolean;
+  items: OPhimItem[];
+  pathImage?: string;
+  pagination: {
+    totalItems: number;
+    totalItemsPerPage: number;
+    currentPage: number;
+    totalPages: number;
+  };
+}
+
+// KKPhim uses identical schema to OPhim
+export type KKPhimItem = OPhimItem;
+export type KKPhimListResponse = OPhimListResponse;
+
