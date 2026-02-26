@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Play, ChevronRight, Info } from "lucide-react";
+import { Play, ChevronRight } from "lucide-react";
 import { TMDB_IMG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import type { TMDBMovie, TMDBTVShow } from "@/types";
@@ -31,7 +31,8 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
   const href = type === "movie" ? `/movie/${item.id}` : `/tv/${item.id}`;
 
   return (
-    <div className="relative w-full" style={{ height: "calc(100vh - 64px)", minHeight: 480, maxHeight: 720 }}>
+    // ✅ FIX 1: 100vh vì navbar là fixed (không chiếm DOM height)
+    <div className="relative w-full" style={{ height: "100vh", minHeight: 560, maxHeight: 900 }}>
       {/* Background images */}
       {items.slice(0, 5).map((it, i) => (
         <Image
@@ -48,38 +49,35 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
         />
       ))}
 
-      {/* Gradient overlays — matches Mvoov design */}
+      {/* Gradient overlays */}
       <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/50 to-black/10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0f0f0f] via-[#0f0f0f]/20 to-transparent" />
 
-      {/* Content */}
-      <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-16 lg:px-24 max-w-3xl">
-        {/* Badge */}
-        <div className="flex items-center gap-2 mb-4">
-          <span className="bg-white text-black text-xs font-bold px-2 py-0.5 rounded">
+      {/* ✅ FIX 2: Content ở bottom-left như Mvoov design, không phải center */}
+      <div className="absolute bottom-0 left-0 right-0 px-8 md:px-16 lg:px-24 pb-20 md:pb-24 max-w-3xl">
+        {/* Badges */}
+        <div className="flex items-center gap-2 mb-5">
+          <span className="bg-white text-black text-xs font-bold px-2.5 py-1 rounded-md">
             {type === "movie" ? "PHIM" : "TV SHOW"}
           </span>
           {year && <span className="text-white/60 text-sm">{year}</span>}
-          <span className="text-white/60 text-sm">
-            ★ {item.vote_average.toFixed(1)}
-          </span>
+          <span className="text-white/60 text-sm">★ {item.vote_average.toFixed(1)}</span>
         </div>
 
         {/* Title */}
         <h1
-          className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4 drop-shadow-2xl"
-          style={{ textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}
+          className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-white leading-tight mb-4"
+          style={{ textShadow: "0 2px 30px rgba(0,0,0,0.9)" }}
         >
           {title}
         </h1>
 
         {/* Overview */}
-        <p className="text-white/75 text-sm md:text-base leading-relaxed line-clamp-3 mb-8 max-w-lg">
+        <p className="text-white/70 text-sm md:text-base leading-relaxed line-clamp-3 mb-8 max-w-lg">
           {item.overview || "Không có mô tả."}
         </p>
 
-        {/* Action Buttons */}
+        {/* Buttons */}
         <div className="flex items-center gap-4">
           <Link href={href} prefetch>
             <button className="flex items-center gap-2.5 bg-white text-black font-bold px-7 py-3 rounded-full text-sm hover:bg-white/90 active:scale-95 transition-all duration-150 shadow-lg shadow-black/30">
@@ -88,7 +86,7 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
             </button>
           </Link>
           <Link href={href} prefetch>
-            <button className="flex items-center gap-2 text-white/80 font-semibold text-sm hover:text-white transition-colors">
+            <button className="flex items-center gap-1.5 text-white/80 font-semibold text-sm hover:text-white transition-colors">
               Chi Tiết
               <ChevronRight className="size-4" />
             </button>
@@ -96,15 +94,15 @@ export function HeroBanner({ items, type }: HeroBannerProps) {
         </div>
       </div>
 
-      {/* Slide indicators */}
+      {/* Slide indicators — above the buttons */}
       {items.length > 1 && (
-        <div className="absolute bottom-8 left-8 md:left-16 lg:left-24 flex gap-1.5">
+        <div className="absolute bottom-8 right-8 md:right-16 flex gap-1.5">
           {items.slice(0, 5).map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
               className={cn(
-                "rounded-full transition-all duration-400 h-1",
+                "rounded-full transition-all duration-300 h-1",
                 i === current
                   ? "w-8 bg-white"
                   : "w-2 bg-white/30 hover:bg-white/60"

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Film, Tv, Search, Menu, X, Bookmark, Bell } from "lucide-react";
+import { Search, Menu, X, Bookmark, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TMDB_IMG } from "@/lib/constants";
 import Image from "next/image";
@@ -19,29 +19,47 @@ const searchCache = new Map<string, SearchResult[]>();
 
 export function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Only trang chủ mới có hero → navbar bắt đầu transparent
+  const isHomePage = pathname === "/";
+
   const [query, setQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [scrolled, setScrolled] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  // ✅ FIX: Nếu không phải trang chủ → bắt đầu scrolled=true luôn (solid dark)
+  const [scrolled, setScrolled] = useState(!isHomePage);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Track scroll to change navbar bg
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60);
+    // Reset trạng thái khi chuyển trang
+    if (!isHomePage) {
+      setScrolled(true);
+      return;
+    }
+    // Chỉ theo dõi scroll trên trang chủ
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll(); // check ngay lập tức
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [isHomePage]);
+
+  // Đóng menu khi chuyển trang
+  useEffect(() => {
+    setMenuOpen(false);
+    setSearchOpen(false);
+    setQuery("");
+    setShowDropdown(false);
+  }, [pathname]);
 
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       if (query.trim()) {
         router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-        setMenuOpen(false);
         setShowDropdown(false);
         setSearchOpen(false);
       }
@@ -94,8 +112,8 @@ export function Navbar() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
         scrolled
-          ? "bg-[#0f0f0f]/95 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/30"
-          : "bg-gradient-to-b from-black/70 to-transparent"
+          ? "bg-[#0f0f0f]/96 backdrop-blur-md border-b border-white/5 shadow-xl shadow-black/20"
+          : "bg-gradient-to-b from-black/80 via-black/20 to-transparent"
       )}
     >
       <div className="max-w-[1600px] mx-auto flex h-16 items-center gap-6 px-6 md:px-10">
@@ -111,27 +129,34 @@ export function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="px-4 py-1.5 text-sm font-medium text-white/70 hover:text-white rounded-full hover:bg-white/10 transition-all duration-150"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-150",
+                  isActive
+                    ? "text-white bg-white/15"
+                    : "text-white/65 hover:text-white hover:bg-white/10"
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Right side */}
         <div className="ml-auto flex items-center gap-2">
-          {/* Search */}
+          {/* Desktop Search */}
           <div className="relative hidden md:block">
             {searchOpen ? (
               <form onSubmit={handleSearch} className="flex items-center">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/50 pointer-events-none" />
                   <input
-                    ref={inputRef}
                     value={query}
                     onChange={handleInputChange}
                     onKeyDown={(e) => {
@@ -139,6 +164,7 @@ export function Navbar() {
                         setShowDropdown(false);
                         setSearchOpen(false);
                         setSelectedIndex(-1);
+                        setQuery("");
                       } else if (e.key === "ArrowDown") {
                         e.preventDefault();
                         setSelectedIndex((prev) =>
@@ -171,14 +197,17 @@ export function Navbar() {
                         setQuery("");
                       }, 150)
                     }
+                    onFocus={() =>
+                      searchResults.length > 0 && setShowDropdown(true)
+                    }
                     placeholder="Tìm phim, TV show..."
                     autoFocus
-                    className="w-72 pl-9 pr-4 py-2 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-white/40 focus:bg-white/15 transition-all"
+                    className="w-72 pl-9 pr-4 py-2 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-white/50 focus:bg-white/15 transition-all"
                   />
 
                   {/* Dropdown */}
                   {showDropdown && searchResults.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
+                    <div className="absolute top-full left-0 right-0 mt-2 bg-[#1c1c1c] border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden">
                       {searchResults.map((result, index) => (
                         <Link
                           key={`${result.media_type}-${result.id}`}
@@ -241,36 +270,36 @@ export function Navbar() {
             ) : (
               <button
                 onClick={() => setSearchOpen(true)}
-                className="size-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                className="size-9 rounded-full hover:bg-white/15 flex items-center justify-center transition-colors"
+                aria-label="Tìm kiếm"
               >
-                <Search className="size-4 text-white" />
+                <Search className="size-4.5 text-white" />
               </button>
             )}
           </div>
 
-          {/* Notification bell */}
-          <button className="hidden md:flex size-9 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center transition-colors">
-            <Bell className="size-4 text-white" />
-          </button>
-
-          {/* Watchlist */}
+          {/* Watchlist icon */}
           <Link
             href="/watchlist"
-            className="hidden md:flex size-9 rounded-full bg-white/10 hover:bg-white/20 items-center justify-center transition-colors"
+            className={cn(
+              "hidden md:flex size-9 rounded-full items-center justify-center transition-colors",
+              pathname === "/watchlist" ? "bg-white/20" : "hover:bg-white/15"
+            )}
+            aria-label="Danh sách yêu thích"
           >
-            <Bookmark className="size-4 text-white" />
+            <Bookmark className={cn("size-4.5 text-white", pathname === "/watchlist" && "fill-white")} />
           </Link>
 
           {/* Mobile menu toggle */}
           <button
-            className="md:hidden size-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+            className="md:hidden size-9 rounded-full hover:bg-white/15 flex items-center justify-center transition-colors"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
             {menuOpen ? (
-              <X className="size-4 text-white" />
+              <X className="size-5 text-white" />
             ) : (
-              <Menu className="size-4 text-white" />
+              <Menu className="size-5 text-white" />
             )}
           </button>
         </div>
@@ -280,10 +309,10 @@ export function Navbar() {
       <div
         className={cn(
           "md:hidden overflow-hidden transition-all duration-300",
-          menuOpen ? "max-h-64" : "max-h-0"
+          menuOpen ? "max-h-72" : "max-h-0"
         )}
       >
-        <div className="bg-[#0f0f0f]/98 backdrop-blur-md border-t border-white/10 px-6 py-4 flex flex-col gap-3">
+        <div className="bg-[#0f0f0f]/98 backdrop-blur-md border-t border-white/8 px-6 py-4 flex flex-col gap-3">
           <form onSubmit={handleSearch} className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-white/40 pointer-events-none" />
@@ -291,27 +320,35 @@ export function Navbar() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Tìm phim, TV show..."
-                className="w-full pl-9 pr-4 py-2 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm focus:outline-none"
+                className="w-full pl-9 pr-4 py-2 rounded-full bg-white/10 border border-white/15 text-white placeholder:text-white/40 text-sm focus:outline-none focus:border-white/30"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2 rounded-full bg-white text-black text-sm font-semibold"
+              className="px-4 py-2 rounded-full bg-white text-black text-sm font-semibold shrink-0"
             >
               Tìm
             </button>
           </form>
           <div className="flex flex-wrap gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="px-4 py-1.5 rounded-full bg-white/10 text-white/80 text-sm font-medium hover:bg-white/20 transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  className={cn(
+                    "px-4 py-1.5 rounded-full text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-white text-black"
+                      : "bg-white/10 text-white/80 hover:bg-white/20"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
