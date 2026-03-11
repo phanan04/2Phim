@@ -143,9 +143,10 @@ export async function discoverMovies(params: {
     query.with_origin_country = params.country;
   }
   
-  // Filter out obscure movies if sorting by newest or rating
-  if (params.sortBy === "vote_average.desc" || params.sortBy === "primary_release_date.desc") {
-    query["vote_count.gte"] = "100";
+  // Filter out obscure movies when browsing broadly (not when filtering by country/year)
+  const isBroadBrowse = !params.country && !params.year;
+  if (isBroadBrowse && (params.sortBy === "vote_average.desc" || params.sortBy === "primary_release_date.desc")) {
+    query["vote_count.gte"] = "50";
   }
 
   return tmdbFetch<TMDBSearchResponse<TMDBMovie>>("/discover/movie", query);
@@ -172,8 +173,10 @@ export async function discoverTVShows(params: {
     query.with_origin_country = params.country;
   }
   
-  if (params.sortBy === "vote_average.desc" || params.sortBy === "first_air_date.desc") {
-    query["vote_count.gte"] = "100";
+  // Filter out obscure shows when browsing broadly (not when filtering by country/year)
+  const isBroadBrowse = !params.country && !params.year;
+  if (isBroadBrowse && (params.sortBy === "vote_average.desc" || params.sortBy === "first_air_date.desc")) {
+    query["vote_count.gte"] = "50";
   }
 
   return tmdbFetch<TMDBSearchResponse<TMDBTVShow>>("/discover/tv", query);
