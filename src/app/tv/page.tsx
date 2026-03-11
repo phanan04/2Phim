@@ -24,6 +24,20 @@ const TV_GENRES = [
   { id: 10765, label: "Thần Thoại & Viễn Tưởng" },
 ];
 
+const COUNTRIES = [
+  { code: "all", label: "Quốc Gia" },
+  { code: "US", label: "🇺🇸 Mỹ" },
+  { code: "KR", label: "🇰🇷 Hàn Quốc" },
+  { code: "JP", label: "🇯🇵 Nhật Bản" },
+  { code: "CN", label: "🇨🇳 Trung Quốc" },
+  { code: "TH", label: "🇹🇭 Thái Lan" },
+  { code: "IN", label: "🇮🇳 Ấn Độ" },
+  { code: "GB", label: "🇬🇧 Anh" },
+  { code: "FR", label: "🇫🇷 Pháp" },
+  { code: "TW", label: "🇹🇼 Đài Loan" },
+  { code: "HK", label: "🇭🇰 Hồng Kông" },
+];
+
 export default function TVPage() {
   const [shows, setShows] = useState<TMDBTVShow[]>([]);
   const [page, setPage] = useState(1);
@@ -32,13 +46,15 @@ export default function TVPage() {
   const [activeGenre, setActiveGenre] = useState(0);
   const [sortBy, setSortBy] = useState("popularity.desc");
   const [year, setYear] = useState(0);
+  const [country, setCountry] = useState("all");
 
-  const fetchShows = useCallback(async (p: number, g: number, s: string, y: number) => {
+  const fetchShows = useCallback(async (p: number, g: number, s: string, y: number, c: string) => {
     setLoading(true);
     try {
       let url = `/api/tv?page=${p}&sortBy=${s}`;
       if (g > 0) url += `&genre=${g}`;
       if (y > 0) url += `&year=${y}`;
+      if (c && c !== "all") url += `&country=${c}`;
       const res = await fetch(url);
       const data = await res.json();
       setShows(data.shows ?? []);
@@ -49,9 +65,9 @@ export default function TVPage() {
   }, []);
 
   useEffect(() => {
-    fetchShows(page, activeGenre, sortBy, year);
+    fetchShows(page, activeGenre, sortBy, year, country);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [page, activeGenre, sortBy, year, fetchShows]);
+  }, [page, activeGenre, sortBy, year, country, fetchShows]);
 
   const handleGenreChange = (gId: number) => {
     if (gId === activeGenre) return;
@@ -93,6 +109,17 @@ export default function TVPage() {
                   <SelectItem value="popularity.desc">Phổ biến nhất</SelectItem>
                   <SelectItem value="first_air_date.desc">Mới ra mắt</SelectItem>
                   <SelectItem value="vote_average.desc">Đánh giá cao</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={country} onValueChange={(val) => { setCountry(val); setPage(1); }}>
+                <SelectTrigger className="w-[160px] rounded-full bg-transparent border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/10 dark:text-white transition-colors">
+                  <SelectValue placeholder="Quốc gia" />
+                </SelectTrigger>
+                <SelectContent>
+                  {COUNTRIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>{c.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 

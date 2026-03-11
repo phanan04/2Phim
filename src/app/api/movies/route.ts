@@ -7,6 +7,7 @@ export async function GET(req: Request) {
   const genre = Number(searchParams.get("genre") ?? 0);
   const sortBy = searchParams.get("sortBy") || "popularity.desc";
   const year = Number(searchParams.get("year") ?? 0);
+  const country = searchParams.get("country") || "";
 
   try {
     const data = await discoverMovies({
@@ -14,6 +15,7 @@ export async function GET(req: Request) {
       genre,
       sortBy,
       year: year > 0 ? year : undefined,
+      country: country || undefined,
     });
     return NextResponse.json({
       movies: data.results,

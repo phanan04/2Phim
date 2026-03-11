@@ -36,6 +36,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${inter.variable} ${inter.className} bg-gray-50 dark:bg-[#0f0f0f] text-gray-950 dark:text-white antialiased`}
+        suppressHydrationWarning
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <Navbar />

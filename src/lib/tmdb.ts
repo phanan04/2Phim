@@ -127,6 +127,7 @@ export async function discoverMovies(params: {
   genre?: number;
   sortBy?: string;
   year?: number;
+  country?: string;
 }) {
   const query: Record<string, string> = {
     page: String(params.page || 1),
@@ -137,6 +138,9 @@ export async function discoverMovies(params: {
   }
   if (params.year) {
     query.primary_release_year = String(params.year);
+  }
+  if (params.country) {
+    query.with_origin_country = params.country;
   }
   
   // Filter out obscure movies if sorting by newest or rating
@@ -152,6 +156,7 @@ export async function discoverTVShows(params: {
   genre?: number;
   sortBy?: string;
   year?: number;
+  country?: string;
 }) {
   const query: Record<string, string> = {
     page: String(params.page || 1),
@@ -162,6 +167,9 @@ export async function discoverTVShows(params: {
   }
   if (params.year) {
     query.first_air_date_year = String(params.year);
+  }
+  if (params.country) {
+    query.with_origin_country = params.country;
   }
   
   if (params.sortBy === "vote_average.desc" || params.sortBy === "first_air_date.desc") {

@@ -14,12 +14,12 @@ export function Footer() {
 
   return (
     <footer className="border-t border-gray-200 dark:border-white/8 bg-white dark:bg-[#0a0a0a] mt-16">
-      <div className="max-w-[1600px] mx-auto px-6 md:px-10 py-10">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+      <div suppressHydrationWarning className="max-w-[1600px] mx-auto px-6 md:px-10 py-10">
+        <div suppressHydrationWarning className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           {/* Brand */}
-          <div className="space-y-2.5">
+          <div suppressHydrationWarning className="space-y-2.5">
             <Link href="/" className="flex items-center gap-2 w-fit group">
-              <div className="size-7 rounded-md bg-gray-900 text-white dark:bg-white dark:text-black flex items-center justify-center font-black text-base leading-none">
+              <div suppressHydrationWarning className="size-7 rounded-md bg-gray-900 text-white dark:bg-white dark:text-black flex items-center justify-center font-black text-base leading-none">
                 2
               </div>
               <span className="font-extrabold text-lg text-gray-950 dark:text-white tracking-tight">Phim</span>
@@ -53,7 +53,7 @@ export function Footer() {
         </div>
 
         {/* Bottom */}
-        <div className="mt-8 pt-6 border-t border-gray-200 dark:border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div suppressHydrationWarning className="mt-8 pt-6 border-t border-gray-200 dark:border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-gray-400 dark:text-white/30 text-xs">
             © {year} 2Phim — Chỉ dùng cho mục đích học tập.
           </p>

@@ -360,17 +360,18 @@ export function Navbar() {
 
       {/* Mobile menu */}
       <div
+        suppressHydrationWarning
         className={cn(
           "md:hidden grid transition-[grid-template-rows] duration-300 ease-in-out",
           menuOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         )}
       >
-        <div className="overflow-hidden">
-          <div className="bg-white/98 dark:bg-[#0f0f0f]/98 backdrop-blur-md border-t border-gray-200 dark:border-white/8 px-6 py-4 flex flex-col gap-3">
+        <div suppressHydrationWarning className="overflow-hidden">
+          <div suppressHydrationWarning className="bg-white/98 dark:bg-[#0f0f0f]/98 backdrop-blur-md border-t border-gray-200 dark:border-white/8 px-6 py-4 flex flex-col gap-3">
 
             {/* Search */}
             <form onSubmit={handleSearch} className="flex gap-2">
-              <div className="relative flex-1">
+              <div suppressHydrationWarning className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-gray-400 dark:text-white/40 pointer-events-none" />
                 <input
                   type="search"
@@ -387,7 +388,7 @@ export function Navbar() {
             </form>
 
             {/* Links */}
-            <div className="flex flex-wrap gap-2">
+            <div suppressHydrationWarning className="flex flex-wrap gap-2">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
