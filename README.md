@@ -1,123 +1,52 @@
-﻿# 🎬 2Phim — Xem Phim & TV Show Online Miễn Phí
+# 2 Phim - Nền Tảng Xem Phim Trực Tuyến Đỉnh Cao
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?logo=tailwindcss)](https://tailwindcss.com)
-
-> Trang web xem phim và TV show miễn phí, chất lượng cao — sử dụng TMDB API + nhiều nguồn stream.
-
-**Repo:** [github.com/phanan04/2Phim](https://github.com/phanan04/2Phim)
+Website xem phim trực tuyến hiện đại, tốc độ cao được xây dựng theo phong cách và tiêu chuẩn trải nghiệm của [Chợ Phim](https://chophim.ink/).
 
 ---
 
-## ✨ Tính năng
+## 🌟 Tính Năng Nổi Bật
 
-### 🎥 Xem phim
-- **9 nguồn stream** — AutoEmbed (×4 server), VidSrc (×4 domain), 2Embed, VidLink
-- Chuyển đổi server ngay trên trang khi một nguồn bị lỗi
-- TV Show: chọn mùa & tập, **deep link** `/tv/[id]?s=2&ep=5`
-- Tự động lưu tiến độ xem (continue watching)
+- 🎬 **Kho phim khổng lồ cập nhật từng phút:**
+  - Phim Chiếu Rạp bom tấn phòng vé
+  - Phim Bộ Hàn Quốc, Trung Quốc, Âu Mỹ hot nhất
+  - Phim Lẻ mới nhất chất lượng Full HD / 4K
+  - Hoạt Hình & Anime Nhật Bản đặc sắc
+  - TV Shows & Truyền hình thực tế hấp dẫn
 
-### 🏠 Trang chủ
-- Hero slideshow tự động cuộn (5 phim trending, 6 giây/slide)
-- Sections: Thịnh Hành · TV Nổi Bật · Phổ Biến · Đánh Giá Cao · Đang Chiếu Rạp · Sắp Ra Mắt
-- **Xem gần đây** — tự động lưu lịch sử, hiện ngay trên trang chủ
+- ⚡ **Trình phát video thông minh (Dual-Player Engine):**
+  - **Server HLS Siêu Tốc:** Phát trực tiếp luồng m3u8 không quảng cáo che màn hình, hỗ trợ phụ đề Vietsub và Thuyết minh.
+  - **Server VIP Embed:** Nguồn nhúng dự phòng đảm bảo 100% phim luôn xem được trong mọi điều kiện mạng.
+  - **Chế độ Rạp phim (Theater Mode)** & **Bật / Tắt Đèn (Lights Off)** tập trung tối đa vào trải nghiệm xem.
+  - **Tự động chuyển tập:** Khi xem xong tập hiện tại, hệ thống tự động nhảy sang tập kế tiếp.
 
-### 🔍 Tìm kiếm
-- Live search dropdown với 300ms debounce + session cache
-- Điều hướng bàn phím: `↑↓` chọn, `Enter` mở, `Esc` đóng
-- Trang kết quả `/search?q=...`
+- 🔍 **Tìm kiếm & Bộ lọc thông minh:**
+  - **Live Search Modal (Ctrl + K):** Gõ từ khóa gợi ý ngay kết quả tức thì kèm ảnh bìa và điểm đánh giá.
+  - Phân loại theo hơn **20+ Thể loại** và **15+ Quốc gia**.
 
-### 📋 Danh sách & lịch sử
-- **Yêu thích** — bookmark phim/TV, lưu localStorage, trang `/watchlist`
-- **Xem gần đây** — tự động lưu khi vào trang chi tiết
-- **Continue watching** — nhớ tập cuối xem cho từng TV show
-- Toast notification khi thêm/xóa yêu thích
+- 🔖 **Tính năng cá nhân tiện lợi (Không cần đăng ký phức tạp):**
+  - **Yêu Thích (Bookmarks):** Lưu các bộ phim muốn xem lại chỉ với 1 click.
+  - **Lịch Sử Xem (Watch History):** Tự động ghi nhớ bộ phim và tập đang xem dở để bạn tiếp tục bất cứ lúc nào.
 
-### 🎭 Thể loại & khám phá
-- Trang `/genre/[id]` cho từng thể loại phim & TV show
-- **Phân trang đầy đủ** (tối đa 500 trang từ TMDB)
-- Badge thể loại click được ngay trên trang chi tiết
-
-### 📄 Trang chi tiết
-- Backdrop · Poster · Rating · Thể loại · Tóm tắt
-- **CastCarousel** — danh sách diễn viên cuộn ngang
-- **Trailer** — modal YouTube
-- **Chia sẻ** — Web Share API hoặc copy clipboard
-- **Breadcrumbs** — điều hướng dễ dàng
-- Phim / TV Show tương tự
-
-### 🌓 Giao diện
-- **Dark / Light mode** — toggle, lưu preference
-- Responsive hoàn toàn (mobile → desktop)
-- Skeleton loading trên mọi trang danh sách
-- Blur placeholder cho tất cả ảnh TMDB
-- BackToTop button
+- 📱 **Giao diện hiện đại & Siêu mượt:**
+  - Chuẩn Responsive trên mọi thiết bị: Desktop, Laptop, Máy tính bảng và Điện thoại di động.
+  - Tông màu Dark Theme sang trọng (`#0B0F19`), màu nhấn vàng hổ phách (`#FECF59`).
+  - Điểm đánh giá **IMDb** vàng và **TMDb** xanh chuẩn xác.
 
 ---
 
-## 🛠 Tech Stack
+## 🚀 Hướng Dẫn Khởi Chạy
 
-| Công nghệ | Phiên bản | Mục đích |
-|---|---|---|
-| [Next.js](https://nextjs.org) | 16 (App Router) | Framework |
-| [TypeScript](https://www.typescriptlang.org) | 5 | Type safety |
-| [Tailwind CSS](https://tailwindcss.com) | v4 | Styling |
-| [shadcn/ui](https://ui.shadcn.com) | latest | UI components |
-| [next-themes](https://github.com/pacocoursey/next-themes) | latest | Dark/Light mode |
-| [sonner](https://sonner.emilkowal.ski) | latest | Toast notifications |
-| [TMDB API](https://developer.themoviedb.org) | v3 | Dữ liệu phim |
-| [Lucide React](https://lucide.dev) | latest | Icons |
-
----
-
-## 🚀 
+Dự án đã được cấu hình sẵn môi trường Node.js và pnpm:
 
 ```bash
-https://2-phim.vercel.app/
+# Di chuyển vào thư mục dự án
+cd e:\projects\2phim
+
+# Khởi chạy server phát triển
+pnpm dev
+
+# Hoặc build bản phát hành tối ưu
+pnpm build
 ```
 
----
-
-## 📁 Cấu trúc thư mục
-
-```
-src/
-├── app/
-│   ├── page.tsx              # Trang chủ
-│   ├── movie/[id]/           # Chi tiết phim
-│   ├── tv/[id]/              # Chi tiết TV show
-│   ├── movies/               # Danh sách phim (có phân trang)
-│   ├── tv/                   # Danh sách TV show (có phân trang)
-│   ├── genre/[id]/           # Theo thể loại (có phân trang)
-│   ├── search/               # Kết quả tìm kiếm
-│   ├── watchlist/            # Danh sách yêu thích
-│   └── api/                  # API routes (TMDB proxy)
-├── components/
-│   ├── HeroBanner.tsx        # Hero slideshow
-│   ├── MovieCard.tsx         # Card phim (server component)
-│   ├── EpisodeSelector.tsx   # Chọn mùa/tập TV show
-│   ├── VideoPlayer.tsx       # Player với 9 server
-│   ├── Navbar.tsx            # Navbar + live search + keyboard nav
-│   ├── ShareButton.tsx       # Nút chia sẻ
-│   ├── Breadcrumb.tsx        # Breadcrumb navigation
-│   ├── RecentlyViewedSection.tsx  # Lịch sử xem trên trang chủ
-│   ├── TrackView.tsx         # Client component tự động lưu lịch sử
-│   └── ...
-├── hooks/
-│   ├── useWatchlist.ts       # Quản lý yêu thích
-│   ├── useRecentlyViewed.ts  # Lịch sử xem gần đây
-│   └── useContinueWatching.ts # Tiếp tục xem TV show
-├── lib/
-│   ├── tmdb.ts               # TMDB API helpers
-│   ├── constants.ts          # URL builders, blur placeholder
-│   └── utils.ts
-└── types/
-    └── index.ts              # TypeScript types
-```
-
----
-
-## 📝 License
-
-MIT — tự do sử dụng, học tập và đóng góp.
+Mở trình duyệt truy cập: [http://localhost:3000](http://localhost:3000)
