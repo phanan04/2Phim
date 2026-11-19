@@ -90,16 +90,24 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   const isEmbed = currentChannel === 1;
   const [retryKey, setRetryKey] = useState(0);
 
-  // Responsive mobile state (< 640px)
+  // Responsive mobile state (< 640px) and touch/compact device state
   const [isMobile, setIsMobile] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
+    const checkDevice = () => {
+      const isCoarse = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+      const isSmall = typeof window !== 'undefined' && (window.innerWidth < 768 || window.innerHeight < 550);
       setIsMobile(window.innerWidth < 640);
+      setIsTouchDevice(isCoarse || isSmall);
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    checkDevice();
+    window.addEventListener('resize', checkDevice);
+    window.addEventListener('orientationchange', checkDevice);
+    return () => {
+      window.removeEventListener('resize', checkDevice);
+      window.removeEventListener('orientationchange', checkDevice);
+    };
   }, []);
 
   // Khóa cuộn trang nền khi player ở chế độ toàn màn hình trên điện thoại
@@ -348,7 +356,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest('.player-floating-panel') && !target.closest('.player-toggle-btn')) {
+      if (
+        !target.closest('.player-floating-panel') &&
+        !target.closest('.player-toggle-btn') &&
+        !target.closest('.player-mobile-sheet')
+      ) {
         setShowServerMenu(false);
         setShowSettingsMenu(false);
         setShowSubtitleMenu(false);
@@ -683,9 +695,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     children: React.ReactNode,
     headerRight?: React.ReactNode
   ) => {
-    if (!isOpen || !isMobile) return null;
+    if (!isOpen || !isTouchDevice) return null;
+    const isDocFs = typeof document !== 'undefined' && Boolean(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).mozFullScreenElement ||
+      (document as any).msFullscreenElement
+    );
     const portalTarget =
-      isFullscreen && playerWrapperRef.current
+      (isDocFs || isFullscreen) && playerWrapperRef.current
         ? playerWrapperRef.current
         : typeof document !== 'undefined'
         ? document.body
@@ -696,13 +714,26 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       <>
         {/* Backdrop overlay */}
         <div
-          className="fixed inset-0 bg-black/75 backdrop-blur-[2px] z-[999998] animate-in fade-in duration-200"
-          onClick={onClose}
+          className="player-sheet-backdrop fixed inset-0 bg-black/80 backdrop-blur-[2px] z-[999998] animate-in fade-in duration-200"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
         />
         {/* Mobile Bottom Sheet Drawer */}
         <div
-          className="fixed inset-x-0 bottom-0 max-h-[82vh] bg-[#141419]/98 backdrop-blur-2xl border-t border-white/20 rounded-t-2xl z-[999999] p-4 pb-7 overflow-y-auto shadow-2xl animate-in slide-in-from-bottom duration-250 text-white select-none"
+          className="player-floating-panel player-mobile-sheet fixed inset-x-0 bottom-0 max-h-[85vh] bg-[#141419]/98 backdrop-blur-2xl border-t border-white/20 rounded-t-2xl z-[999999] p-4 pb-8 overflow-y-auto shadow-2xl animate-in slide-in-from-bottom duration-250 text-white select-none"
           onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
         >
           {/* Drag pill handle */}
           <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mb-3" />
@@ -714,7 +745,10 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
               {headerRight}
               <button
                 type="button"
-                onClick={onClose}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
                 className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
                 title="Đóng"
               >
@@ -1034,8 +1068,12 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         </button>
       )}
 
-      {!isMobile && showServerMenu && (
-        <div className="player-floating-panel absolute bottom-16 right-16 sm:right-28 w-80 rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-40 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
+      {!isTouchDevice && showServerMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="player-floating-panel absolute bottom-16 right-16 sm:right-28 w-80 max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-50 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150"
+        >
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <h3 className="font-bold text-white text-base">Máy chủ</h3>
             <button
@@ -1282,8 +1320,12 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         ) : undefined
       )}
 
-      {!isMobile && showSettingsMenu && (
-        <div className="player-floating-panel absolute bottom-16 right-6 sm:right-16 w-72 rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-40 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
+      {!isTouchDevice && showSettingsMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="player-floating-panel absolute bottom-16 right-6 sm:right-16 w-72 max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-50 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150"
+        >
           <div className="pb-3 border-b border-white/10 flex items-center justify-between">
             <h3 className="font-bold text-white text-base">Cài đặt</h3>
             {settingsTab !== 'main' && (
@@ -1660,8 +1702,12 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         </div>
       )}
 
-      {!isMobile && showSubtitleMenu && (
-        <div className="player-floating-panel absolute bottom-16 right-12 sm:right-32 w-[360px] sm:w-[420px] rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-40 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
+      {!isTouchDevice && showSubtitleMenu && (
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="player-floating-panel absolute bottom-16 right-12 sm:right-32 w-[360px] sm:w-[420px] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-50 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150"
+        >
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <h3 className="font-bold text-white text-base">Phụ đề</h3>
@@ -2137,12 +2183,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
             {/* 2. CC Button (Always visible on mobile & desktop) */}
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowSubtitleMenu((prev) => !prev);
                 setShowServerMenu(false);
                 setShowSettingsMenu(false);
                 setShowEpisodeDrawer(false);
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex flex-col items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
                 showSubtitleMenu || subtitleMode !== 'off'
                   ? 'text-white'
@@ -2160,12 +2209,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
             {/* 3. Audio Track / Song Badge Button (Mic with 'Song' badge - Hidden on mobile) */}
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowServerMenu((prev) => !prev);
                 setShowSettingsMenu(false);
                 setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className="player-toggle-btn hidden md:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full relative text-white/85 hover:text-white hover:bg-white/10 transition-colors cursor-pointer flex-col items-center justify-center"
               title="Nguồn âm thanh / Thuyết minh"
             >
@@ -2191,12 +2243,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
             {/* 4. Server Button: Router box with signal (Hidden on mobile, available on bottom bar) */}
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowServerMenu((prev) => !prev);
                 setShowSettingsMenu(false);
                 setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className={`player-toggle-btn hidden md:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
                 showServerMenu ? 'text-white' : 'text-white/85 hover:text-white'
               }`}
@@ -2238,13 +2293,16 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
             {/* 6. Settings gear button (Always visible) */}
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setShowSettingsMenu((prev) => !prev);
                 setSettingsTab('main');
                 setShowServerMenu(false);
                 setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
               className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
                 showSettingsMenu ? 'text-white' : 'text-white/85 hover:text-white'
               }`}
@@ -2273,7 +2331,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
           IMAGE 3: EPISODE DRAWER MATCHING media_1795009400539_55fbbb2c.jpg
           ======================================================== */}
       {showEpisodeDrawer && (
-        <div className="player-floating-panel absolute top-0 bottom-0 right-0 w-72 sm:w-80 md:w-96 bg-[#16161A]/95 backdrop-blur-2xl z-50 p-4 flex flex-col shadow-2xl animate-in slide-in-from-right duration-250 border-l border-white/10">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          className="player-floating-panel absolute top-0 bottom-0 right-0 w-72 sm:w-80 md:w-96 bg-[#16161A]/95 backdrop-blur-2xl z-50 p-4 flex flex-col shadow-2xl animate-in slide-in-from-right duration-250 border-l border-white/10"
+        >
           {/* Header matching Image 3 */}
           <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
             <h3 className="font-bold text-white text-sm sm:text-base truncate max-w-[80%]">
