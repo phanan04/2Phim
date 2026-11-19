@@ -1,64 +1,64 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Film, ShieldCheck, Heart, Sparkles, Crown } from 'lucide-react';
+import { Film, ShieldCheck, Heart, Sparkles } from 'lucide-react';
 import { CATEGORIES } from '../../api/phimApi';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="mt-20 border-t border-white/5 bg-[#09090B] text-white/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+    <footer className="mt-24 border-t border-white/10 bg-[#050507] text-white/60 relative z-20 select-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Logo & About */}
           <div className="md:col-span-2 space-y-4">
             <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#00F076] via-emerald-400 to-cyan-400 flex items-center justify-center shadow-[0_0_15px_rgba(0,240,118,0.3)]">
-                <span className="text-black font-black text-xl">2</span>
+              <div className="w-8 h-8 rounded-xl liquid-pill flex items-center justify-center font-black text-sm tracking-tight text-white border-top border-white/40">
+                2
               </div>
-              <span className="text-2xl font-black tracking-tight text-white group-hover:text-[#00F076] transition-colors">
-                2PHIM
+              <span className="text-xl font-black tracking-tight text-white group-hover:text-white/80 transition-colors">
+                PHIM
               </span>
-              <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 text-black text-[9px] font-black uppercase tracking-wider shadow-sm flex items-center gap-0.5">
-                <Crown className="w-2.5 h-2.5 fill-current" /> VIP
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase bg-white/10 text-white/90 border border-white/20">
+                4K SPATIAL
               </span>
             </Link>
             <p className="text-sm text-white/50 leading-relaxed max-w-md">
-              <strong className="text-white">2 Phim</strong> - Nền tảng xem phim trực tuyến miễn phí tốc độ cao.
-              Kho phim bom tấn phong phú cập nhật hàng ngày với chất lượng Full HD, phụ đề Vietsub và Thuyết minh chuẩn nhất.
+              <strong className="text-white">2Phim</strong> — Nền tảng điện ảnh không gian trực tuyến thế hệ mới.
+              Kho phim bom tấn phong phú cập nhật liên tục với độ phân giải 4K Ultra HD, âm thanh vòm sống động và giao diện Apple Liquid Glass tối giản siêu mượt.
             </p>
             <div className="flex items-center gap-2 text-xs text-white/40 pt-1">
-              <ShieldCheck className="w-4 h-4 text-[#00F076]" />
-              <span>Dữ liệu phim tổng hợp tự động từ các nguồn chia sẻ mở.</span>
+              <ShieldCheck className="w-4 h-4 text-white/60" />
+              <span>Dữ liệu tổng hợp tự động từ các nguồn chia sẻ mở.</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#00F076] mb-4 flex items-center gap-2">
-              <Film className="w-4 h-4" /> Chuyên Mục
+            <h3 className="text-xs font-black uppercase tracking-wider text-white/90 mb-4 flex items-center gap-2">
+              <Film className="w-3.5 h-3.5 text-white/70" /> Chuyên Mục
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/danh-sach/phim-chieu-rap" className="hover:text-[#00F076] transition-colors flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#00F076]" /> Chiếu Rạp Hot
+                <Link to="/danh-sach/phim-chieu-rap" className="hover:text-white transition-colors flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-white/60" /> Chiếu Rạp Hot
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/phim-bo" className="hover:text-[#00F076] transition-colors">
+                <Link to="/danh-sach/phim-bo" className="hover:text-white transition-colors">
                   Phim Bộ Hay Nhất
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/phim-le" className="hover:text-[#00F076] transition-colors">
+                <Link to="/danh-sach/phim-le" className="hover:text-white transition-colors">
                   Phim Lẻ Mới
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/hoat-hinh" className="hover:text-[#00F076] transition-colors">
+                <Link to="/danh-sach/hoat-hinh" className="hover:text-white transition-colors">
                   Anime Hoạt Hình
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/tv-shows" className="hover:text-[#00F076] transition-colors">
+                <Link to="/danh-sach/tv-shows" className="hover:text-white transition-colors">
                   Truyền Hình TV Shows
                 </Link>
               </li>
@@ -67,7 +67,7 @@ export const Footer: React.FC = () => {
 
           {/* Top Categories */}
           <div>
-            <h3 className="text-xs font-black uppercase tracking-wider text-[#00F076] mb-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-white/90 mb-4">
               Thể Loại Nổi Bật
             </h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -75,7 +75,7 @@ export const Footer: React.FC = () => {
                 <Link
                   key={cat.slug}
                   to={`/the-loai/${cat.slug}`}
-                  className="hover:text-[#00F076] transition-colors truncate"
+                  className="hover:text-white transition-colors truncate"
                 >
                   {cat.name}
                 </Link>
@@ -85,10 +85,10 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom copyright */}
-        <div className="pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
-          <p>© 2026 2Phim. Tất cả quyền được bảo lưu.</p>
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
+          <p>© 2026 2Phim Spatial Cinema. Tất cả quyền được bảo lưu.</p>
           <p className="flex items-center gap-1">
-            Thiết kế với <Heart className="w-3.5 h-3.5 text-emerald-400 fill-current" /> cho người yêu điện ảnh.
+            Thiết kế lấy cảm hứng từ <Heart className="w-3.5 h-3.5 text-white/70 fill-current" /> Apple VisionOS & Không Gian Điện Ảnh Tối Thượng.
           </p>
         </div>
       </div>

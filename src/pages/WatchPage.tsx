@@ -311,53 +311,53 @@ export const WatchPage: React.FC = () => {
           }}
         />
 
-        {/* 2. TV360 STYLE ACTION & CONTROL TOOLBAR */}
-        <div className="p-4 sm:p-5 rounded-3xl liquid-glass border border-white/10 space-y-4 shadow-xl">
+        {/* 2. SPATIAL CINEMA ACTION & CONTROL TOOLBAR */}
+        <div className="p-4 sm:p-6 rounded-3xl liquid-glass space-y-4 shadow-xl">
           {/* Top Row: Title + Next/Prev Episode */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-white/10">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 text-[10px] font-black rounded-md bg-red-600/90 text-white border border-red-500">
+                <span className="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-white/10 text-white border border-white/20">
                   {ageRating}
                 </span>
-                <span className="px-2 py-0.5 text-[10px] font-black rounded-md bg-gradient-to-r from-amber-400/20 to-yellow-500/20 text-[#FECF59] border border-[#FECF59]/30">
-                  4K ULTRA HD
+                <span className="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-white/10 text-white border border-white/20">
+                  4K SPATIAL CINEMA
                 </span>
                 <span className="text-xs font-bold text-white/50">{movie.year || '2026'}</span>
                 {movie.episode_current && (
-                  <span className="text-xs font-bold text-[#FECF59]">
+                  <span className="text-xs font-bold text-white/80">
                     {movie.episode_current}
                   </span>
                 )}
               </div>
 
               <h1 className="text-xl sm:text-2xl font-black text-white uppercase mt-1">
-                {movie.name} <span className="text-[#FECF59] font-black">– {currentEpisode?.name || 'Tập 1'}</span>
+                {movie.name} <span className="text-white/80 font-bold">– {currentEpisode?.name || 'Tập 1'}</span>
               </h1>
               <p className="text-xs sm:text-sm text-white/50 font-medium">{movie.origin_name}</p>
             </div>
 
             {/* Prev / Next Episode Buttons */}
             <div className="flex items-center gap-2 self-start md:self-center shrink-0">
-              <Button
-                variant="secondary"
-                size="sm"
+              <button
+                type="button"
                 onClick={handlePrevEpisode}
                 disabled={!prevEp}
-                className="liquid-glass-button text-xs font-bold"
+                className="liquid-pill px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" /> Tập Trước
-              </Button>
+                <ChevronLeft className="w-4 h-4" />
+                <span>Tập Trước</span>
+              </button>
 
-              <Button
-                variant="default"
-                size="sm"
+              <button
+                type="button"
                 onClick={handleNextEpisode}
                 disabled={!nextEp}
-                className="bg-gradient-to-r from-[#FECF59] via-amber-400 to-yellow-500 hover:from-yellow-400 hover:to-amber-500 text-black font-extrabold text-xs shadow-md"
+                className="liquid-cta-primary px-4 py-2 text-xs font-black flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
               >
-                Tập Kế Tiếp <ChevronRight className="w-4 h-4 ml-1" />
-              </Button>
+                <span>Tập Kế Tiếp</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
 
@@ -368,9 +368,9 @@ export const WatchPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsTrailerOpen(true)}
-                className="px-3.5 py-1.5 rounded-full liquid-glass-button text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5"
+                className="px-3.5 py-1.5 rounded-full liquid-pill text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
               >
-                <Film className="w-3.5 h-3.5 text-[#FECF59]" />
+                <Film className="w-3.5 h-3.5 text-white/70" />
                 <span>Trailer</span>
               </button>
 
@@ -389,13 +389,13 @@ export const WatchPage: React.FC = () => {
                   });
                   setIsBookmarked(added);
                 }}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                   isBookmarked
-                    ? 'bg-amber-500 text-black font-black shadow-md'
-                    : 'liquid-glass-button text-white/80 hover:text-white'
+                    ? 'liquid-cta-primary font-black shadow-md'
+                    : 'liquid-pill text-white/80 hover:text-white'
                 }`}
               >
-                <Heart className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
+                <Heart className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current text-black' : ''}`} />
                 <span>{isBookmarked ? 'Đã Lưu' : 'Lưu Xem Sau'}</span>
               </button>
 
@@ -408,10 +408,10 @@ export const WatchPage: React.FC = () => {
                     setTimeout(() => setCopied(false), 2000);
                   }
                 }}
-                className="p-2 sm:px-3 sm:py-1.5 rounded-full liquid-glass-button text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5"
+                className="p-2 sm:px-3 sm:py-1.5 rounded-full liquid-pill text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 title="Chia sẻ"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-amber-400" /> : <Share2 className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
                 <span className="hidden sm:inline">{copied ? 'Đã Sao Chép Link' : 'Chia Sẻ'}</span>
               </button>
             </div>
@@ -420,33 +420,33 @@ export const WatchPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsLightsOff(!isLightsOff)}
-                className={`p-2 rounded-full transition-all ${
+                className={`p-2 rounded-full transition-all cursor-pointer ${
                   isLightsOff
-                    ? 'bg-[#FECF59] text-black shadow-md'
-                    : 'liquid-glass-button text-white/70 hover:text-white'
+                    ? 'liquid-cta-primary shadow-md'
+                    : 'liquid-pill text-white/70 hover:text-white'
                 }`}
                 title="Bật/Tắt đèn phòng chiếu"
               >
-                {isLightsOff ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {isLightsOff ? <Sun className="w-4 h-4 text-black" /> : <Moon className="w-4 h-4" />}
               </button>
 
               <button
                 onClick={() => setIsTheaterMode(!isTheaterMode)}
-                className={`p-2 rounded-full transition-all hidden sm:block ${
+                className={`p-2 rounded-full transition-all hidden sm:block cursor-pointer ${
                   isTheaterMode
-                    ? 'bg-[#FECF59] text-black shadow-md'
-                    : 'liquid-glass-button text-white/70 hover:text-white'
+                    ? 'liquid-cta-primary shadow-md'
+                    : 'liquid-pill text-white/70 hover:text-white'
                 }`}
                 title="Chế độ Rạp Phim mở rộng"
               >
-                {isTheaterMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                {isTheaterMode ? <Minimize2 className="w-4 h-4 text-black" /> : <Maximize2 className="w-4 h-4" />}
               </button>
 
               <Link
                 to={`/phim/${movie.slug}`}
-                className="px-3.5 py-1.5 rounded-full liquid-glass-button text-white/80 hover:text-white text-xs font-bold flex items-center gap-1"
+                className="px-3.5 py-1.5 rounded-full liquid-pill text-white/80 hover:text-white text-xs font-bold flex items-center gap-1"
               >
-                <Info className="w-3.5 h-3.5 text-[#FECF59]" />
+                <Info className="w-3.5 h-3.5 text-white/70" />
                 <span>Chi Tiết</span>
               </Link>
             </div>
@@ -465,7 +465,7 @@ export const WatchPage: React.FC = () => {
               />
               <button
                 onClick={() => setIsContentExpanded(!isContentExpanded)}
-                className="text-[11px] font-bold text-[#FECF59] hover:underline mt-1.5 flex items-center gap-1"
+                className="text-[11px] font-bold text-white/80 hover:underline mt-1.5 flex items-center gap-1 cursor-pointer"
               >
                 <span>{isContentExpanded ? 'Thu gọn' : 'Xem thêm cốt truyện'}</span>
                 {isContentExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -476,12 +476,12 @@ export const WatchPage: React.FC = () => {
 
         {/* 3. TAB CONTROLLER: EPISODES | COMMENTS & REVIEWS | RELATED MOVIES */}
         <div className="space-y-4">
-          <div className="flex items-center gap-2 p-1.5 rounded-2xl liquid-glass border border-white/10 max-w-md">
+          <div className="flex items-center gap-2 p-1.5 rounded-full liquid-glass max-w-md">
             <button
               onClick={() => setActiveTab('episodes')}
-              className={`flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'episodes'
-                  ? 'bg-gradient-to-r from-[#FECF59] to-amber-500 text-black shadow-md'
+                  ? 'liquid-cta-primary shadow-md'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -491,9 +491,9 @@ export const WatchPage: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('comments')}
-              className={`flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'comments'
-                  ? 'bg-gradient-to-r from-[#FECF59] to-amber-500 text-black shadow-md'
+                  ? 'liquid-cta-primary shadow-md'
                   : 'text-white/60 hover:text-white'
               }`}
             >
@@ -503,9 +503,9 @@ export const WatchPage: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('related')}
-              className={`flex-1 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 activeTab === 'related'
-                  ? 'bg-gradient-to-r from-[#FECF59] to-amber-500 text-black shadow-md'
+                  ? 'liquid-cta-primary shadow-md'
                   : 'text-white/60 hover:text-white'
               }`}
             >

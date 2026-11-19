@@ -34,15 +34,15 @@ export const LandscapeCarousel: React.FC<LandscapeCarouselProps> = ({
   if (!movies || movies.length === 0) return null;
 
   return (
-    <div className="relative my-8">
+    <div className="relative my-8 select-none">
       {/* Header Row */}
       <div className="flex items-center justify-between mb-4 px-1">
-        <div className="flex items-center gap-2.5">
-          <div className="w-1.5 h-6 bg-[#FECF59] rounded-full shadow-[0_0_10px_#FECF59]" />
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          <div className="w-1 h-6 bg-white rounded-full shadow-[0_0_12px_rgba(255,255,255,0.85)]" />
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
             {title}
             {badge && (
-              <span className="text-[11px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-[#FECF59]/20 text-[#FECF59] border border-[#FECF59]/30">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20 backdrop-blur-md">
                 {badge}
               </span>
             )}
@@ -53,22 +53,23 @@ export const LandscapeCarousel: React.FC<LandscapeCarouselProps> = ({
           {viewAllLink && (
             <Link
               to={viewAllLink}
-              className="text-xs sm:text-sm font-bold text-white/60 hover:text-[#FECF59] flex items-center gap-0.5 transition-colors mr-2"
+              className="text-xs sm:text-sm font-semibold text-white/60 hover:text-white flex items-center gap-1 transition-colors mr-2 px-3 py-1.5 rounded-full hover:bg-white/5"
             >
-              Xem tất cả <ArrowLink className="w-4 h-4" />
+              <span>Xem tất cả</span>
+              <ArrowLink className="w-3.5 h-3.5" />
             </Link>
           )}
 
           <button
             onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full bg-[#18181C] border border-white/10 hover:border-[#FECF59] hover:bg-[#FECF59] hover:text-black text-white/80 transition-all flex items-center justify-center shadow-md"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
             aria-label="Cuộn sang trái"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full bg-[#18181C] border border-white/10 hover:border-[#FECF59] hover:bg-[#FECF59] hover:text-black text-white/80 transition-all flex items-center justify-center shadow-md"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
             aria-label="Cuộn sang phải"
           >
             <ChevronRight className="w-4 h-4" />
@@ -79,7 +80,7 @@ export const LandscapeCarousel: React.FC<LandscapeCarouselProps> = ({
       {/* Horizontal Scroll list for Landscape Cards */}
       <div
         ref={containerRef}
-        className="flex gap-4 overflow-x-auto no-scrollbar pb-3 pt-1 scroll-smooth snap-x snap-mandatory"
+        className="flex gap-4 sm:gap-5 overflow-x-auto overflow-y-visible no-scrollbar py-4 scroll-smooth snap-x snap-mandatory"
       >
         {movies.map((movie) => (
           <div

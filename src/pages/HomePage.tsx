@@ -85,9 +85,9 @@ export const HomePage: React.FC = () => {
       <div className="w-full max-w-[1720px] mx-auto px-4 sm:px-8 md:px-12 space-y-10 mt-4 sm:mt-6 relative z-20">
         {/* 2. CHỢ PHIM TOPIC PILLS (Bạn đang quan tâm gì?) */}
         <div className="space-y-2.5">
-          <div className="flex items-center gap-2 text-xs sm:text-sm font-bold text-white/60">
-            <Compass className="w-4 h-4 text-[#FECF59]" />
-            <span>Bạn đang quan tâm gì?</span>
+          <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-white/60">
+            <Compass className="w-4 h-4 text-white/80" />
+            <span>Khám phá chủ đề</span>
           </div>
 
           <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
@@ -100,8 +100,8 @@ export const HomePage: React.FC = () => {
                   onClick={() => setActiveRibbon(item.id)}
                   className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold shrink-0 transition-all flex items-center gap-1.5 ${
                     isActive
-                      ? 'bg-gradient-to-r from-[#FECF59] via-amber-400 to-yellow-500 text-black shadow-[0_0_20px_rgba(254,207,89,0.35)] scale-105'
-                      : 'liquid-glass-button text-white/80 hover:text-white'
+                      ? 'liquid-cta-primary shadow-[0_0_20px_rgba(255,255,255,0.35)] scale-105'
+                      : 'liquid-pill text-white/80 hover:text-white'
                   }`}
                 >
                   {item.label}
@@ -152,49 +152,49 @@ export const HomePage: React.FC = () => {
           />
         )}
 
-        {/* 6.5. EXCLUSIVE SPOTLIGHT BANNER (Giống spotlight banner trong ảnh thiết kế) */}
+        {/* 6.5. EXCLUSIVE SPOTLIGHT BANNER */}
         {!loading && theaters.length > 0 && (
-          <div className="relative rounded-3xl overflow-hidden liquid-glass border border-white/10 shadow-2xl my-6">
+          <div className="relative rounded-3xl overflow-hidden liquid-card my-8">
             <div className="relative aspect-[21/9] sm:aspect-[24/9] w-full overflow-hidden">
               <img
                 src={getImageUrl(theaters[0].thumb_url || theaters[0].poster_url)}
                 alt={theaters[0].name}
                 className="w-full h-full object-cover object-center filter brightness-90"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0E0E10] via-[#0E0E10]/80 to-transparent" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0E0E10] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#050507] via-[#050507]/85 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-transparent" />
 
               <div className="absolute inset-0 p-6 sm:p-10 md:p-12 flex flex-col justify-center max-w-2xl space-y-3 sm:space-y-4">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-3 py-1 rounded-full bg-gradient-to-r from-[#FECF59] via-amber-400 to-yellow-500 text-black text-[11px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                  <span className="px-3 py-1 rounded-full bg-white text-[#070709] text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
                     <Sparkles className="w-3.5 h-3.5 fill-current" /> ĐỀ XUẤT ĐẶC BIỆT
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-lg bg-red-600/90 text-white text-[11px] font-black border border-red-500">
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold border border-white/20">
                     T16
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-lg bg-amber-400/20 text-[#FECF59] text-[10px] font-black border border-[#FECF59]/30">
-                    4K ULTRA HD
+                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold border border-white/20">
+                    4K SPATIAL CINEMA
                   </span>
                 </div>
 
                 <h3 className="text-2xl sm:text-3xl md:text-5xl font-black text-white uppercase tracking-tight line-clamp-1 drop-shadow-lg">
                   {theaters[0].name}
                 </h3>
-                <p className="text-xs sm:text-sm text-white/60 line-clamp-2 sm:line-clamp-3">
+                <p className="text-xs sm:text-sm text-white/70 line-clamp-2 sm:line-clamp-3 leading-relaxed">
                   {theaters[0].origin_name} ({theaters[0].year || '2026'}). Trải nghiệm tuyệt tác điện ảnh tốc độ cao với chất lượng hình ảnh 4K HDR và âm thanh vòm sống động nhất, độc quyền tại 2Phim.
                 </p>
 
                 <div className="flex items-center gap-3 pt-2">
                   <Link
                     to={`/phim/${theaters[0].slug}`}
-                    className="px-6 sm:px-8 py-3 rounded-full bg-gradient-to-r from-[#FECF59] via-amber-400 to-yellow-500 text-black font-extrabold text-xs sm:text-sm shadow-[0_0_25px_rgba(254,207,89,0.4)] hover:scale-105 transition-all flex items-center gap-2"
+                    className="px-6 sm:px-8 py-3 rounded-full liquid-cta-primary font-black text-xs sm:text-sm flex items-center gap-2"
                   >
-                    <Play className="w-4 h-4 fill-current" />
+                    <Play className="w-4 h-4 fill-current text-black" />
                     <span>Xem Phim Ngay</span>
                   </Link>
                   <Link
                     to={`/phim/${theaters[0].slug}`}
-                    className="px-5 sm:px-6 py-3 rounded-full liquid-glass-button text-white text-xs sm:text-sm font-bold flex items-center gap-1.5"
+                    className="px-5 sm:px-6 py-3 rounded-full liquid-pill text-white text-xs sm:text-sm font-bold flex items-center gap-1.5"
                   >
                     <span>Chi Tiết</span>
                   </Link>

@@ -26,31 +26,31 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
   if (!top10 || top10.length === 0) return null;
 
   return (
-    <div className="relative my-10">
-      {/* Header Row */}
+    <div className="relative my-10 select-none">
+      {/* Section Header */}
       <div className="flex items-center justify-between mb-5 px-1">
         <div className="flex items-center gap-3">
-          <div className="w-1.5 h-6 bg-[#FECF59] rounded-full shadow-[0_0_10px_#FECF59]" />
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+          <div className="w-1 h-6 bg-white rounded-full shadow-[0_0_12px_rgba(255,255,255,0.85)]" />
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
             Top 10 Thịnh Hành Hôm Nay
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#FECF59]/20 text-[#FECF59] border border-[#FECF59]/30">
-              TOP 10
+            <span className="text-[10px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20 backdrop-blur-md">
+              SPATIAL TOP 10
             </span>
           </h2>
         </div>
 
-        {/* Navigation arrow buttons */}
+        {/* Liquid Glass Navigation Buttons */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full bg-[#18181C] border border-white/10 hover:border-[#FECF59] hover:bg-[#FECF59] hover:text-black text-white/80 transition-all flex items-center justify-center shadow-md"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
             aria-label="Cuộn sang trái"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full bg-[#18181C] border border-white/10 hover:border-[#FECF59] hover:bg-[#FECF59] hover:text-black text-white/80 transition-all flex items-center justify-center shadow-md"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
             aria-label="Cuộn sang phải"
           >
             <ChevronRight className="w-4 h-4" />
@@ -58,10 +58,10 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
         </div>
       </div>
 
-      {/* Horizontal List with Giant Number Ranking - Locked Height & Zero Wobble */}
+      {/* Horizontal List with Giant Frosted Crystal Numbers & Pure Artwork Cards */}
       <div
         ref={containerRef}
-        className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden no-scrollbar h-[280px] sm:h-[305px] py-2 scroll-smooth select-none items-center"
+        className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-visible no-scrollbar py-4 scroll-smooth select-none items-end"
       >
         {top10.map((movie, index) => {
           const rank = index + 1;
@@ -70,63 +70,62 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
           return (
             <div
               key={movie._id || movie.slug}
-              className="relative shrink-0 select-none group w-[210px] sm:w-[230px] h-full flex items-center"
+              className="relative flex items-end pl-8 sm:pl-10 w-[205px] sm:w-[225px] shrink-0 group cursor-pointer"
             >
-              {/* Giant 3D Outline Number - Absolutely Anchored to Bottom Left */}
-              <div className="absolute left-0 bottom-2 z-0 pointer-events-none select-none">
-                <span
-                  className={`text-[120px] sm:text-[140px] font-black leading-none ${
-                    rank <= 3 ? 'outline-number-active' : 'outline-number'
-                  }`}
-                >
-                  {rank}
-                </span>
-              </div>
+              {/* Giant Frosted Crystal Rank Numeral Overlapping Left Edge */}
+              <span
+                className={`text-[96px] sm:text-[112px] absolute left-0 -bottom-2 z-20 select-none pointer-events-none transition-transform duration-300 group-hover:scale-105 ${
+                  rank <= 3 ? 'crystal-rank-num-top3' : 'crystal-rank-num'
+                }`}
+              >
+                {rank}
+              </span>
 
-              {/* Poster Card (TV360 Style) - Fixed Offset from Number */}
+              {/* Pure Artwork Poster with Center Scale Pop-Out */}
               <Link
                 to={`/phim/${movie.slug}`}
-                className="ml-14 sm:ml-16 relative z-10 w-[145px] sm:w-[160px] aspect-[2/3] rounded-xl overflow-hidden bg-[#16161C] border border-white/10 group-hover:border-[#FECF59] transition-all duration-300 group-hover:scale-105 shadow-lg group-hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_20px_rgba(254,207,89,0.3)] block"
+                className="artwork-poster-card w-full aspect-[2/3] block relative z-10"
               >
                 <img
                   src={posterUrl}
                   alt={movie.name}
                   loading="lazy"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-500"
                 />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80 group-hover:opacity-50 transition-opacity" />
+                {/* Atmospheric Key-Art Vignette */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-black/35 opacity-75 group-hover:opacity-40 transition-opacity" />
 
-                {/* TV360 Badges */}
-                <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+                {/* Minimal Top Badges */}
+                <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
                   {rank <= 3 ? (
-                    <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-[#E50914] text-white shadow-md flex items-center gap-1">
-                      👑 VIP
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-white text-[#070709] shadow-md tracking-wider">
+                      👑 TOP {rank}
                     </span>
                   ) : (
-                    <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-gradient-to-r from-amber-500 to-yellow-400 text-black shadow-md">
-                      TOP {rank}
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-black/60 backdrop-blur-md text-white/90 border border-white/20">
+                      #{rank}
                     </span>
                   )}
 
-                  <span className="px-1.5 py-0.5 text-[8px] font-black tracking-wider uppercase rounded bg-[#FECF59] text-black shadow-md">
-                    4K
+                  <span className="px-1.5 py-0.5 text-[8px] font-black tracking-wider uppercase rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20">
+                    4K HDR
                   </span>
                 </div>
 
-                {/* Play hover (TV360 Gold Circle) */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="w-11 h-11 rounded-full bg-gradient-to-r from-[#FECF59] to-amber-500 text-black flex items-center justify-center shadow-[0_0_20px_rgba(254,207,89,0.5)] transform group-hover:scale-110 transition-transform">
-                    <Play className="w-5 h-5 fill-current ml-0.5" />
+                {/* Play hover (Luminous White Pill Orb) */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                  <div className="w-11 h-11 rounded-full liquid-cta-primary flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform">
+                    <Play className="w-4 h-4 fill-current ml-0.5 text-black" />
                   </div>
                 </div>
 
-                {/* Title */}
-                <div className="absolute bottom-2 left-2 right-2">
-                  <p className="text-xs font-bold text-white group-hover:text-[#FECF59] transition-colors truncate">
+                {/* Integrated Theatrical Key-Art Title */}
+                <div className="absolute bottom-2.5 inset-x-2 text-center pointer-events-none space-y-0.5 z-10">
+                  <p className="text-xs font-black text-white group-hover:text-white transition-colors truncate drop-shadow-md">
                     {movie.name}
                   </p>
-                  <p className="text-[10px] text-white/50 truncate">
+                  <p className="text-[10px] font-medium text-white/60 truncate">
                     {movie.origin_name || movie.year}
                   </p>
                 </div>

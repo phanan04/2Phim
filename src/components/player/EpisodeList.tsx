@@ -24,8 +24,8 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
 
   if (!episodes || episodes.length === 0) {
     return (
-      <div className="p-6 rounded-2xl bg-[#141418] border border-white/5 text-center text-white/50 text-sm">
-        Đang cập nhật tập phim...
+      <div className="p-6 rounded-3xl liquid-card text-center text-white/50 text-sm">
+        Đang cập nhật danh sách tập phim...
       </div>
     );
   }
@@ -46,16 +46,16 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
   };
 
   return (
-    <div className="rounded-2xl bg-[#141418] border border-white/5 p-4 sm:p-6 space-y-4 shadow-xl">
+    <div className="rounded-3xl liquid-card p-4 sm:p-6 space-y-4 shadow-xl select-none">
       {/* Server Selector Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
         <div className="flex items-center gap-2 text-white font-bold text-sm">
-          <Server className="w-4 h-4 text-[#FECF59]" />
+          <Server className="w-4 h-4 text-white/80" />
           <span>Nguồn Phát:</span>
           <span className="text-xs text-white/40 font-normal">({episodes.length} server)</span>
         </div>
 
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           {episodes.map((server, idx) => {
             const isActive = idx === currentServerIndex;
             const isVietnamese = /thuyết\s*minh|lồng\s*tiếng/i.test(server.server_name);
@@ -63,16 +63,16 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
               <button
                 key={`${server.server_name}-${idx}`}
                 onClick={() => onSelectEpisode(idx, server.server_data[0])}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                   isActive
-                    ? 'bg-[#FECF59] text-black border-[#FECF59] shadow-md shadow-[#FECF59]/20'
-                    : 'bg-[#202026] text-white/70 hover:text-white hover:bg-[#2A2A34] border-white/5'
+                    ? 'liquid-cta-primary shadow-md'
+                    : 'liquid-pill text-white/70 hover:text-white'
                 }`}
               >
                 {isVietnamese ? (
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                  <Sparkles className="w-3.5 h-3.5 fill-current text-white/90 shrink-0" />
                 ) : (
-                  <Radio className="w-3 h-3 text-white/40 shrink-0" />
+                  <Radio className="w-3 h-3 text-white/50 shrink-0" />
                 )}
                 <span>{server.server_name}</span>
               </button>
@@ -85,7 +85,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
       <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
         {totalGroups > 1 ? (
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-            <Layers className="w-3.5 h-3.5 text-[#FECF59] shrink-0" />
+            <Layers className="w-3.5 h-3.5 text-white/80 shrink-0" />
             <span className="text-white/50 shrink-0 mr-1">Tập:</span>
             {Array.from({ length: totalGroups }).map((_, groupIdx) => {
               const start = groupIdx * CHUNK_SIZE + 1;
@@ -95,10 +95,10 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
                 <button
                   key={groupIdx}
                   onClick={() => setSelectedGroup(groupIdx)}
-                  className={`px-3 py-1 rounded-full shrink-0 font-bold transition-colors ${
+                  className={`px-3 py-1 rounded-full shrink-0 font-bold transition-all cursor-pointer ${
                     isCurrentGroup
-                      ? 'bg-[#FECF59]/20 text-[#FECF59] border border-[#FECF59]/40'
-                      : 'bg-white/5 text-white/60 hover:text-white'
+                      ? 'liquid-cta-primary shadow-sm'
+                      : 'liquid-pill text-white/60 hover:text-white'
                   }`}
                 >
                   {start} - {end}
@@ -119,7 +119,7 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
                 type="checkbox"
                 checked={autoNext}
                 onChange={onToggleAutoNext}
-                className="accent-amber-400 rounded cursor-pointer"
+                className="accent-white rounded cursor-pointer"
               />
               <span className="text-xs font-semibold">Tự chuyển tập</span>
             </label>
@@ -127,12 +127,12 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
 
           <button
             onClick={handleReport}
-            className="flex items-center gap-1 text-xs text-white/40 hover:text-amber-400 transition-colors"
+            className="flex items-center gap-1 text-xs text-white/40 hover:text-white transition-colors cursor-pointer"
           >
             {reportSent ? (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#00F076]" />
-                <span className="text-[#00F076]">Đã báo lỗi!</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Đã báo lỗi!</span>
               </>
             ) : (
               <>
@@ -152,13 +152,13 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
             <button
               key={ep.slug}
               onClick={() => onSelectEpisode(currentServerIndex, ep)}
-              className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all truncate flex items-center justify-center gap-1 border ${
+              className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all truncate flex items-center justify-center gap-1 cursor-pointer ${
                 isActive
-                  ? 'bg-[#FECF59] text-black border-[#FECF59] shadow-lg scale-105'
-                  : 'bg-[#1C1C22] text-white/80 hover:bg-[#26262E] hover:text-[#FECF59] border-white/5'
+                  ? 'liquid-cta-primary font-black scale-105 shadow-md'
+                  : 'liquid-pill text-white/80 hover:bg-white hover:text-black'
               }`}
             >
-              {isActive && <Play className="w-3 h-3 fill-current shrink-0" />}
+              {isActive && <Play className="w-3 h-3 fill-current shrink-0 text-black" />}
               <span className="truncate">{ep.name}</span>
             </button>
           );

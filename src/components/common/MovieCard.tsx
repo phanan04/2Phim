@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Play, Heart, Star, Sparkles, Crown } from 'lucide-react';
+import { Play, Heart, Star } from 'lucide-react';
 import { MovieItem } from '../../types/movie';
 import { getImageUrl } from '../../utils/image';
 import { storage } from '../../utils/storage';
@@ -35,106 +35,96 @@ export const MovieCard: React.FC<MovieCardProps> = ({ movie, cdnImage }) => {
     setIsBookmarked(updated);
   };
 
+  const rating = movie.tmdb?.vote_average || movie.imdb?.vote_average;
+
   return (
-    <div className="group relative flex flex-col rounded-2xl overflow-hidden bg-[#16161C] border-2 border-transparent hover:border-[#FECF59] transition-all duration-300 ease-out hover:shadow-[0_16px_36px_rgba(0,0,0,0.8),0_0_20px_rgba(254,207,89,0.3)] hover:scale-105 hover:-translate-y-1.5">
-      {/* Poster Image Container */}
-      <Link to={`/phim/${movie.slug}`} className="relative aspect-[2/3] w-full overflow-hidden bg-[#121214]">
+    <div className="group relative flex flex-col select-none">
+      {/* VieON / Apple VisionOS Pure Artwork Poster Card with Center Scale Pop-Out */}
+      <Link
+        to={`/phim/${movie.slug}`}
+        className="artwork-poster-card aspect-[2/3] w-full block cursor-pointer"
+      >
         <img
           src={posterSrc}
           alt={movie.name}
           loading="lazy"
           onError={() => setImgError(true)}
-          className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+          className="h-full w-full object-cover object-center transition-transform duration-500"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[#16161C] via-transparent to-black/30 opacity-80 group-hover:opacity-50 transition-opacity" />
+        {/* Ambient Top & Bottom Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-black/35 opacity-70 group-hover:opacity-40 transition-opacity" />
 
-        {/* Top Badges (TV360 Signature Match - Image 6) */}
-        <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
+        {/* Top Badges (Subtle Frosted Micro-Pills) */}
+        <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
           <div className="flex items-center gap-1">
             {movie.chieurap ? (
-              <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded bg-[#E50914] text-white shadow-md flex items-center gap-1 tracking-wider">
-                👑 VIP
+              <span className="px-2 py-0.5 text-[9px] font-black uppercase rounded-full bg-white text-[#070709] shadow-sm tracking-wider">
+                VIP
               </span>
             ) : movie.episode_current ? (
-              <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-[#FECF59] text-black shadow-md">
+              <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20">
                 {movie.episode_current}
               </span>
             ) : (
-              <span className="px-2 py-0.5 text-[9px] font-bold rounded bg-white/20 backdrop-blur-md text-white">
-                HD
+              <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-white/15 backdrop-blur-md text-white/90 border border-white/20">
+                4K
               </span>
             )}
           </div>
 
-          <div className="flex items-center gap-1 pointer-events-auto">
-            {/* TV360 4K Gold Badge */}
-            <span className="px-2 py-0.5 text-[8px] font-black tracking-wider uppercase rounded bg-[#FECF59] text-black shadow-md">
-              4K ULTRA HD
-            </span>
+          <button
+            onClick={handleBookmark}
+            aria-label="Lưu phim"
+            className={`pointer-events-auto w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+              isBookmarked
+                ? 'bg-white text-black'
+                : 'bg-black/55 backdrop-blur-md text-white/75 hover:text-white hover:bg-black/80 border border-white/20'
+            }`}
+          >
+            <Heart className={`w-3 h-3 ${isBookmarked ? 'fill-current' : ''}`} />
+          </button>
+        </div>
 
-            <button
-              onClick={handleBookmark}
-              aria-label="Lưu phim"
-              className={`p-1.5 rounded-full transition-all duration-200 ${
-                isBookmarked
-                  ? 'bg-amber-500 text-black font-black'
-                  : 'bg-black/60 text-white/80 hover:text-white hover:bg-black/80'
-              }`}
-            >
-              <Heart className={`w-3 h-3 ${isBookmarked ? 'fill-current' : ''}`} />
-            </button>
+        {/* Center Play Orb on Hover */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10">
+          <div className="w-11 h-11 rounded-full liquid-cta-primary flex items-center justify-center shadow-2xl transform group-hover:scale-105 transition-transform">
+            <Play className="w-4 h-4 fill-current ml-0.5 text-black" />
           </div>
         </div>
 
-        {/* Play Icon on Hover (Gold Pulsing) */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#FECF59] via-amber-400 to-yellow-500 text-black flex items-center justify-center shadow-[0_0_20px_rgba(254,207,89,0.5)] transform group-hover:scale-110 transition-transform">
-            <Play className="w-5 h-5 fill-current ml-0.5" />
-          </div>
-        </div>
-
-        {/* Language / Quality Badges bottom */}
-        <div className="absolute bottom-2 left-2 right-2 flex items-center gap-1.5 flex-wrap">
+        {/* Bottom Format Badge (4K HDR / Sub) */}
+        <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[9px] font-semibold text-white/80 z-10">
           {movie.lang && (
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-black/80 text-white/90 backdrop-blur-sm border border-white/10">
+            <span className="px-1.5 py-0.5 rounded bg-black/65 backdrop-blur-md border border-white/10 text-white/90">
               {movie.lang}
             </span>
           )}
-          {movie.time && (
-            <span className="text-[9px] text-white/80 bg-black/80 px-2 py-0.5 rounded-full backdrop-blur-sm">
-              {movie.time}
+          {rating ? (
+            <span className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-black/65 backdrop-blur-md border border-white/10 text-white font-bold ml-auto">
+              <Star className="w-2.5 h-2.5 fill-current text-white" />
+              <span>{rating.toFixed(1)}</span>
+            </span>
+          ) : (
+            <span className="px-1.5 py-0.5 rounded bg-black/65 backdrop-blur-md border border-white/10 text-white/70 ml-auto">
+              {movie.year || '2026'}
             </span>
           )}
         </div>
       </Link>
 
-      {/* Movie Info */}
-      <div className="p-3.5 flex flex-col flex-1 justify-between">
-        <div>
-          <Link
-            to={`/phim/${movie.slug}`}
-            className="text-xs sm:text-sm font-bold text-white group-hover:text-[#FECF59] transition-colors line-clamp-1 leading-snug"
-            title={movie.name}
-          >
-            {movie.name}
-          </Link>
-          <p className="text-[11px] text-white/50 line-clamp-1 mt-0.5" title={movie.origin_name}>
-            {movie.origin_name || movie.name}
-          </p>
-        </div>
-
-        <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-white/60">
-          <span>{movie.year || '2026'}</span>
-          {(movie.tmdb?.vote_average || movie.imdb?.vote_average) && (
-            <div className="flex items-center gap-1 text-[#FECF59] font-bold">
-              <Star className="w-3 h-3 fill-current" />
-              <span>
-                {(movie.tmdb?.vote_average || movie.imdb?.vote_average)?.toFixed(1)}
-              </span>
-            </div>
-          )}
-        </div>
+      {/* Movie Info (Below Card) */}
+      <div className="pt-2.5 px-0.5 space-y-0.5">
+        <Link
+          to={`/phim/${movie.slug}`}
+          className="text-xs sm:text-sm font-bold text-white group-hover:text-white/90 transition-colors line-clamp-1 leading-snug tracking-tight block"
+          title={movie.name}
+        >
+          {movie.name}
+        </Link>
+        <p className="text-[11px] text-white/50 line-clamp-1 tracking-normal">
+          {movie.origin_name || movie.name}
+        </p>
       </div>
     </div>
   );
