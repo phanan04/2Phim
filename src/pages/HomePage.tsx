@@ -9,7 +9,7 @@ import { SkeletonRow } from '../components/common/SkeletonCard';
 import { Link } from 'react-router-dom';
 import { Sparkles, Compass, Play } from 'lucide-react';
 import { getImageUrl } from '../utils/image';
-import { useDragScroll } from '../hooks/useDragScroll';
+import useEmblaCarousel from 'embla-carousel-react';
 
 export const HomePage: React.FC = () => {
   const [newMovies, setNewMovies] = useState<MovieItem[]>([]);
@@ -22,7 +22,11 @@ export const HomePage: React.FC = () => {
   const [animes, setAnimes] = useState<MovieItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeRibbon, setActiveRibbon] = useState('all');
-  const { containerRef: ribbonRef, dragProps: ribbonDragProps } = useDragScroll();
+  const [ribbonRef] = useEmblaCarousel({
+    align: 'start',
+    dragFree: true,
+    containScroll: 'trimSnaps',
+  });
 
   useEffect(() => {
     let isMounted = true;
@@ -94,26 +98,27 @@ export const HomePage: React.FC = () => {
 
           <div
             ref={ribbonRef}
-            {...ribbonDragProps}
-            className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1 select-none"
+            className="overflow-hidden py-1 cursor-grab active:cursor-grabbing select-none"
           >
-            {TOPIC_RIBBONS.map((item) => {
-              const isActive = activeRibbon === item.id;
-              return (
-                <Link
-                  key={item.id}
-                  to={item.path}
-                  onClick={() => setActiveRibbon(item.id)}
-                  className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold shrink-0 transition-all flex items-center gap-1.5 ${
-                    isActive
-                      ? 'liquid-cta-primary shadow-[0_0_20px_rgba(255,255,255,0.35)] scale-105'
-                      : 'liquid-pill text-white/80 hover:text-white'
-                  }`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
+            <div className="flex items-center gap-2.5 touch-pan-y">
+              {TOPIC_RIBBONS.map((item) => {
+                const isActive = activeRibbon === item.id;
+                return (
+                  <Link
+                    key={item.id}
+                    to={item.path}
+                    onClick={() => setActiveRibbon(item.id)}
+                    className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold shrink-0 transition-all flex items-center gap-1.5 ${
+                      isActive
+                        ? 'liquid-cta-primary shadow-[0_0_20px_rgba(255,255,255,0.35)] scale-105'
+                        : 'liquid-pill text-white/80 hover:text-white'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 

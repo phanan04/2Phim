@@ -85,19 +85,32 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* 1. Edge-to-Edge High-Res Backdrop with Cinema Pan Motion */}
+      {/* 1. Edge-to-Edge High-Res Backdrop with Smooth 700ms Cross-Fade Stack */}
       <div className="absolute inset-0 overflow-hidden">
-        <img
-          key={currentMovie._id || currentMovie.slug}
-          src={backdropUrl}
-          alt={currentMovie.name}
-          className="w-full h-full object-cover object-top transition-all duration-1000 transform scale-[1.02]"
-        />
+        {displayMovies.map((movie, idx) => {
+          const isActive = idx === currentIndex;
+          const bgUrl = getImageUrl(movie.thumb_url || movie.poster_url, cdnImage);
+          return (
+            <div
+              key={movie._id || movie.slug}
+              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
+                isActive ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0'
+              }`}
+            >
+              <img
+                src={bgUrl}
+                alt={movie.name}
+                loading={idx === 0 ? 'eager' : 'lazy'}
+                className="w-full h-full object-cover object-top filter brightness-[0.9] transform scale-[1.02]"
+              />
+            </div>
+          );
+        })}
 
         {/* Seamless Fade into Obsidian #050507 */}
-        <div className="absolute inset-0 hero-gradient-cinema pointer-events-none" />
-        <div className="absolute inset-0 hero-gradient-side hidden md:block pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/40 pointer-events-none" />
+        <div className="absolute inset-0 hero-gradient-cinema z-20 pointer-events-none" />
+        <div className="absolute inset-0 hero-gradient-side hidden md:block z-20 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-[#050507]/40 z-20 pointer-events-none" />
       </div>
 
       {/* 2. Hero Content Container */}
