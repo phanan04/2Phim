@@ -304,14 +304,16 @@ export const WatchPage: React.FC = () => {
     }
   };
 
-  // Scroll active range pill into view
+  // Scroll active range pill horizontally into view inside the container ONLY (never scroll window)
   useEffect(() => {
     if (rangeListRef.current) {
       const activeEl = rangeListRef.current.querySelector(
         `[data-range-idx="${selectedRangeIndex}"]`
       ) as HTMLElement;
       if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        const container = rangeListRef.current;
+        const targetScrollLeft = activeEl.offsetLeft - (container.clientWidth - activeEl.clientWidth) / 2;
+        container.scrollTo({ left: Math.max(0, targetScrollLeft), behavior: 'smooth' });
       }
     }
   }, [selectedRangeIndex]);
