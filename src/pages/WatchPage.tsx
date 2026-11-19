@@ -436,7 +436,7 @@ export const WatchPage: React.FC = () => {
         <div className={isTheaterMode ? 'space-y-4' : 'flex flex-col lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-4 xl:gap-5 items-stretch'}>
           {/* CỘT TRÁI: VIDEO PLAYER & THANH ĐIỀU KHIỂN DƯỚI VIDEO (MATCHING ẢNH 3) */}
           <div className="flex flex-col min-w-0">
-            <div className="relative w-full bg-black rounded-none sm:rounded-xl overflow-hidden shadow-2xl border-y sm:border border-white/10">
+            <div className="relative w-full bg-black rounded-none sm:rounded-xl shadow-2xl border-y sm:border border-white/10">
               <ArtVideoPlayer
                 m3u8Url={currentEpisode?.link_m3u8}
                 embedUrl={currentEpisode?.link_embed}

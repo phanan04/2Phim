@@ -58,6 +58,17 @@ html, body {
   scrollbar-width: none;
 }
 
+/* Fullscreen Video Player Protection: Hide site header and prevent background scroll */
+body.player-fullscreen-active header,
+:fullscreen header,
+:-webkit-full-screen header {
+  display: none !important;
+}
+
+body.player-fullscreen-active {
+  overflow: hidden !important;
+}
+
 /* Subtle Film Grain Texture for Cinema Depth */
 .cinema-grain {
   position: fixed;

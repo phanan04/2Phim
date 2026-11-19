@@ -46,7 +46,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Header isScrolled={isScrolled} />
 
       <main
-        className={`relative z-10 flex-1 w-full ${
+        className={`relative flex-1 w-full ${
           isHomePage
             ? 'w-full'
             : isWatchPage

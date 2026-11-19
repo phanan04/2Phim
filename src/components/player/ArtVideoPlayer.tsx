@@ -196,24 +196,50 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     return `${pad(m)}:${pad(s)}`;
   };
 
-  // Fullscreen handlers (Chuẩn mobile thông thường, không ép xoay ngang nhân tạo)
+  // Fullscreen handlers (Tiêu chuẩn Fullscreen API trên cả mobile và desktop)
   const toggleFullscreen = async () => {
-    if (isMobile) {
-      setIsFullscreen((prev) => !prev);
+    const wrapper = playerWrapperRef.current;
+    const video = videoRef.current;
+
+    const isDocFs = Boolean(
+      document.fullscreenElement ||
+      (document as any).webkitFullscreenElement ||
+      (document as any).mozFullScreenElement ||
+      (document as any).msFullscreenElement
+    );
+
+    if (isDocFs || isFullscreen) {
+      setIsFullscreen(false);
+      document.body.classList.remove('player-fullscreen-active');
+      try {
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((video as any)?.webkitExitFullscreen) {
+          (video as any).webkitExitFullscreen();
+        }
+      } catch (e) {}
       return;
     }
 
-    // Trên desktop: Sử dụng requestFullscreen tiêu chuẩn
-    if (!document.fullscreenElement) {
+    // Bật toàn màn hình: Kích hoạt ngay lập tức chế độ Web-Fullscreen để ẩn Header và phóng to tràn viền
+    setIsFullscreen(true);
+    document.body.classList.add('player-fullscreen-active');
+
+    // Đồng thời kích hoạt HTML5 Fullscreen API của trình duyệt nếu được hỗ trợ
+    if (wrapper) {
       try {
-        await playerWrapperRef.current?.requestFullscreen?.();
+        if (wrapper.requestFullscreen) {
+          await wrapper.requestFullscreen().catch(() => {});
+        } else if ((wrapper as any).webkitRequestFullscreen) {
+          await (wrapper as any).webkitRequestFullscreen().catch(() => {});
+        } else if ((wrapper as any).msRequestFullscreen) {
+          await (wrapper as any).msRequestFullscreen().catch(() => {});
+        }
       } catch (err) {
-        console.warn('Fullscreen error:', err);
+        // Native fullscreen bị từ chối/không hỗ trợ -> Web-fullscreen đã sẵn sàng hoạt động mượt mà
       }
-    } else {
-      try {
-        await document.exitFullscreen?.();
-      } catch (e) {}
     }
   };
 
@@ -234,21 +260,47 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      const isDocFs = Boolean(document.fullscreenElement);
-      if (!isMobile) {
-        setIsFullscreen(isDocFs);
-      }
-      if (!isDocFs && screen.orientation && typeof (screen.orientation as any).unlock === 'function') {
-        try {
-          (screen.orientation as any).unlock();
-        } catch (e) {}
+      const isDocFs = Boolean(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        (document as any).mozFullScreenElement ||
+        (document as any).msFullscreenElement
+      );
+      setIsFullscreen(isDocFs);
+      if (isDocFs) {
+        document.body.classList.add('player-fullscreen-active');
+      } else {
+        document.body.classList.remove('player-fullscreen-active');
       }
     };
+
     document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+    document.addEventListener('mozfullscreenchange', onFullscreenChange);
+    document.addEventListener('MSFullscreenChange', onFullscreenChange);
+
     return () => {
       document.removeEventListener('fullscreenchange', onFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', onFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', onFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', onFullscreenChange);
+      document.body.classList.remove('player-fullscreen-active');
     };
-  }, [isMobile]);
+  }, []);
+
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.classList.add('player-fullscreen-active');
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.classList.remove('player-fullscreen-active');
+        document.body.style.overflow = prevOverflow;
+      };
+    } else {
+      document.body.classList.remove('player-fullscreen-active');
+    }
+  }, [isFullscreen]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -686,7 +738,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       onMouseEnter={resetControlsTimer}
       className={`relative w-full aspect-video bg-black rounded-none sm:rounded-xl overflow-hidden shadow-2xl border-0 sm:border sm:border-white/10 group select-none ${
         isFullscreen
-          ? 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
+          ? 'fixed !inset-0 !z-[9999999] !w-screen !h-screen !rounded-none !border-none !aspect-auto !m-0 !p-0'
           : ''
       }`}
     >

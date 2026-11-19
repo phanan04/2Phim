@@ -119,6 +119,36 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
   const isGenreActive = (location.pathname === '/kham-pha' && !!currentCategory) || location.pathname.startsWith('/the-loai');
   const isCountryActive = (location.pathname === '/kham-pha' && !!currentCountry) || location.pathname.startsWith('/quoc-gia');
 
+  // Hide header completely when player is in fullscreen mode
+  const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false);
+
+  useEffect(() => {
+    const checkFs = () => {
+      const isFs = Boolean(
+        document.fullscreenElement ||
+        (document as any).webkitFullscreenElement ||
+        document.body.classList.contains('player-fullscreen-active')
+      );
+      setIsPlayerFullscreen(isFs);
+    };
+
+    document.addEventListener('fullscreenchange', checkFs);
+    document.addEventListener('webkitfullscreenchange', checkFs);
+
+    const observer = new MutationObserver(checkFs);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+
+    return () => {
+      document.removeEventListener('fullscreenchange', checkFs);
+      document.removeEventListener('webkitfullscreenchange', checkFs);
+      observer.disconnect();
+    };
+  }, []);
+
+  if (isPlayerFullscreen) {
+    return null;
+  }
+
   return (
     <>
       <header
