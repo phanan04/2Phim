@@ -92,25 +92,14 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
   // Responsive mobile state (< 640px)
   const [isMobile, setIsMobile] = useState(false);
-  const [isPortrait, setIsPortrait] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerHeight > window.innerWidth;
-    }
-    return false;
-  });
 
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
-      setIsPortrait(window.innerHeight > window.innerWidth);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    window.addEventListener('orientationchange', checkMobile);
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      window.removeEventListener('orientationchange', checkMobile);
-    };
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Khóa cuộn trang nền khi player ở chế độ toàn màn hình trên điện thoại
@@ -207,26 +196,10 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     return `${pad(m)}:${pad(s)}`;
   };
 
-  // Fullscreen handlers (Tự động xoay ngang trên mobile, loại bỏ popup cảnh báo OS "để thoát khỏi...")
+  // Fullscreen handlers (Chuẩn mobile thông thường, không ép xoay ngang nhân tạo)
   const toggleFullscreen = async () => {
     if (isMobile) {
-      // Trên điện thoại: Dùng Web-Fullscreen tràn viền + tự động xoay ngang landscape
-      // Giúp xem toàn màn hình mượt mà và không bị trình duyệt hiện thông báo OS phiền toái
-      if (!isFullscreen) {
-        setIsFullscreen(true);
-        try {
-          if (screen.orientation && typeof (screen.orientation as any).lock === 'function') {
-            await (screen.orientation as any).lock('landscape').catch(() => {});
-          }
-        } catch (e) {}
-      } else {
-        setIsFullscreen(false);
-        try {
-          if (screen.orientation && typeof (screen.orientation as any).unlock === 'function') {
-            (screen.orientation as any).unlock();
-          }
-        } catch (e) {}
-      }
+      setIsFullscreen((prev) => !prev);
       return;
     }
 
@@ -713,27 +686,9 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       onMouseEnter={resetControlsTimer}
       className={`relative w-full aspect-video bg-black rounded-none sm:rounded-xl overflow-hidden shadow-2xl border-0 sm:border sm:border-white/10 group select-none ${
         isFullscreen
-          ? isMobile && isPortrait
-            ? 'fixed inset-0 z-[999999] rounded-none border-none aspect-auto'
-            : 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
+          ? 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
           : ''
       }`}
-      style={
-        isFullscreen && isMobile && isPortrait
-          ? {
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vh',
-              height: '100vw',
-              transform: 'rotate(90deg) translateY(-100%)',
-              transformOrigin: 'top left',
-              zIndex: 999999,
-              maxWidth: 'none',
-              maxHeight: 'none',
-            }
-          : undefined
-      }
     >
       {/* AMBIENT GLOW BACKLIGHT */}
       {ambientLight && (

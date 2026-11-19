@@ -519,11 +519,11 @@ export const WatchPage: React.FC = () => {
                 {/* Divider */}
                 <div className="w-[1px] h-5 bg-white/10 hidden sm:block" />
 
-                {/* 5. Đèn (Bật / Tắt đèn) */}
+                {/* 5. Đèn (Bật / Tắt đèn - Desktop only) */}
                 <button
                   type="button"
                   onClick={() => setIsLightsOff(!isLightsOff)}
-                  className="flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white transition-colors"
+                  className="hidden sm:flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white transition-colors"
                   title="Bật/Tắt đèn phòng chiếu"
                 >
                   {isLightsOff ? (
@@ -534,11 +534,11 @@ export const WatchPage: React.FC = () => {
                   <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Đèn</span>
                 </button>
 
-                {/* 6. Rạp phim (Chế độ rạp chiếu) */}
+                {/* 6. Rạp phim (Chế độ rạp chiếu - Desktop only) */}
                 <button
                   type="button"
                   onClick={() => setIsTheaterMode(!isTheaterMode)}
-                  className={`flex flex-col items-center gap-1 group cursor-pointer transition-colors ${
+                  className={`hidden sm:flex flex-col items-center gap-1 group cursor-pointer transition-colors ${
                     isTheaterMode ? 'text-white' : 'text-white/60 hover:text-white'
                   }`}
                   title="Chế độ rạp chiếu toàn cảnh"
@@ -565,6 +565,18 @@ export const WatchPage: React.FC = () => {
 
                   {showMoreActions && (
                     <div className="absolute bottom-full left-0 mb-2 w-44 rounded-xl bg-[#141419]/95 backdrop-blur-xl border border-white/10 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      {/* Bật/Tắt đèn trên mobile */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsLightsOff(!isLightsOff);
+                          setShowMoreActions(false);
+                        }}
+                        className="sm:hidden w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+                      >
+                        {isLightsOff ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                        <span>{isLightsOff ? 'Bật đèn' : 'Tắt đèn'}</span>
+                      </button>
                       {movie.trailer_url && (
                         <button
                           type="button"
@@ -781,8 +793,8 @@ export const WatchPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Episode Grid (5 cột chuẩn WeTV Ảnh 4) */}
-              <div className="flex-1 min-h-0 max-h-[300px] sm:max-h-[360px] lg:max-h-none overflow-y-auto pr-1 pt-2.5">
+              {/* Episode Grid (5 cột chuẩn WeTV & Hoathinh3d) */}
+              <div className="flex-1 min-h-0 max-h-[260px] sm:max-h-[360px] lg:max-h-none overflow-y-auto pr-1 pt-2">
                 {currentChunkEpisodes.length > 0 ? (
                   <div className="grid grid-cols-5 gap-1.5 pb-2">
                     {currentChunkEpisodes.map((ep) => {
