@@ -151,6 +151,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   const [quality, setQuality] = useState('Tự động (Auto)');
   const [availableQualities, setAvailableQualities] = useState<string[]>(['Tự động (Auto)', '1080p Full HD', '720p HD']);
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+  const [is2xSpeedActive, setIs2xSpeedActive] = useState(false);
+  const longPress2xTimeoutRef = useRef<any>(null);
+  const is2xTriggeredRef = useRef(false);
+  const touchStartPosRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const previousSpeedRef = useRef(1.0);
   const [aspectRatio, setAspectRatio] = useState<'contain' | '16:9' | 'cover'>('contain');
   const [ambientLight, setAmbientLight] = useState(false);
   const [autoSkipIntro, setAutoSkipIntro] = useState(false);
@@ -350,6 +355,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   // Controls auto-hide timer (Chuẩn YouTube: Chạm một lần ẩn/hiện kể cả khi tạm dừng hoặc đang phát)
   const isControlsBarVisible =
     !isEmbed &&
+    !is2xSpeedActive &&
     (controlsVisible || showServerMenu || showSettingsMenu || showSubtitleMenu || showEpisodeDrawer);
 
   const resetControlsTimer = useCallback(() => {
@@ -599,7 +605,77 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     }, 280);
   };
 
-  const handleVideoBackdropTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+  // Kích hoạt tốc độ tua 2x khi ấn giữ bên phải màn hình (Chuẩn YouTube)
+  const start2xSpeed = useCallback(() => {
+    if (!videoRef.current) return;
+    is2xTriggeredRef.current = true;
+    previousSpeedRef.current = videoRef.current.playbackRate || playbackSpeed || 1.0;
+    videoRef.current.playbackRate = 2.0;
+    setIs2xSpeedActive(true);
+    setControlsVisible(false);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try {
+        navigator.vibrate(35);
+      } catch (e) {}
+    }
+  }, [playbackSpeed]);
+
+  // Dừng tốc độ tua 2x khi thả tay/nhấc chuột
+  const stop2xSpeed = useCallback(() => {
+    if (longPress2xTimeoutRef.current) {
+      clearTimeout(longPress2xTimeoutRef.current);
+      longPress2xTimeoutRef.current = null;
+    }
+    if (is2xTriggeredRef.current) {
+      is2xTriggeredRef.current = false;
+      setIs2xSpeedActive(false);
+      if (videoRef.current) {
+        videoRef.current.playbackRate = previousSpeedRef.current || playbackSpeed || 1.0;
+      }
+      lastTouchTimeRef.current = Date.now();
+      return true; // Đã tua 2x, ngăn chặn tap toggle
+    }
+    return false;
+  }, [playbackSpeed]);
+
+  const handleVideoTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+
+    touchStartPosRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    is2xTriggeredRef.current = false;
+
+    // Chuẩn YouTube: Ấn giữ ở nửa bên phải màn hình (x > rect.width * 0.48) sẽ kích hoạt tua 2x
+    if (x > rect.width * 0.48) {
+      if (longPress2xTimeoutRef.current) clearTimeout(longPress2xTimeoutRef.current);
+      longPress2xTimeoutRef.current = setTimeout(() => {
+        start2xSpeed();
+      }, 350);
+    }
+  };
+
+  const handleVideoTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0];
+    if (!touch || !touchStartPosRef.current) return;
+    const dx = Math.abs(touch.clientX - touchStartPosRef.current.x);
+    const dy = Math.abs(touch.clientY - touchStartPosRef.current.y);
+
+    // Nếu người dùng lướt ngón tay quá 20px trước khi 2x kích hoạt (thao tác cuộn trang)
+    if (!is2xTriggeredRef.current && (dx > 20 || dy > 20)) {
+      if (longPress2xTimeoutRef.current) {
+        clearTimeout(longPress2xTimeoutRef.current);
+        longPress2xTimeoutRef.current = null;
+      }
+    }
+  };
+
+  const handleVideoTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const was2x = stop2xSpeed();
+    if (was2x) return; // Vừa thả tay sau khi tua 2x -> không toggle ẩn/hiện controls
+
     const touch = e.changedTouches[0];
     if (!touch) return;
     lastTouchTimeRef.current = Date.now();
@@ -607,9 +683,38 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     handleVideoTapToggle(touch.clientX, rect);
   };
 
+  const handleVideoTouchCancel = () => {
+    stop2xSpeed();
+  };
+
+  // Hỗ trợ chuột trên Desktop & Giả lập Mobile DevTools: Nhấn giữ chuột bên phải để tua 2x
+  const handleVideoMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (Date.now() - lastTouchTimeRef.current < 450) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x > rect.width * 0.48) {
+      if (longPress2xTimeoutRef.current) clearTimeout(longPress2xTimeoutRef.current);
+      longPress2xTimeoutRef.current = setTimeout(() => {
+        start2xSpeed();
+      }, 350);
+    }
+  };
+
+  const handleVideoMouseUp = () => {
+    stop2xSpeed();
+  };
+
+  const handleVideoMouseLeave = () => {
+    stop2xSpeed();
+  };
+
   const handleVideoBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // Tránh click giả lập từ touch trên thiết bị di động
     if (Date.now() - lastTouchTimeRef.current < 450) {
+      return;
+    }
+    // Nếu vừa tua 2x bằng chuột, không toggle play/pause
+    if (is2xTriggeredRef.current) {
       return;
     }
     // Thiết bị cảm ứng
@@ -814,9 +919,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       {/* CHANNEL 0: NATIVE HTML5 VIDEO ENGINE WITH HLS.JS (MATCHING CHỢ PHIM - ZERO BLACKOUTS) */}
       {currentChannel === 0 && (
         <div
-          className="w-full h-full relative flex items-center justify-center cursor-pointer"
+          className="w-full h-full relative flex items-center justify-center cursor-pointer select-none"
           onClick={handleVideoBackdropClick}
-          onTouchEnd={handleVideoBackdropTouchEnd}
+          onTouchStart={handleVideoTouchStart}
+          onTouchMove={handleVideoTouchMove}
+          onTouchEnd={handleVideoTouchEnd}
+          onTouchCancel={handleVideoTouchCancel}
+          onMouseDown={handleVideoMouseDown}
+          onMouseUp={handleVideoMouseUp}
+          onMouseLeave={handleVideoMouseLeave}
         >
           <video
             ref={videoRef}
@@ -926,6 +1037,16 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
             className={`w-8 h-8 fill-current ${seekRipple.side === 'left' ? 'rotate-180' : ''}`}
           />
           <span>{seekRipple.side === 'right' ? '+10s' : '-10s'}</span>
+        </div>
+      )}
+
+      {/* YOUTUBE 2X FAST FORWARD PILL INDICATOR */}
+      {is2xSpeedActive && (
+        <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-white/20 shadow-2xl text-white">
+            <FastForward className="w-3.5 h-3.5 fill-current text-[#FECF59] animate-pulse" />
+            <span className="text-xs font-black tracking-wider text-white">2X</span>
+          </div>
         </div>
       )}
 
