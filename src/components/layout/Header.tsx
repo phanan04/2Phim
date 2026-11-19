@@ -59,41 +59,42 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
 
   return (
     <>
-      <header className="fixed top-2.5 sm:top-3.5 inset-x-0 z-50 px-3 sm:px-6 lg:px-10 pointer-events-none transition-all duration-300">
+      <header className="fixed top-2.5 sm:top-4 inset-x-0 z-50 px-3 sm:px-6 lg:px-10 pointer-events-none transition-all duration-300">
         <div
           ref={dropdownRef}
-          className={`nav-shell max-w-[1520px] mx-auto flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300 ${
-            isScrolled ? 'nav-shell-scrolled py-2' : 'py-2.5 sm:py-3'
-          }`}
+          className="max-w-[1720px] mx-auto flex items-center justify-between gap-3 pointer-events-auto transition-all duration-300"
         >
-          {/* Left Brand Logo & Mobile Trigger */}
-          <div className="flex items-center gap-2.5 sm:gap-4">
+          {/* Cụm 1: Logo & Mobile Trigger (Floating Liquid Pill) */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden liquid-pill w-9 h-9 rounded-full flex items-center justify-center text-white/80 hover:text-white"
+              className="lg:hidden liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white shadow-lg cursor-pointer"
               aria-label="Menu"
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
 
-            {/* Apple Spatial Cinema 2PHIM Brand */}
-            <Link to="/" className="flex items-center gap-2.5 pl-1.5 pr-2 group">
-              <div className="w-9 h-9 rounded-2xl liquid-glass flex items-center justify-center border border-white/35 group-hover:scale-105 transition-all shadow-[0_4px_16px_rgba(255,255,255,0.12)]">
-                <span className="text-white font-extrabold text-base tracking-tighter">2</span>
+            {/* Apple Spatial Cinema 2PHIM Brand Pill Island */}
+            <Link
+              to="/"
+              className="liquid-pill h-9 sm:h-10 px-3 sm:px-4 rounded-full flex items-center gap-2 sm:gap-2.5 group cursor-pointer shadow-lg"
+            >
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-xl bg-white text-black flex items-center justify-center group-hover:scale-105 transition-all shadow-[0_0_10px_rgba(255,255,255,0.4)]">
+                <span className="text-black font-black text-xs sm:text-sm tracking-tighter">2</span>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-base sm:text-lg font-black tracking-tight text-white group-hover:text-white transition-colors">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-sm sm:text-base font-black tracking-tight text-white group-hover:text-white transition-colors">
                   PHIM
                 </span>
-                <span className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[9px] font-extrabold tracking-widest uppercase bg-white/10 border border-white/20 text-white/85 shadow-sm">
+                <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-widest uppercase bg-white/10 border border-white/20 text-white/85">
                   4K Spatial
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* Center Segmented Glass Navigation */}
-          <nav className="hidden lg:flex items-center p-1 rounded-full liquid-glass border border-white/15">
+          {/* Cụm 2: Center Segmented Glass Navigation (Floating Liquid Glass Island) */}
+          <nav className="hidden lg:flex items-center p-1 sm:p-1.5 rounded-full liquid-glass border border-white/15 shadow-xl">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.path;
               return (
@@ -197,12 +198,12 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             </div>
           </nav>
 
-          {/* Right Action Utilities (Liquid Pills) */}
+          {/* Cụm 3: Right Action Utilities (Floating Liquid Pills) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* ⌘K Command Search Pill */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="liquid-pill h-9 sm:h-10 px-3 sm:px-4 rounded-full flex items-center gap-2 text-white/85 hover:text-white text-xs font-medium cursor-pointer"
+              className="liquid-pill h-9 sm:h-10 px-3.5 sm:px-4 rounded-full flex items-center gap-2 text-white/85 hover:text-white text-xs font-medium cursor-pointer shadow-lg"
               title="Tìm kiếm phim (Ctrl+K)"
             >
               <Search className="w-4 h-4 text-white/80" />
@@ -215,7 +216,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             {/* Bookmark Pill */}
             <Link
               to="/yeu-thich"
-              className="liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/85 hover:text-white"
+              className="liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/85 hover:text-white shadow-lg"
               title="Phim đã lưu"
             >
               <Bookmark className="w-4 h-4" />
@@ -224,7 +225,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             {/* History Pill */}
             <Link
               to="/lich-su"
-              className="liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/85 hover:text-white"
+              className="liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/85 hover:text-white shadow-lg"
               title="Lịch sử xem"
             >
               <History className="w-4 h-4" />
@@ -239,7 +240,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                     e.stopPropagation();
                     setActiveDropdown(activeDropdown === 'user' ? null : 'user');
                   }}
-                  className="liquid-pill h-9 sm:h-10 pl-1 pr-3 rounded-full flex items-center gap-2 cursor-pointer"
+                  className="liquid-pill h-9 sm:h-10 pl-1 pr-3 rounded-full flex items-center gap-2 cursor-pointer shadow-lg"
                 >
                   <img
                     src={user.avatar}
@@ -308,7 +309,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               <button
                 type="button"
                 onClick={() => openAuthModal('login')}
-                className="liquid-cta-primary h-9 sm:h-10 px-4 sm:px-5 rounded-full text-xs font-extrabold flex items-center gap-1.5 cursor-pointer"
+                className="liquid-cta-primary h-9 sm:h-10 px-4 sm:px-5 rounded-full text-xs font-extrabold flex items-center gap-1.5 cursor-pointer shadow-lg"
               >
                 <UserIcon className="w-3.5 h-3.5" />
                 <span>Đăng Nhập</span>
