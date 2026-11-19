@@ -48,6 +48,7 @@ export const MovieCard: React.FC<MovieCardProps> = ({ movie, cdnImage }) => {
           src={posterSrc}
           alt={movie.name}
           loading="lazy"
+          decoding="async"
           onError={() => setImgError(true)}
           className="h-full w-full object-cover object-center transition-transform duration-500"
         />

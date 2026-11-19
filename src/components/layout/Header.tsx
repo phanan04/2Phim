@@ -145,14 +145,12 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
     };
   }, []);
 
-  if (isPlayerFullscreen) {
-    return null;
-  }
-
   return (
     <>
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 select-none ${
+          isPlayerFullscreen ? 'hidden pointer-events-none' : ''
+        } ${
           isScrolled
             ? 'bg-[#050507]/85 backdrop-blur-xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)]'
             : 'bg-gradient-to-b from-[#050507]/95 via-[#050507]/50 to-transparent'

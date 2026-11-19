@@ -101,6 +101,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
                 src={bgUrl}
                 alt={movie.name}
                 loading={idx === 0 ? 'eager' : 'lazy'}
+                decoding="async"
                 className="w-full h-full object-cover object-top filter brightness-[0.9] transform scale-[1.02]"
               />
             </div>
@@ -259,7 +260,13 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
                         : 'border-white/15 opacity-45 hover:opacity-90 hover:border-white/40'
                     }`}
                   >
-                    <img src={thumb} alt={movie.name} className="w-full h-full object-cover" />
+                    <img
+                      src={thumb}
+                      alt={movie.name}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                    />
                     {isActive && (
                       <div className="absolute inset-0 bg-white/15 flex items-center justify-center">
                         <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_6px_#fff]" />

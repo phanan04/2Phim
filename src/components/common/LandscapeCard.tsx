@@ -50,6 +50,7 @@ export const LandscapeCard: React.FC<LandscapeCardProps> = ({
           src={imageSrc}
           alt={movie.name}
           loading="lazy"
+          decoding="async"
           onError={() => setImgError(true)}
           className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
         />

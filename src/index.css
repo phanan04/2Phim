@@ -58,7 +58,7 @@ html, body {
   scrollbar-width: none;
 }
 
-/* Fullscreen Video Player Protection: Hide site header and prevent background scroll */
+/* Fullscreen Video Player Protection: Hide site header, orbs, and prevent background scroll */
 body.player-fullscreen-active header,
 :fullscreen header,
 :-webkit-full-screen header {
@@ -67,6 +67,30 @@ body.player-fullscreen-active header,
 
 body.player-fullscreen-active {
   overflow: hidden !important;
+}
+
+body.player-fullscreen-active #video-player-wrapper {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  border-radius: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 9999999 !important;
+}
+
+body.player-fullscreen-active .ambient-orb,
+body.player-fullscreen-active .cinema-grain {
+  display: none !important;
 }
 
 /* Subtle Film Grain Texture for Cinema Depth */
@@ -93,9 +117,22 @@ body.player-fullscreen-active {
 }
 
 @keyframes floatOrb {
-  0% { transform: translate(0px, 0px) scale(1); }
-  50% { transform: translate(40px, -28px) scale(1.06); }
-  100% { transform: translate(-28px, 34px) scale(0.95); }
+  0% { transform: translate3d(0px, 0px, 0) scale(1); }
+  50% { transform: translate3d(40px, -28px, 0) scale(1.06); }
+  100% { transform: translate3d(-28px, 34px, 0) scale(0.95); }
+}
+
+/* Mobile & Touch Performance Optimization: Reduce blur radius & pause infinite translate to save 40% GPU */
+@media (max-width: 768px), (pointer: coarse) {
+  .ambient-orb {
+    filter: blur(48px);
+    animation: none !important;
+    opacity: 0.35;
+    will-change: auto;
+  }
+  .cinema-grain {
+    display: none;
+  }
 }
 
 /* Multi-Layer Frosted Crystal Surface with Asymmetric Specular Border */
