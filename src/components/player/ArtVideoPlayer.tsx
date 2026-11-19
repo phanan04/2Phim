@@ -521,7 +521,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       onMouseMove={handleMouseMove}
       onMouseEnter={resetControlsTimer}
       onTouchEnd={handleTouchEnd}
-      className={`relative w-full aspect-video bg-black rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 group select-none ${
+      className={`relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 group select-none ${
         isFullscreen
           ? 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
           : ''
