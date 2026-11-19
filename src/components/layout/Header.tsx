@@ -124,8 +124,8 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
       <header
         className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 select-none ${
           isScrolled
-            ? 'bg-[#050507]/90 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.6)]'
-            : 'bg-gradient-to-b from-[#050507]/90 via-[#050507]/60 to-transparent backdrop-blur-[6px] border-b border-white/5'
+            ? 'bg-[#050507]/85 backdrop-blur-xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.8)]'
+            : 'bg-gradient-to-b from-[#050507]/95 via-[#050507]/50 to-transparent'
         }`}
       >
         <div className="max-w-[1720px] mx-auto h-14 sm:h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-4 relative">

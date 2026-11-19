@@ -27,6 +27,7 @@ import {
   Type,
   FastForward,
   Layers,
+  ArrowLeft,
 } from 'lucide-react';
 
 interface ArtVideoPlayerProps {
@@ -91,14 +92,37 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
   // Responsive mobile state (< 640px)
   const [isMobile, setIsMobile] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerHeight > window.innerWidth;
+    }
+    return false;
+  });
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
+      setIsPortrait(window.innerHeight > window.innerWidth);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener('orientationchange', checkMobile);
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      window.removeEventListener('orientationchange', checkMobile);
+    };
   }, []);
+
+  // Khóa cuộn trang nền khi player ở chế độ toàn màn hình trên điện thoại
+  useEffect(() => {
+    if (isFullscreen && isMobile) {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [isFullscreen, isMobile]);
 
   // Popups state (Image 2, 3, 4 + Image 3 Episode Drawer)
   const [showServerMenu, setShowServerMenu] = useState(false);
@@ -266,10 +290,10 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     };
   }, []);
 
-  // Controls auto-hide timer
+  // Controls auto-hide timer (Chuẩn YouTube: Chạm một lần ẩn/hiện kể cả khi tạm dừng hoặc đang phát)
   const isControlsBarVisible =
     !isEmbed &&
-    (controlsVisible || !isPlaying || showServerMenu || showSettingsMenu || showSubtitleMenu || showEpisodeDrawer);
+    (controlsVisible || showServerMenu || showSettingsMenu || showSubtitleMenu || showEpisodeDrawer);
 
   const resetControlsTimer = useCallback(() => {
     setControlsVisible(true);
@@ -288,6 +312,10 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   }, [isPlaying, showServerMenu, showSettingsMenu, showSubtitleMenu, showEpisodeDrawer]);
 
   const handleMouseMove = () => {
+    // Không chạy trên thiết bị cảm ứng để tránh chuột ảo ghi đè
+    if (isMobile || (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)) {
+      return;
+    }
     resetControlsTimer();
   };
 
@@ -449,50 +477,108 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     setCurrentTime(newTime);
   };
 
-  // Mobile Double-Tap to Seek (Left -10s, Right +10s)
-  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
-    const now = Date.now();
-    const touch = e.changedTouches[0];
-    if (!touch || !playerWrapperRef.current) return;
+  // YouTube-Style Mobile Single-Tap Toggle & Double-Tap Seek Controller
+  const tapTimeoutRef = useRef<any>(null);
+  const lastTouchTimeRef = useRef<number>(0);
 
-    const rect = playerWrapperRef.current.getBoundingClientRect();
-    const xPos = touch.clientX - rect.left;
-    const width = rect.width;
+  const handleVideoTapToggle = (clientX: number, targetRect: DOMRect) => {
+    const now = Date.now();
+    const xPos = clientX - targetRect.left;
+    const width = targetRect.width;
 
     const timeDiff = now - lastTapRef.current.time;
     const distDiff = Math.abs(xPos - lastTapRef.current.x);
 
-    if (timeDiff < 300 && distDiff < 80) {
-      // Double tap detected
-      if (xPos > width * 0.55) {
-        // Right side: +10s
+    // Double tap detected (within 280ms) -> Tua nhanh +10s hoặc -10s
+    if (timeDiff < 280 && distDiff < 90) {
+      if (tapTimeoutRef.current) {
+        clearTimeout(tapTimeoutRef.current);
+        tapTimeoutRef.current = null;
+      }
+      lastTapRef.current = { time: 0, x: 0 };
+
+      if (xPos > width * 0.58) {
         seekRelative(10);
         setSeekRipple({ side: 'right', id: now });
         setTimeout(() => setSeekRipple(null), 700);
-      } else if (xPos < width * 0.45) {
-        // Left side: -10s
+      } else if (xPos < width * 0.42) {
         seekRelative(-10);
         setSeekRipple({ side: 'left', id: now });
         setTimeout(() => setSeekRipple(null), 700);
       }
-      lastTapRef.current = { time: 0, x: 0 };
-    } else {
-      lastTapRef.current = { time: now, x: xPos };
-      // Single tap: toggle controls
-      setTimeout(() => {
-        if (Date.now() - lastTapRef.current.time >= 280) {
-          setControlsVisible((prev) => !prev);
-        }
-      }, 300);
+      return;
     }
+
+    // Record first tap
+    lastTapRef.current = { time: now, x: xPos };
+
+    // Chờ 280ms để xác định là single tap (Chuẩn YouTube: ấn một lần hiện, ấn lần nữa tắt)
+    if (tapTimeoutRef.current) clearTimeout(tapTimeoutRef.current);
+    tapTimeoutRef.current = setTimeout(() => {
+      setControlsVisible((prev) => {
+        const next = !prev;
+        if (next) {
+          // Bật điều khiển -> Hẹn giờ 3.5s tự ẩn nếu video đang chạy
+          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+          if (isPlaying) {
+            controlsTimeoutRef.current = setTimeout(() => {
+              setControlsVisible(false);
+            }, 3500);
+          }
+        } else {
+          // Tắt điều khiển ngay lập tức -> Hủy hẹn giờ & đóng các menu popup
+          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+          setShowServerMenu(false);
+          setShowSettingsMenu(false);
+          setShowSubtitleMenu(false);
+          setShowEpisodeDrawer(false);
+        }
+        return next;
+      });
+    }, 280);
   };
 
-  // Progress bar scrub handlers
+  const handleVideoBackdropTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.changedTouches[0];
+    if (!touch) return;
+    lastTouchTimeRef.current = Date.now();
+    const rect = e.currentTarget.getBoundingClientRect();
+    handleVideoTapToggle(touch.clientX, rect);
+  };
+
+  const handleVideoBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Tránh click giả lập từ touch trên thiết bị di động
+    if (Date.now() - lastTouchTimeRef.current < 450) {
+      return;
+    }
+    // Thiết bị cảm ứng
+    if (isMobile || (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches)) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      handleVideoTapToggle(e.clientX, rect);
+      return;
+    }
+    // Desktop: Click vào màn hình video để phát/tạm dừng
+    togglePlay();
+  };
+
+  // Progress bar scrub handlers (Hỗ trợ cả chuột và cảm ứng kéo vuốt)
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const v = videoRef.current;
     if (!progressBarRef.current || !v || duration <= 0) return;
     const rect = progressBarRef.current.getBoundingClientRect();
     const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const newTime = pos * duration;
+    v.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const handleProgressTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    const v = videoRef.current;
+    if (!progressBarRef.current || !v || duration <= 0) return;
+    const touch = e.touches[0] || e.changedTouches[0];
+    if (!touch) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const pos = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
     const newTime = pos * duration;
     v.currentTime = newTime;
     setCurrentTime(newTime);
@@ -625,12 +711,29 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       ref={playerWrapperRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={resetControlsTimer}
-      onTouchEnd={handleTouchEnd}
       className={`relative w-full aspect-video bg-black rounded-none sm:rounded-xl overflow-hidden shadow-2xl border-0 sm:border sm:border-white/10 group select-none ${
         isFullscreen
-          ? 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
+          ? isMobile && isPortrait
+            ? 'fixed inset-0 z-[999999] rounded-none border-none aspect-auto'
+            : 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
           : ''
       }`}
+      style={
+        isFullscreen && isMobile && isPortrait
+          ? {
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vh',
+              height: '100vw',
+              transform: 'rotate(90deg) translateY(-100%)',
+              transformOrigin: 'top left',
+              zIndex: 999999,
+              maxWidth: 'none',
+              maxHeight: 'none',
+            }
+          : undefined
+      }
     >
       {/* AMBIENT GLOW BACKLIGHT */}
       {ambientLight && (
@@ -646,21 +749,12 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       {currentChannel === 0 && (
         <div
           className="w-full h-full relative flex items-center justify-center cursor-pointer"
-          onClick={(e) => {
-            // Trên điện thoại / cảm ứng: Chạm vào màn hình chỉ bật/tắt thanh điều khiển, KHÔNG play/pause (có nút riêng)
-            if (isMobile || window.matchMedia('(pointer: coarse)').matches) {
-              setControlsVisible((prev) => !prev);
-              return;
-            }
-            const target = e.target as HTMLElement;
-            if (target.tagName === 'VIDEO' || target.classList.contains('cursor-pointer')) {
-              togglePlay();
-            }
-          }}
+          onClick={handleVideoBackdropClick}
+          onTouchEnd={handleVideoBackdropTouchEnd}
         >
           <video
             ref={videoRef}
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain pointer-events-none"
             playsInline
             poster={poster}
             autoPlay
@@ -768,15 +862,27 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         </div>
       )}
 
-      {/* TOP HEADER OVERLAY (Clean, no left buttons) */}
+      {/* TOP HEADER OVERLAY (Clean, no left buttons; shows back button when fullscreen) */}
       <div
+        onClick={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
         className={`absolute top-0 left-0 right-0 p-3 sm:p-5 bg-gradient-to-b from-black/85 via-black/45 to-transparent flex items-center justify-between z-30 transition-all duration-300 ${
           isControlsBarVisible
             ? 'opacity-100 pointer-events-auto translate-y-0'
             : 'opacity-0 pointer-events-none -translate-y-2'
         }`}
       >
-        <div className="truncate max-w-[70%] sm:max-w-[80%]">
+        <div className="flex items-center gap-2 truncate max-w-[75%] sm:max-w-[85%]">
+          {isFullscreen && (
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="w-8 h-8 rounded-full flex items-center justify-center text-white/90 hover:text-white hover:bg-white/15 transition-colors shrink-0 cursor-pointer -ml-1"
+              title="Thoát toàn màn hình"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
           <h2 className="text-white font-bold text-sm sm:text-base tracking-wide drop-shadow-md truncate">
             {movieName} – {episodeName}
           </h2>
@@ -1858,7 +1964,21 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         {/* 1. PROGRESS BAR (Full width with hover tooltip & clean thumb) */}
         <div
           ref={progressBarRef}
-          onClick={handleProgressClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleProgressClick(e);
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            handleProgressTouch(e);
+          }}
+          onTouchMove={(e) => {
+            e.stopPropagation();
+            handleProgressTouch(e);
+          }}
+          onTouchEnd={(e) => {
+            e.stopPropagation();
+          }}
           onMouseMove={handleProgressMouseMove}
           onMouseLeave={handleProgressMouseLeave}
           className="relative w-full h-5 flex items-center cursor-pointer group/bar px-3 sm:px-6"
@@ -1897,7 +2017,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         </div>
 
         {/* 2. CONTROLS ROW - Larger buttons matching Image 2 */}
-        <div className="flex items-center justify-between px-3 sm:px-6 pb-2.5 pt-0.5 text-white">
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onTouchEnd={(e) => e.stopPropagation()}
+          className="flex items-center justify-between px-3 sm:px-6 pb-2.5 pt-0.5 text-white"
+        >
           {/* LEFT SIDE CONTROLS */}
           <div className="flex items-center gap-1 sm:gap-2">
             {/* Play / Pause button */}
