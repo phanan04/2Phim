@@ -7,8 +7,9 @@ import { MovieCarousel } from '../components/common/MovieCarousel';
 import { LandscapeCarousel } from '../components/common/LandscapeCarousel';
 import { SkeletonRow } from '../components/common/SkeletonCard';
 import { Link } from 'react-router-dom';
-import { Flame, Sparkles, Film, Compass, Play } from 'lucide-react';
+import { Sparkles, Compass, Play } from 'lucide-react';
 import { getImageUrl } from '../utils/image';
+import { useDragScroll } from '../hooks/useDragScroll';
 
 export const HomePage: React.FC = () => {
   const [newMovies, setNewMovies] = useState<MovieItem[]>([]);
@@ -21,6 +22,7 @@ export const HomePage: React.FC = () => {
   const [animes, setAnimes] = useState<MovieItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeRibbon, setActiveRibbon] = useState('all');
+  const { containerRef: ribbonRef, dragProps: ribbonDragProps } = useDragScroll();
 
   useEffect(() => {
     let isMounted = true;
@@ -90,7 +92,11 @@ export const HomePage: React.FC = () => {
             <span>Khám phá chủ đề</span>
           </div>
 
-          <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1">
+          <div
+            ref={ribbonRef}
+            {...ribbonDragProps}
+            className="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1 select-none"
+          >
             {TOPIC_RIBBONS.map((item) => {
               const isActive = activeRibbon === item.id;
               return (
@@ -172,16 +178,18 @@ export const HomePage: React.FC = () => {
                   <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold border border-white/20">
                     T16
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold border border-white/20">
-                    4K SPATIAL CINEMA
-                  </span>
+                  {theaters[0].quality && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-bold border border-white/20">
+                      {theaters[0].quality}
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-2xl sm:text-3xl md:text-5xl font-black text-white uppercase tracking-tight line-clamp-1 drop-shadow-lg">
                   {theaters[0].name}
                 </h3>
                 <p className="text-xs sm:text-sm text-white/70 line-clamp-2 sm:line-clamp-3 leading-relaxed">
-                  {theaters[0].origin_name} ({theaters[0].year || '2026'}). Trải nghiệm tuyệt tác điện ảnh tốc độ cao với chất lượng hình ảnh 4K HDR và âm thanh vòm sống động nhất, độc quyền tại 2Phim.
+                  {theaters[0].origin_name} ({theaters[0].year || '2026'}). Trải nghiệm tuyệt tác điện ảnh tốc độ cao với chất lượng hình ảnh sắc nét và phụ đề đầy đủ, độc quyền tại 2Phim.
                 </p>
 
                 <div className="flex items-center gap-3 pt-2">

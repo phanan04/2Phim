@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { ChevronLeft, ChevronRight, ChevronRight as ArrowLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MovieItem } from '../../types/movie';
 import { LandscapeCard } from './LandscapeCard';
+import { useDragScroll } from '../../hooks/useDragScroll';
 
 interface LandscapeCarouselProps {
   title: string;
@@ -19,17 +20,7 @@ export const LandscapeCarousel: React.FC<LandscapeCarouselProps> = ({
   cdnImage,
   badge,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (containerRef.current) {
-      const scrollAmount = containerRef.current.clientWidth * 0.75;
-      containerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
-    }
-  };
+  const { containerRef, scroll, dragProps } = useDragScroll();
 
   if (!movies || movies.length === 0) return null;
 
@@ -62,14 +53,14 @@ export const LandscapeCarousel: React.FC<LandscapeCarouselProps> = ({
 
           <button
             onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
             aria-label="Cuộn sang trái"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
             aria-label="Cuộn sang phải"
           >
             <ChevronRight className="w-4 h-4" />
@@ -77,15 +68,16 @@ export const LandscapeCarousel: React.FC<LandscapeCarouselProps> = ({
         </div>
       </div>
 
-      {/* Horizontal Scroll list for Landscape Cards */}
+      {/* Horizontal Drag-to-Scroll Slider */}
       <div
         ref={containerRef}
-        className="flex gap-4 sm:gap-5 overflow-x-auto overflow-y-visible no-scrollbar py-4 scroll-smooth snap-x snap-mandatory"
+        {...dragProps}
+        className="flex gap-4 sm:gap-5 overflow-x-auto overflow-y-visible no-scrollbar py-4 scroll-smooth select-none"
       >
         {movies.map((movie) => (
           <div
             key={movie._id || movie.slug}
-            className="w-[260px] sm:w-[300px] md:w-[340px] shrink-0 snap-start"
+            className="w-[260px] sm:w-[300px] md:w-[340px] shrink-0"
           >
             <LandscapeCard movie={movie} cdnImage={cdnImage} />
           </div>

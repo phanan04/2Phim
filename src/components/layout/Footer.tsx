@@ -17,13 +17,10 @@ export const Footer: React.FC = () => {
               <span className="text-xl font-black tracking-tight text-white group-hover:text-white/80 transition-colors">
                 PHIM
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[9px] font-black tracking-wider uppercase bg-white/10 text-white/90 border border-white/20">
-                4K SPATIAL
-              </span>
             </Link>
             <p className="text-sm text-white/50 leading-relaxed max-w-md">
-              <strong className="text-white">2Phim</strong> — Nền tảng điện ảnh không gian trực tuyến thế hệ mới.
-              Kho phim bom tấn phong phú cập nhật liên tục với độ phân giải 4K Ultra HD, âm thanh vòm sống động và giao diện Apple Liquid Glass tối giản siêu mượt.
+              <strong className="text-white">2Phim</strong> — Nền tảng xem phim trực tuyến thế hệ mới.
+              Kho phim bom tấn phong phú cập nhật liên tục với phụ đề Vietsub và Thuyết minh chuẩn nhất.
             </p>
             <div className="flex items-center gap-2 text-xs text-white/40 pt-1">
               <ShieldCheck className="w-4 h-4 text-white/60" />
@@ -86,9 +83,9 @@ export const Footer: React.FC = () => {
 
         {/* Bottom copyright */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
-          <p>© 2026 2Phim Spatial Cinema. Tất cả quyền được bảo lưu.</p>
+          <p>© 2026 2Phim. Tất cả quyền được bảo lưu.</p>
           <p className="flex items-center gap-1">
-            Thiết kế lấy cảm hứng từ <Heart className="w-3.5 h-3.5 text-white/70 fill-current" /> Apple VisionOS & Không Gian Điện Ảnh Tối Thượng.
+            Thiết kế giao diện Apple Liquid Glass tối giản & siêu nhẹ mượt.
           </p>
         </div>
       </div>

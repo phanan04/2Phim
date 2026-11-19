@@ -320,9 +320,16 @@ export const WatchPage: React.FC = () => {
                 <span className="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-white/10 text-white border border-white/20">
                   {ageRating}
                 </span>
-                <span className="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-white/10 text-white border border-white/20">
-                  4K SPATIAL CINEMA
-                </span>
+                {movie.quality && (
+                  <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-white/10 text-white border border-white/20">
+                    {movie.quality}
+                  </span>
+                )}
+                {movie.lang && (
+                  <span className="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-white/10 text-white border border-white/20">
+                    {movie.lang}
+                  </span>
+                )}
                 <span className="text-xs font-bold text-white/50">{movie.year || '2026'}</span>
                 {movie.episode_current && (
                   <span className="text-xs font-bold text-white/80">

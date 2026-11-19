@@ -74,22 +74,17 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
 
-            {/* Apple Spatial Cinema 2PHIM Brand Pill Island */}
+            {/* Apple Liquid Glass 2PHIM Brand Pill Island */}
             <Link
               to="/"
-              className="liquid-pill h-9 sm:h-10 px-3 sm:px-4 rounded-full flex items-center gap-2 sm:gap-2.5 group cursor-pointer shadow-lg"
+              className="liquid-pill h-9 sm:h-10 px-3.5 sm:px-4 rounded-full flex items-center gap-2 sm:gap-2.5 group cursor-pointer shadow-lg"
             >
               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-xl bg-white text-black flex items-center justify-center group-hover:scale-105 transition-all shadow-[0_0_10px_rgba(255,255,255,0.4)]">
                 <span className="text-black font-black text-xs sm:text-sm tracking-tighter">2</span>
               </div>
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-sm sm:text-base font-black tracking-tight text-white group-hover:text-white transition-colors">
-                  PHIM
-                </span>
-                <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded-full text-[8px] font-extrabold tracking-widest uppercase bg-white/10 border border-white/20 text-white/85">
-                  4K Spatial
-                </span>
-              </div>
+              <span className="text-sm sm:text-base font-black tracking-tight text-white group-hover:text-white transition-colors">
+                PHIM
+              </span>
             </Link>
           </div>
 

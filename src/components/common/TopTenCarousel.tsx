@@ -1,8 +1,9 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { MovieItem } from '../../types/movie';
 import { getImageUrl } from '../../utils/image';
+import { useDragScroll } from '../../hooks/useDragScroll';
 
 interface TopTenCarouselProps {
   movies: MovieItem[];
@@ -10,18 +11,8 @@ interface TopTenCarouselProps {
 }
 
 export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { containerRef, scroll, dragProps } = useDragScroll();
   const top10 = movies.slice(0, 10);
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (containerRef.current) {
-      const scrollAmount = containerRef.current.clientWidth * 0.75;
-      containerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
-    }
-  };
 
   if (!top10 || top10.length === 0) return null;
 
@@ -34,7 +25,7 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
             Top 10 Thịnh Hành Hôm Nay
             <span className="text-[10px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20 backdrop-blur-md">
-              SPATIAL TOP 10
+              TOP 10
             </span>
           </h2>
         </div>
@@ -43,14 +34,14 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
         <div className="flex items-center gap-2">
           <button
             onClick={() => scroll('left')}
-            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
             aria-label="Cuộn sang trái"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={() => scroll('right')}
-            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full liquid-pill text-white/80 hover:text-white flex items-center justify-center transition-all cursor-pointer shadow-md"
             aria-label="Cuộn sang phải"
           >
             <ChevronRight className="w-4 h-4" />
@@ -58,9 +49,10 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
         </div>
       </div>
 
-      {/* Horizontal List with Giant Frosted Crystal Numbers & Pure Artwork Cards */}
+      {/* Horizontal Drag-to-Scroll Slider with Giant Frosted Crystal Numbers & Pure Artwork Cards */}
       <div
         ref={containerRef}
+        {...dragProps}
         className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-visible no-scrollbar py-4 scroll-smooth select-none items-end"
       >
         {top10.map((movie, index) => {
@@ -108,9 +100,11 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
                     </span>
                   )}
 
-                  <span className="px-1.5 py-0.5 text-[8px] font-black tracking-wider uppercase rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20">
-                    4K HDR
-                  </span>
+                  {movie.quality && (
+                    <span className="px-2 py-0.5 text-[8px] font-bold tracking-wider uppercase rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20">
+                      {movie.quality}
+                    </span>
+                  )}
                 </div>
 
                 {/* Play hover (Luminous White Pill Orb) */}

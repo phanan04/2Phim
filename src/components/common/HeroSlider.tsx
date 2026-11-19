@@ -51,7 +51,19 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
 
   const currentMovie = displayMovies[currentIndex];
   const backdropUrl = getImageUrl(currentMovie.thumb_url || currentMovie.poster_url, cdnImage);
-  const isBookmarked = storage.isBookmarked(currentMovie.slug);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  useEffect(() => {
+    if (currentMovie) {
+      setBookmarked(storage.isBookmarked(currentMovie.slug));
+    }
+  }, [currentMovie?.slug]);
+
+  const handleToggleBookmark = () => {
+    if (!currentMovie) return;
+    const added = storage.toggleBookmark(currentMovie);
+    setBookmarked(added);
+  };
 
   // Realistic rating tag
   const ageRating = (() => {
@@ -95,10 +107,10 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
           {/* Left Editorial Info & Pure White Actions */}
           <div className="max-w-2xl space-y-4">
             {/* Premiere / Format Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full liquid-glass border border-white/25">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full liquid-glass border border-white/20">
               <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#ffffff] animate-pulse" />
-              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-[0.16em] text-white/95">
-                ĐỘC QUYỀN • 4K SPATIAL CINEMA
+              <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-white/90">
+                {currentMovie.chieurap ? 'PHIM CHIẾU RẠP' : currentMovie.type === 'series' ? 'PHIM BỘ HOT' : 'PHIM NỔI BẬT'}
               </span>
             </div>
 
@@ -114,18 +126,24 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
               )}
             </div>
 
-            {/* Technical Format Pills */}
+            {/* Technical Format Pills (Real Metadata Only) */}
             <div className="flex flex-wrap items-center gap-2 text-xs font-bold">
               <RatingBadge imdb={currentMovie.imdb} tmdb={currentMovie.tmdb} size="md" />
-              <span className="liquid-pill px-3 py-1 rounded-full text-white font-black tracking-wider text-[11px]">
-                4K DOLBY VISION
-              </span>
-              <span className="liquid-pill px-3 py-1 rounded-full text-white/90 text-[11px]">
-                Dolby Atmos
-              </span>
-              <span className="liquid-pill px-2.5 py-1 rounded-full text-white/80 text-[11px]">
-                {currentMovie.year || '2026'}
-              </span>
+              {currentMovie.quality && (
+                <span className="liquid-pill px-3 py-1 rounded-full text-white font-bold text-[11px]">
+                  {currentMovie.quality}
+                </span>
+              )}
+              {currentMovie.lang && (
+                <span className="liquid-pill px-3 py-1 rounded-full text-white/90 text-[11px]">
+                  {currentMovie.lang}
+                </span>
+              )}
+              {currentMovie.year && (
+                <span className="liquid-pill px-2.5 py-1 rounded-full text-white/80 text-[11px]">
+                  {currentMovie.year}
+                </span>
+              )}
               {currentMovie.episode_current && (
                 <span className="liquid-pill px-3 py-1 rounded-full text-white font-bold text-[11px]">
                   {currentMovie.episode_current}
@@ -143,44 +161,42 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
               </p>
             )}
 
-            {/* Primary Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center gap-3">
+            {/* Primary Action Buttons (Icon Only - Clean & Minimal) */}
+            <div className="pt-2 flex items-center gap-3">
               {/* Primary Watch CTA */}
               <Link
                 to={`/xem/${currentMovie.slug}`}
-                className="liquid-cta-primary h-12 px-7 rounded-full font-extrabold text-xs sm:text-sm flex items-center gap-2.5 cursor-pointer"
+                className="liquid-cta-primary w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center cursor-pointer shadow-xl hover:scale-110 active:scale-95 transition-all"
+                title="Xem ngay"
+                aria-label="Xem ngay"
               >
-                <Play className="w-4 h-4 fill-current ml-0.5" />
-                <span>Xem Ngay</span>
+                <Play className="w-5 h-5 fill-current ml-0.5 text-black" />
               </Link>
 
               {/* Details Pill */}
               <Link
                 to={`/phim/${currentMovie.slug}`}
-                className="liquid-pill h-12 px-6 rounded-full font-bold text-xs sm:text-sm text-white flex items-center gap-2 cursor-pointer"
+                className="liquid-pill w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white cursor-pointer shadow-lg hover:scale-110 active:scale-95 transition-all"
+                title="Chi tiết phim"
+                aria-label="Chi tiết phim"
               >
-                <Info className="w-4 h-4" />
-                <span>Chi tiết</span>
+                <Info className="w-5 h-5" />
               </Link>
 
               {/* Bookmark Pill */}
               <button
-                onClick={() => storage.toggleBookmark(currentMovie)}
-                className={`liquid-pill h-12 px-5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer ${
-                  isBookmarked ? 'bg-white/25 text-white' : 'text-white'
+                type="button"
+                onClick={handleToggleBookmark}
+                className={`liquid-pill w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all cursor-pointer shadow-lg hover:scale-110 active:scale-95 ${
+                  bookmarked ? 'liquid-cta-primary text-black font-bold' : 'text-white'
                 }`}
-                title={isBookmarked ? 'Đã lưu vào danh sách' : 'Lưu vào danh sách'}
+                title={bookmarked ? 'Đã lưu vào danh sách' : 'Thêm vào danh sách'}
+                aria-label={bookmarked ? 'Đã lưu vào danh sách' : 'Thêm vào danh sách'}
               >
-                {isBookmarked ? (
-                  <>
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>Đã lưu</span>
-                  </>
+                {bookmarked ? (
+                  <Check className="w-5 h-5 stroke-[2.5]" />
                 ) : (
-                  <>
-                    <Plus className="w-4 h-4" />
-                    <span>+ Danh sách</span>
-                  </>
+                  <Plus className="w-5 h-5" />
                 )}
               </button>
             </div>

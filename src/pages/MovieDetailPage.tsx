@@ -177,10 +177,6 @@ export const MovieDetailPage: React.FC = () => {
                   {ageRating}
                 </span>
 
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-white/10 backdrop-blur-md text-white border border-white/20">
-                  4K SPATIAL CINEMA
-                </span>
-
                 <RatingBadge imdb={movie.imdb} tmdb={movie.tmdb} size="md" />
 
                 {movie.quality && (

@@ -67,11 +67,11 @@ export const LandscapeCard: React.FC<LandscapeCardProps> = ({
               <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-black/60 backdrop-blur-md text-white border border-white/20">
                 {movie.episode_current}
               </span>
-            ) : (
+            ) : movie.quality ? (
               <span className="px-2 py-0.5 text-[9px] font-bold rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20">
-                4K
+                {movie.quality}
               </span>
-            )}
+            ) : null}
           </div>
 
           <button
