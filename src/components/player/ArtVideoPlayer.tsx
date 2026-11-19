@@ -183,12 +183,40 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     return `${pad(m)}:${pad(s)}`;
   };
 
-  // Fullscreen handlers
-  const toggleFullscreen = () => {
+  // Fullscreen handlers (Tự động xoay ngang trên mobile, loại bỏ popup cảnh báo OS "để thoát khỏi...")
+  const toggleFullscreen = async () => {
+    if (isMobile) {
+      // Trên điện thoại: Dùng Web-Fullscreen tràn viền + tự động xoay ngang landscape
+      // Giúp xem toàn màn hình mượt mà và không bị trình duyệt hiện thông báo OS phiền toái
+      if (!isFullscreen) {
+        setIsFullscreen(true);
+        try {
+          if (screen.orientation && typeof (screen.orientation as any).lock === 'function') {
+            await (screen.orientation as any).lock('landscape').catch(() => {});
+          }
+        } catch (e) {}
+      } else {
+        setIsFullscreen(false);
+        try {
+          if (screen.orientation && typeof (screen.orientation as any).unlock === 'function') {
+            (screen.orientation as any).unlock();
+          }
+        } catch (e) {}
+      }
+      return;
+    }
+
+    // Trên desktop: Sử dụng requestFullscreen tiêu chuẩn
     if (!document.fullscreenElement) {
-      playerWrapperRef.current?.requestFullscreen?.();
+      try {
+        await playerWrapperRef.current?.requestFullscreen?.();
+      } catch (err) {
+        console.warn('Fullscreen error:', err);
+      }
     } else {
-      document.exitFullscreen?.();
+      try {
+        await document.exitFullscreen?.();
+      } catch (e) {}
     }
   };
 
@@ -209,13 +237,21 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      const isDocFs = Boolean(document.fullscreenElement);
+      if (!isMobile) {
+        setIsFullscreen(isDocFs);
+      }
+      if (!isDocFs && screen.orientation && typeof (screen.orientation as any).unlock === 'function') {
+        try {
+          (screen.orientation as any).unlock();
+        } catch (e) {}
+      }
     };
     document.addEventListener('fullscreenchange', onFullscreenChange);
     return () => {
       document.removeEventListener('fullscreenchange', onFullscreenChange);
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -611,6 +647,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         <div
           className="w-full h-full relative flex items-center justify-center cursor-pointer"
           onClick={(e) => {
+            // Trên điện thoại / cảm ứng: Chạm vào màn hình chỉ bật/tắt thanh điều khiển, KHÔNG play/pause (có nút riêng)
+            if (isMobile || window.matchMedia('(pointer: coarse)').matches) {
+              setControlsVisible((prev) => !prev);
+              return;
+            }
             const target = e.target as HTMLElement;
             if (target.tagName === 'VIDEO' || target.classList.contains('cursor-pointer')) {
               togglePlay();

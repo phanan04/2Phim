@@ -62,16 +62,31 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
     setOpenDropdown(null);
   }, [location.pathname, location.search]);
 
-  // Hover handlers for dropdown menus
-  const handleMouseEnter = (type: 'genre' | 'country') => {
+  const lastHoverTimeRef = useRef(0);
+
+  // Dropdown open/close logic supporting both hover and click
+  const handleDropdownEnter = (type: 'genre' | 'country') => {
     if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current);
+    lastHoverTimeRef.current = Date.now();
     setOpenDropdown(type);
   };
 
-  const handleMouseLeave = () => {
+  const handleDropdownLeave = () => {
     dropdownTimerRef.current = setTimeout(() => {
       setOpenDropdown(null);
-    }, 180);
+    }, 200);
+  };
+
+  const handleDropdownToggle = (type: 'genre' | 'country', e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current);
+    const justHovered = Date.now() - lastHoverTimeRef.current < 400;
+    if (openDropdown === type && !justHovered) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(type);
+    }
   };
 
   // Determine active route & filters
@@ -100,9 +115,9 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             : 'bg-gradient-to-b from-[#050507]/90 via-[#050507]/60 to-transparent backdrop-blur-[6px] border-b border-white/5'
         }`}
       >
-        <div className="max-w-[1720px] mx-auto h-14 sm:h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-6">
+        <div className="max-w-[1720px] mx-auto h-14 sm:h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-6 relative">
           {/* CỤM 1: MOBILE MENU TRIGGER & BRAND LOGO */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0 z-10">
             {/* Mobile Hamburger Button */}
             <button
               type="button"
@@ -125,101 +140,88 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
           </div>
 
           {/* CỤM 2: DESKTOP NAVIGATION CAPSULE (CHUẨN VISIONOS GLASS THEO ẢNH 2 CỦA USER) */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 p-1 rounded-full bg-white/[0.04] backdrop-blur-md border border-white/10">
-            {/* 1. Trang Chủ */}
-            <Link
-              to="/"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                isHomeActive
-                  ? 'bg-white/20 text-white font-black shadow-[0_0_12px_rgba(255,255,255,0.25)]'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {isHomeActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
-              <span>Trang Chủ</span>
-            </Link>
-
-            {/* 2. Chiếu Rạp (Khớp ảnh 2: • Chiếu Rạp) */}
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 p-1 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] absolute left-1/2 -translate-x-1/2 z-10">
+            {/* 1. Chiếu Rạp (Khớp ảnh 2: • Chiếu Rạp) */}
             <Link
               to="/kham-pha?type=phim-chieu-rap"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isCinemaActive
-                  ? 'bg-white/20 text-white font-black shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              {isCinemaActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+              {isCinemaActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
               <span>Chiếu Rạp</span>
             </Link>
 
-            {/* 3. Phim Bộ */}
+            {/* 2. Phim Bộ */}
             <Link
               to="/kham-pha?type=phim-bo"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isSeriesActive
-                  ? 'bg-white/20 text-white font-black shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              {isSeriesActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+              {isSeriesActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
               <span>Phim Bộ</span>
             </Link>
 
-            {/* 4. Phim Lẻ */}
+            {/* 3. Phim Lẻ */}
             <Link
               to="/kham-pha?type=phim-le"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isSingleActive
-                  ? 'bg-white/20 text-white font-black shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              {isSingleActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+              {isSingleActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
               <span>Phim Lẻ</span>
             </Link>
 
-            {/* 5. Anime */}
+            {/* 4. Anime */}
             <Link
               to="/kham-pha?type=hoat-hinh"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isAnimeActive
-                  ? 'bg-white/20 text-white font-black shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              {isAnimeActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+              {isAnimeActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
               <span>Anime</span>
             </Link>
 
-            {/* 6. Truyền Hình (Ảnh 2 của user) */}
+            {/* 5. Truyền Hình (Ảnh 2 của user) */}
             <Link
               to="/kham-pha?type=tv-shows"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
                 isTvShowsActive
-                  ? 'bg-white/20 text-white font-black shadow-[0_0_12px_rgba(255,255,255,0.25)]'
+                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               }`}
             >
-              {isTvShowsActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+              {isTvShowsActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
               <span>Truyền Hình</span>
             </Link>
 
-            {/* 7. Thể Loại Dropdown */}
+            {/* 6. Thể Loại Dropdown */}
             <div
               className="relative header-dropdown-container"
-              onMouseEnter={() => handleMouseEnter('genre')}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={() => handleDropdownEnter('genre')}
+              onMouseLeave={handleDropdownLeave}
             >
               <button
                 type="button"
-                onClick={() => setOpenDropdown(openDropdown === 'genre' ? null : 'genre')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                onClick={(e) => handleDropdownToggle('genre', e)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
                   isGenreActive || openDropdown === 'genre'
-                    ? 'bg-white/20 text-white font-black'
+                    ? 'bg-white/15 text-white font-bold'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {isGenreActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+                {isGenreActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
                 <span>Thể Loại</span>
                 <ChevronDown
                   className={`w-3 h-3 transition-transform duration-200 ${
@@ -229,7 +231,11 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               </button>
 
               {openDropdown === 'genre' && (
-                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div
+                  className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  onMouseEnter={() => handleDropdownEnter('genre')}
+                  onMouseLeave={handleDropdownLeave}
+                >
                   <div className="w-[340px] p-3 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/15 shadow-2xl">
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[11px] font-bold text-white/50 px-1 uppercase tracking-wider">
                       <span>Chọn Thể Loại</span>
@@ -262,22 +268,22 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               )}
             </div>
 
-            {/* 8. Quốc Gia Dropdown */}
+            {/* 7. Quốc Gia Dropdown */}
             <div
               className="relative header-dropdown-container"
-              onMouseEnter={() => handleMouseEnter('country')}
-              onMouseLeave={handleMouseLeave}
+              onMouseEnter={() => handleDropdownEnter('country')}
+              onMouseLeave={handleDropdownLeave}
             >
               <button
                 type="button"
-                onClick={() => setOpenDropdown(openDropdown === 'country' ? null : 'country')}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                onClick={(e) => handleDropdownToggle('country', e)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
                   isCountryActive || openDropdown === 'country'
-                    ? 'bg-white/20 text-white font-black'
+                    ? 'bg-white/15 text-white font-bold'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {isCountryActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0" />}
+                {isCountryActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
                 <span>Quốc Gia</span>
                 <ChevronDown
                   className={`w-3 h-3 transition-transform duration-200 ${
@@ -287,7 +293,11 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               </button>
 
               {openDropdown === 'country' && (
-                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                <div
+                  className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  onMouseEnter={() => handleDropdownEnter('country')}
+                  onMouseLeave={handleDropdownLeave}
+                >
                   <div className="w-[260px] p-3 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/15 shadow-2xl">
                     <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[11px] font-bold text-white/50 px-1 uppercase tracking-wider">
                       <span>Chọn Quốc Gia</span>
@@ -319,23 +329,10 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 </div>
               )}
             </div>
-
-            {/* 8. Khám Phá Full Matrix */}
-            <Link
-              to="/kham-pha"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 ${
-                isExploreGeneralActive
-                  ? 'bg-white text-black font-black shadow-[0_0_12px_rgba(255,255,255,0.3)]'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              <Compass className="w-3.5 h-3.5" />
-              <span>Khám Phá</span>
-            </Link>
           </nav>
 
           {/* CỤM 3: RIGHT ACTION UTILITIES (TÌM KIẾM, ĐÃ LƯU, LỊCH SỬ, PROFILE) */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 z-10 ml-auto">
             {/* ⌘K Command Search Pill */}
             <button
               type="button"
@@ -373,23 +370,20 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Link>
 
-            {/* User Profile Dropdown or Login CTA */}
+            {/* User Profile Dropdown or Login CTA (Chỉ Icon, không chữ theo yêu cầu User) */}
             {isAuthenticated && user ? (
               <div className="relative user-dropdown-container">
                 <button
                   type="button"
                   onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                  className="h-8.5 sm:h-9.5 pl-1.5 pr-2.5 sm:pr-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center gap-2 cursor-pointer transition-all shadow-sm"
+                  className="w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center cursor-pointer transition-all shadow-sm"
+                  title={user.name}
                 >
                   <img
                     src={user.avatar}
                     alt={user.name}
                     className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover ring-1 ring-white/30"
                   />
-                  <span className="hidden md:inline text-xs font-bold text-white max-w-[100px] truncate">
-                    {user.name}
-                  </span>
-                  <ChevronDown className="hidden md:inline w-3 h-3 text-white/50" />
                 </button>
 
                 {isUserDropdownOpen && (
@@ -449,10 +443,11 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               <button
                 type="button"
                 onClick={() => openAuthModal('login')}
-                className="h-8.5 sm:h-9.5 px-3.5 sm:px-4.5 rounded-full bg-white text-black hover:bg-white/90 text-xs font-black flex items-center gap-1.5 cursor-pointer transition-all shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                className="w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95"
+                title="Đăng nhập"
+                aria-label="Đăng nhập"
               >
-                <UserIcon className="w-3.5 h-3.5" />
-                <span>Đăng Nhập</span>
+                <UserIcon className="w-4 h-4" />
               </button>
             )}
           </div>
