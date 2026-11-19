@@ -85,10 +85,10 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
 
   return (
     <div className="space-y-5">
-      {/* 1. Header (Liền mạch, không hộp gò bó) */}
+      {/* 1. Header (Đồng bộ chủ đề Obsidian & White Glass) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
         <div className="flex items-center gap-2">
-          <span className="w-1 h-4 rounded-sm bg-amber-400" />
+          <span className="w-1 h-4 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
           <h2 className="text-base font-bold text-white uppercase tracking-wide">
             Bình Luận & Đánh Giá
           </h2>
@@ -97,7 +97,7 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
 
         {comments.length > 0 && (
           <div className="flex items-center gap-2 text-xs">
-            <div className="flex items-center text-amber-400">
+            <div className="flex items-center text-white/90">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star key={star} className="w-3.5 h-3.5 fill-current" />
               ))}
@@ -108,7 +108,7 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
         )}
       </div>
 
-      {/* 2. Post Comment Form (Sleek, rounded-lg, seamless) */}
+      {/* 2. Post Comment Form */}
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
@@ -121,12 +121,12 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
                   onClick={() => setSelectedRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="p-0.5 text-white/30 hover:text-amber-400 transition-transform hover:scale-110 cursor-pointer"
+                  className="p-0.5 text-white/30 hover:text-white transition-transform hover:scale-110 cursor-pointer"
                 >
                   <Star
                     className={`w-4 h-4 ${
                       star <= (hoverRating || selectedRating)
-                        ? 'text-amber-400 fill-amber-400'
+                        ? 'text-white fill-white'
                         : 'text-white/20'
                     }`}
                   />
@@ -139,7 +139,7 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
             <button
               type="button"
               onClick={() => openAuthModal('login')}
-              className="text-xs text-amber-400 hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs text-white/70 hover:text-white hover:underline flex items-center gap-1 cursor-pointer"
             >
               <Crown className="w-3.5 h-3.5" />
               <span>Đăng nhập VIP</span>
@@ -185,7 +185,7 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
         </div>
       </form>
 
-      {/* 3. Comments List (Clean divide-y without floating boxed cards) */}
+      {/* 3. Comments List */}
       {comments.length > 0 ? (
         <div className="divide-y divide-white/10 pt-2">
           {comments.map((cmt) => (
@@ -199,8 +199,8 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
                       className="w-8 h-8 rounded-full object-cover bg-white/10"
                     />
                     {cmt.isVip && (
-                      <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-400 flex items-center justify-center shadow-sm">
-                        <Crown className="w-2 h-2 text-black fill-current" />
+                      <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-white text-black flex items-center justify-center shadow-sm">
+                        <Crown className="w-2 h-2 fill-current" />
                       </span>
                     )}
                   </div>
@@ -209,7 +209,7 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs font-bold text-white">{cmt.author}</span>
                       {cmt.isVip && (
-                        <span className="px-1 py-0.2 rounded text-[9px] font-black uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-white/10 text-white border border-white/20">
                           VIP
                         </span>
                       )}
@@ -219,7 +219,7 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
                 </div>
 
                 {/* Rating stars */}
-                <div className="flex items-center text-amber-400">
+                <div className="flex items-center text-white/90">
                   {Array.from({ length: cmt.rating }).map((_, i) => (
                     <Star key={i} className="w-3 h-3 fill-current" />
                   ))}

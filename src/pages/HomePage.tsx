@@ -282,20 +282,20 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {[
-              { name: 'Chiếu Rạp', path: '/kham-pha?type=phim-chieu-rap', icon: '🎬', gradient: 'from-amber-600/30 to-yellow-600/10' },
-              { name: 'K-Drama Hàn', path: '/kham-pha?country=han-quoc', icon: '🇰🇷', gradient: 'from-rose-600/30 to-pink-600/10' },
-              { name: 'Cổ Trang Trung', path: '/kham-pha?country=trung-quoc', icon: '🏯', gradient: 'from-red-600/30 to-orange-600/10' },
-              { name: 'Bom Tấn Âu Mỹ', path: '/kham-pha?country=au-my', icon: '🇺🇸', gradient: 'from-blue-600/30 to-indigo-600/10' },
-              { name: 'Anime Nhật Bản', path: '/kham-pha?type=hoat-hinh', icon: '🎌', gradient: 'from-purple-600/30 to-violet-600/10' },
-              { name: 'Phim Bộ Hot', path: '/kham-pha?type=phim-bo', icon: '📺', gradient: 'from-emerald-600/30 to-teal-600/10' },
+              { name: 'Chiếu Rạp', path: '/kham-pha?type=phim-chieu-rap', icon: '🎬' },
+              { name: 'K-Drama Hàn', path: '/kham-pha?country=han-quoc', icon: '🇰🇷' },
+              { name: 'Cổ Trang Trung', path: '/kham-pha?country=trung-quoc', icon: '🏯' },
+              { name: 'Bom Tấn Âu Mỹ', path: '/kham-pha?country=au-my', icon: '🇺🇸' },
+              { name: 'Anime Nhật Bản', path: '/kham-pha?type=hoat-hinh', icon: '🎌' },
+              { name: 'Phim Bộ Hot', path: '/kham-pha?type=phim-bo', icon: '📺' },
             ].map((hub) => (
               <Link
                 key={hub.name}
                 to={hub.path}
-                className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${hub.gradient} border border-white/10 hover:border-white/40 transition-all hover:scale-105 hover:shadow-[0_10px_25px_rgba(255,255,255,0.15)] flex flex-col items-center text-center space-y-2 group liquid-glass`}
+                className="p-4 sm:p-5 rounded-xl bg-white/5 border border-white/10 hover:border-white/30 hover:bg-white/10 transition-all hover:scale-105 flex flex-col items-center text-center space-y-2 group shadow-sm"
               >
                 <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">{hub.icon}</span>
-                <span className="text-xs sm:text-sm font-black text-white group-hover:text-white transition-colors">
+                <span className="text-xs sm:text-sm font-bold text-white/90 group-hover:text-white transition-colors">
                   {hub.name}
                 </span>
               </Link>

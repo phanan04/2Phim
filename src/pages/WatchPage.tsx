@@ -418,7 +418,7 @@ export const WatchPage: React.FC = () => {
                 className="p-2 sm:px-3 sm:py-1.5 rounded-full liquid-pill text-white/80 hover:text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 title="Chia sẻ"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Share2 className="w-3.5 h-3.5" />}
                 <span className="hidden sm:inline">{copied ? 'Đã Sao Chép Link' : 'Chia Sẻ'}</span>
               </button>
             </div>

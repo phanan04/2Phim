@@ -13,7 +13,6 @@ import {
   Share2,
   Calendar,
   Clock,
-  Film,
   Star,
   MessageSquare,
   ArrowUpDown,
@@ -216,7 +215,7 @@ export const MovieDetailPage: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20 space-y-8 select-none">
-      {/* 1. SEAMLESS TOP HERO: POSTER + MOVIE INFO (LIỀN MẠCH, KHÔNG HỘP GÒ BÓ) */}
+      {/* 1. SEAMLESS TOP HERO (ĐỒNG BỘ CHỦ ĐỀ OBSIDIAN & WHITE GLASS) */}
       <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start pt-2">
         {/* Left: Poster (Sleek rounded-xl, 2:3 ratio) */}
         <div className="w-48 sm:w-56 shrink-0 mx-auto md:mx-0">
@@ -229,7 +228,7 @@ export const MovieDetailPage: React.FC = () => {
 
             {/* Badges on Poster */}
             {movie.episode_current && (
-              <span className="absolute top-2.5 left-2.5 px-2 py-0.5 text-[11px] font-bold rounded bg-black/80 backdrop-blur-sm text-white border border-white/20">
+              <span className="absolute top-2.5 left-2.5 px-2 py-0.5 text-[11px] font-bold rounded bg-black/80 backdrop-blur-sm text-white border border-white/15">
                 {movie.episode_current}
               </span>
             )}
@@ -265,14 +264,14 @@ export const MovieDetailPage: React.FC = () => {
             )}
           </div>
 
-          {/* Genre Chips (Clean rounded-md/rounded-lg) */}
+          {/* Genre Chips (Đồng bộ monochrome glass) */}
           {movie.category && movie.category.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
               {movie.category.map((cat) => (
                 <Link
                   key={cat.slug}
                   to={`/kham-pha?category=${cat.slug}`}
-                  className="px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25 border border-emerald-500/30 transition-colors"
+                  className="px-2.5 py-1 rounded-md text-xs font-medium bg-white/8 text-white/80 hover:text-white hover:bg-white/15 border border-white/10 transition-colors"
                 >
                   {cat.name}
                 </Link>
@@ -280,41 +279,42 @@ export const MovieDetailPage: React.FC = () => {
             </div>
           )}
 
-          {/* Key Metadata Badges */}
+          {/* Key Metadata Badges (Đồng bộ trắng mờ frosted glass) */}
           <div className="flex flex-wrap items-center gap-2 text-xs text-white/80">
             {movie.episode_current && (
-              <span className="px-2.5 py-1 rounded-md font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+              <span className="px-2.5 py-1 rounded-md font-bold bg-white/10 text-white border border-white/15">
                 {movie.episode_current}
               </span>
             )}
             {movie.year && (
-              <span className="px-2.5 py-1 rounded-md font-medium bg-white/5 border border-white/10 flex items-center gap-1">
+              <span className="px-2.5 py-1 rounded-md font-medium bg-white/5 border border-white/10 flex items-center gap-1 text-white/80">
                 <Calendar className="w-3.5 h-3.5 text-white/60" />
                 <span>{movie.year}</span>
               </span>
             )}
-            <span className="px-2.5 py-1 rounded-md font-medium bg-white/5 border border-white/10 flex items-center gap-1">
+            <span className="px-2.5 py-1 rounded-md font-medium bg-white/5 border border-white/10 flex items-center gap-1 text-white/80">
               <Clock className="w-3.5 h-3.5 text-white/60" />
               <span>{movie.time || movie.episode_total || 'Đang cập nhật'}</span>
             </span>
-            <span className="px-2 py-0.5 rounded font-black text-[11px] bg-red-600/80 text-white">
+            <span className="px-2 py-0.5 rounded font-black text-[11px] bg-white/10 text-white border border-white/15">
               {ageRating}
             </span>
 
             {/* Star Rating */}
             <div className="flex items-center gap-1.5 ml-1 text-xs">
-              <Star className="w-4 h-4 fill-current text-amber-400" />
+              <Star className="w-4 h-4 fill-current text-white/90" />
               <span className="font-bold text-white text-sm">{ratingScore}</span>
               <span className="text-white/40">/ 10</span>
               <span className="text-white/40 text-[11px]">({ratingVoteCount})</span>
             </div>
           </div>
 
-          {/* Action Buttons Row */}
+          {/* Action Buttons Row (Đồng bộ Apple Obsidian & White) */}
           <div className="flex flex-wrap items-center gap-2.5 pt-1">
+            {/* Primary Action Button (Trắng tinh thể nổi bật) */}
             <Link
               to={primaryWatchUrl}
-              className="px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-black shadow-lg hover:shadow-amber-500/25 flex items-center gap-2 transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-lg font-black text-xs uppercase tracking-wider bg-white text-black hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.3)] flex items-center gap-2 transition-all cursor-pointer"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>Xem Phim</span>
@@ -323,7 +323,7 @@ export const MovieDetailPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsRatingModalOpen(true)}
-              className="px-4 py-2.5 rounded-lg text-xs font-semibold bg-blue-600/80 hover:bg-blue-600 text-white border border-blue-400/30 flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-white border border-white/10 flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Star className="w-3.5 h-3.5 fill-current" />
               <span>{hasRated ? `Đã đánh giá (${userRating}★)` : 'Đánh giá'}</span>
@@ -334,11 +334,11 @@ export const MovieDetailPage: React.FC = () => {
               onClick={handleToggleBookmark}
               className={`px-4 py-2.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer ${
                 isBookmarked
-                  ? 'bg-rose-600 text-white border-rose-500'
+                  ? 'bg-white text-black border-white font-bold'
                   : 'bg-white/5 hover:bg-white/10 text-white/90 border-white/10'
               }`}
             >
-              <Heart className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current text-white' : ''}`} />
+              <Heart className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current text-black' : ''}`} />
               <span>{isBookmarked ? 'Đang theo dõi' : 'Theo dõi'}</span>
             </button>
 
@@ -368,13 +368,13 @@ export const MovieDetailPage: React.FC = () => {
               className="p-2.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 cursor-pointer transition-colors"
               title="Chia sẻ phim"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Share2 className="w-3.5 h-3.5" />}
             </button>
           </div>
 
-          {/* Clean Schedule Notice (Seamless inline note, no heavy box) */}
-          <div className="pt-2 text-xs text-emerald-300/90 flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-emerald-400 shrink-0" />
+          {/* Clean Schedule Notice */}
+          <div className="pt-2 text-xs text-white/60 flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-white/60 shrink-0" />
             <span>
               {movie.type === 'series' || movie.type === 'hoathinh'
                 ? 'Lịch chiếu: Cập nhật tập mới đều đặn hàng tuần • Bản Vietsub & Thuyết minh Full HD.'
@@ -384,13 +384,13 @@ export const MovieDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. CHỌN TẬP SECTION (LIỀN MẠCH, GỌN GÀNG, THÔNG MINH) */}
+      {/* 2. CHỌN TẬP SECTION (LIỀN MẠCH, ĐỒNG BỘ MÀU) */}
       {movie.episodes && movie.episodes.length > 0 && (
         <div className="pt-6 border-t border-white/10 space-y-3.5">
           {/* Header & Controls Toolbar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Search className="w-4 h-4 text-white/70" />
+              <span className="w-1 h-4 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
               <h2 className="text-base font-bold text-white uppercase tracking-wide">
                 Chọn Tập
               </h2>
@@ -475,7 +475,7 @@ export const MovieDetailPage: React.FC = () => {
                   <Link
                     key={ep.slug}
                     to={watchEpUrl}
-                    className="py-2 px-1 text-center rounded-lg bg-white/5 hover:bg-white text-white/90 hover:text-black font-semibold text-xs transition-colors truncate border border-white/10"
+                    className="py-2 px-1 text-center rounded-lg bg-white/5 hover:bg-white text-white/80 hover:text-black font-semibold text-xs transition-colors truncate border border-white/10"
                     title={ep.name}
                   >
                     {ep.name}
@@ -491,10 +491,10 @@ export const MovieDetailPage: React.FC = () => {
         </div>
       )}
 
-      {/* 3. NỘI DUNG PHIM (LIỀN MẠCH, KHÔNG HỘP GÒ BÓ) */}
+      {/* 3. NỘI DUNG PHIM (ĐỒNG BỘ CHỦ ĐỀ) */}
       <div className="pt-6 border-t border-white/10 space-y-3">
         <div className="flex items-center gap-2">
-          <span className="w-1 h-4 rounded-sm bg-amber-400" />
+          <span className="w-1 h-4 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
           <h2 className="text-base font-bold text-white uppercase tracking-wide">
             Nội Dung Phim
           </h2>
@@ -514,7 +514,7 @@ export const MovieDetailPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsContentExpanded(!isContentExpanded)}
-              className="mt-2 text-xs font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer"
+              className="mt-2 text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1 cursor-pointer"
             >
               <span>{isContentExpanded ? 'Thu gọn' : 'Xem thêm'}</span>
               {isContentExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -598,11 +598,11 @@ export const MovieDetailPage: React.FC = () => {
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
                   onClick={() => handleRateMovie(star)}
-                  className="p-1 transition-transform hover:scale-125 cursor-pointer text-amber-400"
+                  className="p-1 transition-transform hover:scale-125 cursor-pointer text-white"
                 >
                   <Star
                     className={`w-7 h-7 ${
-                      (hoverRating || userRating || 0) >= star ? 'fill-current text-amber-400' : 'text-white/20'
+                      (hoverRating || userRating || 0) >= star ? 'fill-current text-white' : 'text-white/20'
                     }`}
                   />
                 </button>
@@ -611,7 +611,7 @@ export const MovieDetailPage: React.FC = () => {
 
             <p className="text-xs text-white/50">
               {(hoverRating || userRating || 0) > 0 ? (
-                <span className="text-amber-400 font-bold">
+                <span className="text-white font-bold">
                   {(hoverRating || userRating || 0) * 2} / 10 điểm
                 </span>
               ) : (

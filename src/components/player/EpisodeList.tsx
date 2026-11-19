@@ -131,8 +131,8 @@ export const EpisodeList: React.FC<EpisodeListProps> = ({
           >
             {reportSent ? (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Đã báo lỗi!</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                <span className="text-white">Đã báo lỗi!</span>
               </>
             ) : (
               <>
