@@ -50,8 +50,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           isHomePage
             ? 'w-full'
             : isWatchPage
-            ? 'w-full pt-14 sm:pt-16 pb-10'
-            : 'max-w-[1680px] mx-auto px-4 sm:px-8 md:px-12 pt-18 sm:pt-22 pb-12'
+            ? 'w-full pt-16 sm:pt-20 pb-10'
+            : 'max-w-[1680px] mx-auto px-4 sm:px-8 md:px-12 pt-20 sm:pt-24 pb-16'
         }`}
       >
         {children}

@@ -96,15 +96,28 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
   const currentCountry = searchParams.get('country');
 
   const isHomeActive = location.pathname === '/';
-  const isCinemaActive = location.pathname === '/kham-pha' && currentType === 'phim-chieu-rap';
-  const isSeriesActive = location.pathname === '/kham-pha' && currentType === 'phim-bo';
-  const isSingleActive = location.pathname === '/kham-pha' && currentType === 'phim-le';
-  const isAnimeActive = location.pathname === '/kham-pha' && currentType === 'hoat-hinh';
-  const isTvShowsActive = location.pathname === '/kham-pha' && currentType === 'tv-shows';
+  const isCinemaActive =
+    location.pathname === '/phim-chieu-rap' ||
+    location.pathname === '/chieu-rap' ||
+    (location.pathname === '/kham-pha' && currentType === 'phim-chieu-rap');
+  const isSeriesActive =
+    location.pathname === '/phim-bo' ||
+    (location.pathname === '/kham-pha' && currentType === 'phim-bo');
+  const isSingleActive =
+    location.pathname === '/phim-le' ||
+    (location.pathname === '/kham-pha' && currentType === 'phim-le');
+  const isAnimeActive =
+    location.pathname === '/anime' ||
+    location.pathname === '/hoat-hinh' ||
+    (location.pathname === '/kham-pha' && currentType === 'hoat-hinh');
+  const isTvShowsActive =
+    location.pathname === '/truyen-hinh' ||
+    location.pathname === '/tv-shows' ||
+    (location.pathname === '/kham-pha' && currentType === 'tv-shows');
   const isExploreGeneralActive =
     location.pathname === '/kham-pha' && !currentType && !currentCategory && !currentCountry;
-  const isGenreActive = location.pathname === '/kham-pha' && !!currentCategory;
-  const isCountryActive = location.pathname === '/kham-pha' && !!currentCountry;
+  const isGenreActive = (location.pathname === '/kham-pha' && !!currentCategory) || location.pathname.startsWith('/the-loai');
+  const isCountryActive = (location.pathname === '/kham-pha' && !!currentCountry) || location.pathname.startsWith('/quoc-gia');
 
   return (
     <>
@@ -115,9 +128,9 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             : 'bg-gradient-to-b from-[#050507]/90 via-[#050507]/60 to-transparent backdrop-blur-[6px] border-b border-white/5'
         }`}
       >
-        <div className="max-w-[1720px] mx-auto h-14 sm:h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-3 sm:gap-6 relative">
-          {/* CỤM 1: MOBILE MENU TRIGGER & BRAND LOGO */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0 z-10">
+        <div className="max-w-[1720px] mx-auto h-14 sm:h-16 px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-4 relative">
+          {/* CỤM 1: BRAND LOGO & DESKTOP NAVIGATION (LIỀN MẠCH, BỎ NỀN CAPSULE LỒNG NHAU) */}
+          <div className="flex items-center gap-6 lg:gap-8 xl:gap-10">
             {/* Mobile Hamburger Button */}
             <button
               type="button"
@@ -128,8 +141,8 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
 
-            {/* Apple VisionOS Liquid Glass 2PHIM Brand Logo */}
-            <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+            {/* Brand Logo */}
+            <Link to="/" className="flex items-center gap-2.5 group cursor-pointer shrink-0">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white text-black flex items-center justify-center font-black text-xs sm:text-sm tracking-tighter shadow-[0_0_12px_rgba(255,255,255,0.4)] group-hover:scale-105 transition-transform">
                 2
               </div>
@@ -137,201 +150,205 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 PHIM
               </span>
             </Link>
+
+            {/* Desktop Navigation Links (Thanh thoát, không nền bao bọc thừa) */}
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+              {/* 1. Chiếu Rạp */}
+              <Link
+                to="/phim-chieu-rap"
+                className={`text-sm font-semibold tracking-tight transition-colors py-1 relative ${
+                  isCinemaActive ? 'text-white font-bold' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>Chiếu Rạp</span>
+                {isCinemaActive && (
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                )}
+              </Link>
+
+              {/* 2. Phim Bộ */}
+              <Link
+                to="/phim-bo"
+                className={`text-sm font-semibold tracking-tight transition-colors py-1 relative ${
+                  isSeriesActive ? 'text-white font-bold' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>Phim Bộ</span>
+                {isSeriesActive && (
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                )}
+              </Link>
+
+              {/* 3. Phim Lẻ */}
+              <Link
+                to="/phim-le"
+                className={`text-sm font-semibold tracking-tight transition-colors py-1 relative ${
+                  isSingleActive ? 'text-white font-bold' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>Phim Lẻ</span>
+                {isSingleActive && (
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                )}
+              </Link>
+
+              {/* 4. Anime */}
+              <Link
+                to="/anime"
+                className={`text-sm font-semibold tracking-tight transition-colors py-1 relative ${
+                  isAnimeActive ? 'text-white font-bold' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>Anime</span>
+                {isAnimeActive && (
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                )}
+              </Link>
+
+              {/* 5. Truyền Hình */}
+              <Link
+                to="/truyen-hinh"
+                className={`text-sm font-semibold tracking-tight transition-colors py-1 relative ${
+                  isTvShowsActive ? 'text-white font-bold' : 'text-white/70 hover:text-white'
+                }`}
+              >
+                <span>Truyền Hình</span>
+                {isTvShowsActive && (
+                  <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                )}
+              </Link>
+
+              {/* 6. Thể Loại Dropdown */}
+              <div
+                className="relative header-dropdown-container"
+                onMouseEnter={() => handleDropdownEnter('genre')}
+                onMouseLeave={handleDropdownLeave}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => handleDropdownToggle('genre', e)}
+                  className={`text-sm font-semibold tracking-tight transition-colors py-1 flex items-center gap-1 cursor-pointer relative ${
+                    isGenreActive || openDropdown === 'genre'
+                      ? 'text-white font-bold'
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                >
+                  <span>Thể Loại</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      openDropdown === 'genre' ? 'rotate-180 text-white' : 'text-white/50'
+                    }`}
+                  />
+                  {isGenreActive && (
+                    <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                  )}
+                </button>
+
+                {openDropdown === 'genre' && (
+                  <div
+                    className="absolute top-full left-0 pt-2.5 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    onMouseEnter={() => handleDropdownEnter('genre')}
+                    onMouseLeave={handleDropdownLeave}
+                  >
+                    <div className="w-[340px] p-3 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/15 shadow-2xl">
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[11px] font-bold text-white/50 px-1 uppercase tracking-wider">
+                        <span>Chọn Thể Loại</span>
+                        <Link
+                          to="/kham-pha"
+                          onClick={() => setOpenDropdown(null)}
+                          className="text-white/70 hover:text-white hover:underline lowercase font-normal"
+                        >
+                          tất cả →
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        {CATEGORIES.slice(0, 18).map((cat) => (
+                          <Link
+                            key={cat.slug}
+                            to={`/kham-pha?category=${cat.slug}`}
+                            onClick={() => setOpenDropdown(null)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold truncate transition-all ${
+                              currentCategory === cat.slug
+                                ? 'bg-white text-black font-bold shadow-sm'
+                                : 'text-white/70 hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {cat.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 7. Quốc Gia Dropdown */}
+              <div
+                className="relative header-dropdown-container"
+                onMouseEnter={() => handleDropdownEnter('country')}
+                onMouseLeave={handleDropdownLeave}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => handleDropdownToggle('country', e)}
+                  className={`text-sm font-semibold tracking-tight transition-colors py-1 flex items-center gap-1 cursor-pointer relative ${
+                    isCountryActive || openDropdown === 'country'
+                      ? 'text-white font-bold'
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                >
+                  <span>Quốc Gia</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      openDropdown === 'country' ? 'rotate-180 text-white' : 'text-white/50'
+                    }`}
+                  />
+                  {isCountryActive && (
+                    <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-white rounded-full shadow-[0_0_8px_#fff]" />
+                  )}
+                </button>
+
+                {openDropdown === 'country' && (
+                  <div
+                    className="absolute top-full left-0 pt-2.5 z-50 animate-in fade-in zoom-in-95 duration-150"
+                    onMouseEnter={() => handleDropdownEnter('country')}
+                    onMouseLeave={handleDropdownLeave}
+                  >
+                    <div className="w-[260px] p-3 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/15 shadow-2xl">
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[11px] font-bold text-white/50 px-1 uppercase tracking-wider">
+                        <span>Chọn Quốc Gia</span>
+                        <Link
+                          to="/kham-pha"
+                          onClick={() => setOpenDropdown(null)}
+                          className="text-white/70 hover:text-white hover:underline lowercase font-normal"
+                        >
+                          tất cả →
+                        </Link>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1">
+                        {COUNTRIES.map((ct) => (
+                          <Link
+                            key={ct.slug}
+                            to={`/kham-pha?country=${ct.slug}`}
+                            onClick={() => setOpenDropdown(null)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold truncate transition-all ${
+                              currentCountry === ct.slug
+                                ? 'bg-white text-black font-bold shadow-sm'
+                                : 'text-white/70 hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {ct.name}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </nav>
           </div>
 
-          {/* CỤM 2: DESKTOP NAVIGATION CAPSULE (CHUẨN VISIONOS GLASS THEO ẢNH 2 CỦA USER) */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 p-1 rounded-full bg-white/[0.05] backdrop-blur-xl border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.3)] absolute left-1/2 -translate-x-1/2 z-10">
-            {/* 1. Chiếu Rạp (Khớp ảnh 2: • Chiếu Rạp) */}
-            <Link
-              to="/kham-pha?type=phim-chieu-rap"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isCinemaActive
-                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {isCinemaActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-              <span>Chiếu Rạp</span>
-            </Link>
-
-            {/* 2. Phim Bộ */}
-            <Link
-              to="/kham-pha?type=phim-bo"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isSeriesActive
-                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {isSeriesActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-              <span>Phim Bộ</span>
-            </Link>
-
-            {/* 3. Phim Lẻ */}
-            <Link
-              to="/kham-pha?type=phim-le"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isSingleActive
-                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {isSingleActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-              <span>Phim Lẻ</span>
-            </Link>
-
-            {/* 4. Anime */}
-            <Link
-              to="/kham-pha?type=hoat-hinh"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isAnimeActive
-                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {isAnimeActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-              <span>Anime</span>
-            </Link>
-
-            {/* 5. Truyền Hình (Ảnh 2 của user) */}
-            <Link
-              to="/kham-pha?type=tv-shows"
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                isTvShowsActive
-                  ? 'bg-white/15 text-white font-bold shadow-[0_0_12px_rgba(255,255,255,0.15)] border border-white/10'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              {isTvShowsActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-              <span>Truyền Hình</span>
-            </Link>
-
-            {/* 6. Thể Loại Dropdown */}
-            <div
-              className="relative header-dropdown-container"
-              onMouseEnter={() => handleDropdownEnter('genre')}
-              onMouseLeave={handleDropdownLeave}
-            >
-              <button
-                type="button"
-                onClick={(e) => handleDropdownToggle('genre', e)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                  isGenreActive || openDropdown === 'genre'
-                    ? 'bg-white/15 text-white font-bold'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {isGenreActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-                <span>Thể Loại</span>
-                <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${
-                    openDropdown === 'genre' ? 'rotate-180 text-white' : 'text-white/50'
-                  }`}
-                />
-              </button>
-
-              {openDropdown === 'genre' && (
-                <div
-                  className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150"
-                  onMouseEnter={() => handleDropdownEnter('genre')}
-                  onMouseLeave={handleDropdownLeave}
-                >
-                  <div className="w-[340px] p-3 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/15 shadow-2xl">
-                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[11px] font-bold text-white/50 px-1 uppercase tracking-wider">
-                      <span>Chọn Thể Loại</span>
-                      <Link
-                        to="/kham-pha"
-                        onClick={() => setOpenDropdown(null)}
-                        className="text-white/70 hover:text-white hover:underline lowercase font-normal"
-                      >
-                        tất cả →
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-3 gap-1">
-                      {CATEGORIES.slice(0, 18).map((cat) => (
-                        <Link
-                          key={cat.slug}
-                          to={`/kham-pha?category=${cat.slug}`}
-                          onClick={() => setOpenDropdown(null)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold truncate transition-all ${
-                            currentCategory === cat.slug
-                              ? 'bg-white text-black font-bold shadow-sm'
-                              : 'text-white/70 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          {cat.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 7. Quốc Gia Dropdown */}
-            <div
-              className="relative header-dropdown-container"
-              onMouseEnter={() => handleDropdownEnter('country')}
-              onMouseLeave={handleDropdownLeave}
-            >
-              <button
-                type="button"
-                onClick={(e) => handleDropdownToggle('country', e)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                  isCountryActive || openDropdown === 'country'
-                    ? 'bg-white/15 text-white font-bold'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                {isCountryActive && <span className="w-1.5 h-1.5 rounded-full bg-white inline-block shrink-0 shadow-[0_0_6px_#fff]" />}
-                <span>Quốc Gia</span>
-                <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${
-                    openDropdown === 'country' ? 'rotate-180 text-white' : 'text-white/50'
-                  }`}
-                />
-              </button>
-
-              {openDropdown === 'country' && (
-                <div
-                  className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150"
-                  onMouseEnter={() => handleDropdownEnter('country')}
-                  onMouseLeave={handleDropdownLeave}
-                >
-                  <div className="w-[260px] p-3 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/15 shadow-2xl">
-                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-[11px] font-bold text-white/50 px-1 uppercase tracking-wider">
-                      <span>Chọn Quốc Gia</span>
-                      <Link
-                        to="/kham-pha"
-                        onClick={() => setOpenDropdown(null)}
-                        className="text-white/70 hover:text-white hover:underline lowercase font-normal"
-                      >
-                        tất cả →
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1">
-                      {COUNTRIES.map((ct) => (
-                        <Link
-                          key={ct.slug}
-                          to={`/kham-pha?country=${ct.slug}`}
-                          onClick={() => setOpenDropdown(null)}
-                          className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold truncate transition-all ${
-                            currentCountry === ct.slug
-                              ? 'bg-white text-black font-bold shadow-sm'
-                              : 'text-white/70 hover:text-white hover:bg-white/10'
-                          }`}
-                        >
-                          {ct.name}
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </nav>
-
-          {/* CỤM 3: RIGHT ACTION UTILITIES (TÌM KIẾM, ĐÃ LƯU, LỊCH SỬ, PROFILE) */}
+          {/* CỤM 2: RIGHT ACTION UTILITIES (TÌM KIẾM, ĐÃ LƯU, LỊCH SỬ, PROFILE) */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 z-10 ml-auto">
             {/* ⌘K Command Search Pill */}
             <button
@@ -533,7 +550,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 </Link>
 
                 <Link
-                  to="/kham-pha?type=phim-chieu-rap"
+                  to="/phim-chieu-rap"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                     isCinemaActive
@@ -546,7 +563,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 </Link>
 
                 <Link
-                  to="/kham-pha?type=phim-bo"
+                  to="/phim-bo"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                     isSeriesActive
@@ -559,7 +576,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 </Link>
 
                 <Link
-                  to="/kham-pha?type=phim-le"
+                  to="/phim-le"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                     isSingleActive
@@ -572,7 +589,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 </Link>
 
                 <Link
-                  to="/kham-pha?type=hoat-hinh"
+                  to="/anime"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                     isAnimeActive
@@ -585,7 +602,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                 </Link>
 
                 <Link
-                  to="/kham-pha?type=tv-shows"
+                  to="/truyen-hinh"
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
                     isTvShowsActive

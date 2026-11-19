@@ -212,14 +212,27 @@ export const MovieDetailPage: React.FC = () => {
   }
 
   const posterUrl = getImageUrl(movie.poster_url || movie.thumb_url);
+  const backdropUrl = getImageUrl(movie.thumb_url || movie.poster_url);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-20 space-y-8 select-none">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 pb-20 space-y-10 select-none relative">
+      {/* Cinematic Ambient Hero Backdrop */}
+      {backdropUrl && (
+        <div className="absolute -top-16 inset-x-0 h-[480px] overflow-hidden pointer-events-none -z-10 opacity-25 select-none rounded-3xl">
+          <img
+            src={backdropUrl}
+            alt=""
+            className="w-full h-full object-cover object-center filter blur-3xl scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050507]/20 via-[#050507]/75 to-[#050507]" />
+        </div>
+      )}
+
       {/* 1. SEAMLESS TOP HERO (ĐỒNG BỘ CHỦ ĐỀ OBSIDIAN & WHITE GLASS) */}
-      <div className="flex flex-col md:flex-row gap-6 md:gap-8 items-start pt-2">
-        {/* Left: Poster (Sleek rounded-xl, 2:3 ratio) */}
-        <div className="w-48 sm:w-56 shrink-0 mx-auto md:mx-0">
-          <div className="aspect-[2/3] w-full rounded-xl overflow-hidden shadow-2xl relative border border-white/10 group bg-[#111115]">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start pt-2">
+        {/* Left: Poster (Sleek rounded-xl, 2:3 ratio, full prominence) */}
+        <div className="w-56 sm:w-64 md:w-72 lg:w-80 shrink-0 mx-auto md:mx-0">
+          <div className="aspect-[2/3] w-full rounded-2xl overflow-hidden shadow-2xl relative border border-white/15 group bg-[#111115]">
             <img
               src={posterUrl}
               alt={movie.name}

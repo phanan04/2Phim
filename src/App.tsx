@@ -26,7 +26,17 @@ export function App() {
             {/* Trang chủ */}
             <Route path="/" element={<HomePage />} />
 
-            {/* Khám phá & Bộ lọc chuyên sâu */}
+            {/* Từng màn hình riêng biệt theo từng mục trên Header */}
+            <Route path="/phim-chieu-rap" element={<ExplorePage sectionType="phim-chieu-rap" />} />
+            <Route path="/chieu-rap" element={<ExplorePage sectionType="phim-chieu-rap" />} />
+            <Route path="/phim-bo" element={<ExplorePage sectionType="phim-bo" />} />
+            <Route path="/phim-le" element={<ExplorePage sectionType="phim-le" />} />
+            <Route path="/anime" element={<ExplorePage sectionType="hoat-hinh" />} />
+            <Route path="/hoat-hinh" element={<ExplorePage sectionType="hoat-hinh" />} />
+            <Route path="/truyen-hinh" element={<ExplorePage sectionType="tv-shows" />} />
+            <Route path="/tv-shows" element={<ExplorePage sectionType="tv-shows" />} />
+
+            {/* Khám phá & Bộ lọc chuyên sâu chung */}
             <Route path="/kham-pha" element={<ExplorePage />} />
 
             {/* Chi tiết phim */}
