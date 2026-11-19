@@ -74,8 +74,13 @@ export function getPreferredServerIndex(episodes: EpisodeServer[]): number {
   ];
 
   for (const regex of priorities) {
-    const found = pool.find(({ s }) => regex.test(s.server_name));
-    if (found) return found.idx;
+    // 1. Ưu tiên máy chủ HLS chính trước
+    const foundHls = pool.find(({ s }) => regex.test(s.server_name) && !/dự\s*phòng|embed/i.test(s.server_name));
+    if (foundHls) return foundHls.idx;
+
+    // 2. Nếu không có thì lấy bất kỳ máy chủ nào khớp ngôn ngữ
+    const foundAny = pool.find(({ s }) => regex.test(s.server_name));
+    if (foundAny) return foundAny.idx;
   }
 
   return pool[0]?.idx ?? 0;
@@ -149,17 +154,28 @@ export const phimApi = {
 
     const aggregatedServers: EpisodeServer[] = [];
 
-    // Nguồn 1: Server chính từ PhimAPI (HLS siêu tốc m3u8)
+    // Nguồn chính từ PhimAPI (OPhim): Tách rõ ràng Máy chủ HLS Siêu Tốc và Máy chủ Dự Phòng VIP
     const baseEpisodes: EpisodeServer[] = primaryData?.episodes || [];
-    for (const s of baseEpisodes) {
-      const serverLabel = s.server_name.includes('HLS')
-        ? s.server_name
-        : `${s.server_name} (HLS Siêu Tốc)`;
 
+    // 1. Máy chủ HLS Siêu Tốc (Phát trực tiếp HLS m3u8 qua trình phát HTML5 siêu mượt)
+    for (const s of baseEpisodes) {
+      const serverLabel = `${s.server_name} #1 (HLS Siêu Tốc)`;
       aggregatedServers.push({
         server_name: serverLabel,
         server_data: s.server_data,
       });
+    }
+
+    // 2. Máy chủ Dự Phòng VIP (Phát qua trình phát nhúng Embed độc lập trên player.phimapi.com)
+    for (const s of baseEpisodes) {
+      const hasEmbed = s.server_data?.some((e) => e.link_embed && e.link_embed.trim() !== '');
+      if (hasEmbed) {
+        const serverLabel = `${s.server_name} #2 (Dự Phòng VIP)`;
+        aggregatedServers.push({
+          server_name: serverLabel,
+          server_data: s.server_data,
+        });
+      }
     }
 
     // Nguồn 2: Server dự phòng từ NguonC (chỉ tích hợp khi có link m3u8 hoặc là cứu cánh duy nhất)
