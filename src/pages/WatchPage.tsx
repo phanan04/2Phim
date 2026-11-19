@@ -573,7 +573,7 @@ export const WatchPage: React.FC = () => {
               </div>
 
               {/* Đổi Server: VIP 1, VIP 2... (như ảnh 3 của người dùng) */}
-              {movie.episodes.length > 1 && (
+              {movie.episodes.length > 0 && (
                 <div className="flex items-center gap-2 shrink-0 text-xs">
                   <span className="text-white/40 hidden sm:inline font-medium">Đổi Server:</span>
                   <div className="flex items-center gap-1.5">
