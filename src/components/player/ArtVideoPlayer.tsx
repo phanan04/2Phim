@@ -25,6 +25,7 @@ import {
   Palette,
   Type,
   FastForward,
+  Layers,
 } from 'lucide-react';
 
 interface ArtVideoPlayerProps {
@@ -680,13 +681,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
               setShowSettingsMenu(false);
               setShowSubtitleMenu(false);
             }}
-            className={`player-toggle-btn flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border backdrop-blur-md transition-all text-xs font-bold shadow-lg cursor-pointer ${
+            className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border backdrop-blur-md transition-all shadow-lg cursor-pointer ${
               showEpisodeDrawer
-                ? 'bg-[#FECF59] text-black border-[#FECF59]'
-                : 'bg-black/65 hover:bg-black/90 text-white hover:text-[#FECF59] border-white/20'
+                ? 'bg-white text-black border-white'
+                : 'bg-black/65 hover:bg-white text-white hover:text-black border-white/20'
             }`}
+            title="Danh sách tập"
+            aria-label="Danh sách tập"
           >
-            <span>Danh sách tập</span>
+            <Layers className="w-4 h-4" />
           </button>
         </div>
       </div>
@@ -1323,11 +1326,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         {/* 2. CONTROLS ROW - Larger buttons matching Image 2 */}
         <div className="flex items-center justify-between px-3 sm:px-6 pb-2.5 pt-0.5 text-white">
           {/* LEFT SIDE CONTROLS */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Play / Pause button */}
             <button
               onClick={togglePlay}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white hover:text-[#FECF59] hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
               title={isPlaying ? 'Tạm dừng (Space)' : 'Phát (Space)'}
             >
               {isPlaying ? (
@@ -1337,26 +1340,26 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
               )}
             </button>
 
-            {/* Tua lại 10s (Clean circular arrow - Image 2) */}
+            {/* Tua lại 10s (Hidden on small mobile screens) */}
             <button
               onClick={() => seekRelative(-10)}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/90 hover:text-[#FECF59] hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+              className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center text-white/90 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
               title="Tua lại 10s"
             >
               <RotateCcw className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
             </button>
 
-            {/* Tua tới 10s (Clean circular arrow - Image 2) */}
+            {/* Tua tới 10s (Hidden on small mobile screens) */}
             <button
               onClick={() => seekRelative(10)}
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/90 hover:text-[#FECF59] hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+              className="hidden sm:flex w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center text-white/90 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
               title="Tua tới 10s"
             >
               <RotateCw className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
             </button>
 
-            {/* Volume + Clean Slider (No yellow circles) */}
-            <div className="flex items-center group/vol">
+            {/* Volume + Clean Slider (Hidden on mobile phones) */}
+            <div className="hidden sm:flex items-center group/vol">
               <button
                 onClick={() => {
                   if (videoRef.current) {
@@ -1364,7 +1367,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                     setIsMuted(videoRef.current.muted);
                   }
                 }}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/90 hover:text-[#FECF59] hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/90 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
                 title="Âm lượng"
               >
                 {isMuted || volume === 0 ? (
@@ -1390,7 +1393,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                     setVolume(newVol);
                     setIsMuted(newVol === 0);
                   }}
-                  className="w-full accent-[#FECF59] h-1 bg-white/30 rounded-full cursor-pointer"
+                  className="w-full accent-white h-1 bg-white/30 rounded-full cursor-pointer"
                 />
               </div>
             </div>
@@ -1401,12 +1404,12 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
             </span>
           </div>
 
-          {/* RIGHT SIDE CONTROLS (Image 1 Matching: Next | CC, Mic, Router, Pip, Settings, Fullscreen) */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            {/* 1. Next Episode: ▷| */}
+          {/* RIGHT SIDE CONTROLS */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* 1. Next Episode: ▷| (Hidden on mobile, present on lower toolbar) */}
             <button
               onClick={() => onNextEpisode?.()}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-white/85 hover:text-[#FECF59] hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
+              className="hidden sm:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full items-center justify-center text-white/85 hover:text-white hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
               title="Tập tiếp theo"
             >
               <svg
@@ -1426,9 +1429,9 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
             </button>
 
             {/* Subtle Divider | */}
-            <div className="w-[1px] h-4 bg-white/20 mx-0.5" />
+            <div className="hidden sm:block w-[1px] h-4 bg-white/20 mx-0.5" />
 
-            {/* 2. CC Button (Screen with CC + gold active underline) */}
+            {/* 2. CC Button (Always visible on mobile & desktop) */}
             <button
               onClick={() => {
                 setShowSubtitleMenu((prev) => !prev);
@@ -1438,7 +1441,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
               }}
               className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex flex-col items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
                 showSubtitleMenu || subtitleMode !== 'off'
-                  ? 'text-[#FECF59]'
+                  ? 'text-white'
                   : 'text-white/85 hover:text-white'
               }`}
               title="Cài đặt Phụ đề (CC)"
@@ -1447,11 +1450,11 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                 CC
               </div>
               {subtitleMode !== 'off' && (
-                <div className="w-3 h-[2px] bg-[#FECF59] rounded-full mt-[2px]" />
+                <div className="w-3 h-[2px] bg-white rounded-full mt-[2px]" />
               )}
             </button>
 
-            {/* 3. Audio Track / Song Badge Button (Mic with 'Song' badge) */}
+            {/* 3. Audio Track / Song Badge Button (Mic with 'Song' badge - Hidden on mobile) */}
             <button
               onClick={() => {
                 setShowServerMenu((prev) => !prev);
@@ -1459,7 +1462,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                 setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
-              className="player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full relative text-white/85 hover:text-[#FECF59] hover:bg-white/10 transition-colors cursor-pointer flex flex-col items-center justify-center"
+              className="player-toggle-btn hidden md:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full relative text-white/85 hover:text-white hover:bg-white/10 transition-colors cursor-pointer flex-col items-center justify-center"
               title="Nguồn âm thanh / Thuyết minh"
             >
               <span className="text-[8px] font-black bg-white text-black px-1 rounded-sm -mb-1 leading-none z-10 scale-90">
@@ -1482,7 +1485,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
               </svg>
             </button>
 
-            {/* 4. Server Button: Router box with green signal bars */}
+            {/* 4. Server Button: Router box with signal (Hidden on mobile, available on bottom bar) */}
             <button
               onClick={() => {
                 setShowServerMenu((prev) => !prev);
@@ -1490,8 +1493,8 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                 setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
-              className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
-                showServerMenu ? 'text-[#FECF59]' : 'text-white/85 hover:text-white'
+              className={`player-toggle-btn hidden md:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
+                showServerMenu ? 'text-white' : 'text-white/85 hover:text-white'
               }`}
               title="Đổi Máy chủ (Server)"
             >
@@ -1514,22 +1517,22 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                   <path d="m8.5 4.5 7 7" />
                   <path d="m15.5 4.5-7 7" />
                 </svg>
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#22C55E] animate-pulse" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white/80 animate-pulse" />
               </div>
             </button>
 
-            {/* 5. Trình phát thu nhỏ (PiP) */}
+            {/* 5. Trình phát thu nhỏ (PiP - Hidden on mobile) */}
             <button
               onClick={togglePiP}
-              className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-white/85 hover:text-[#FECF59] hover:bg-white/10 transition-colors cursor-pointer ${
-                isPiP ? 'text-[#FECF59]' : ''
+              className={`hidden md:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full items-center justify-center text-white/85 hover:text-white hover:bg-white/10 transition-colors cursor-pointer ${
+                isPiP ? 'text-white' : ''
               }`}
               title="Trình phát thu nhỏ (PiP)"
             >
               <PictureInPicture2 className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
 
-            {/* 6. Settings gear button */}
+            {/* 6. Settings gear button (Always visible) */}
             <button
               onClick={() => {
                 setShowSettingsMenu((prev) => !prev);
@@ -1539,17 +1542,17 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                 setShowEpisodeDrawer(false);
               }}
               className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
-                showSettingsMenu ? 'text-[#FECF59]' : 'text-white/85 hover:text-white'
+                showSettingsMenu ? 'text-white' : 'text-white/85 hover:text-white'
               }`}
               title="Cài đặt phát"
             >
               <SettingsIcon className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
             </button>
 
-            {/* 7. Fullscreen button */}
+            {/* 7. Fullscreen button (Always visible) */}
             <button
               onClick={toggleFullscreen}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-white/85 hover:text-[#FECF59] hover:bg-white/10 active:scale-95 transition-transform cursor-pointer ml-0.5"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-white/85 hover:text-white hover:bg-white/10 active:scale-95 transition-transform cursor-pointer ml-0.5"
               title="Toàn màn hình"
             >
               {isFullscreen ? (

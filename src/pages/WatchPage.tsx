@@ -27,6 +27,11 @@ import {
   Tv,
   Play,
   Info,
+  Star,
+  SkipBack,
+  SkipForward,
+  MoreHorizontal,
+  MessageSquare,
 } from 'lucide-react';
 
 function resolveChannel(ep: EpisodeData, serverName: string): number {
@@ -53,6 +58,8 @@ export const WatchPage: React.FC = () => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reportSent, setReportSent] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [showMoreActions, setShowMoreActions] = useState(false);
 
   // WeTV Episode Range Switcher state (e.g. 1-40, 41-80)
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(0);
@@ -224,6 +231,25 @@ export const WatchPage: React.FC = () => {
   const currentServer = movie?.episodes?.[currentServerIndex] || movie?.episodes?.[0];
   const allEpisodes = currentServer?.server_data || [];
 
+  // Cast & crew list for WeTV style avatars
+  const castAndCrew = useMemo(() => {
+    if (!movie) return [];
+    const list: { name: string; role: string }[] = [];
+    if (movie.director && movie.director.length > 0) {
+      movie.director.forEach((d) => {
+        if (d && d.trim()) list.push({ name: d.trim(), role: 'Đạo diễn' });
+      });
+    }
+    if (movie.actor && movie.actor.length > 0) {
+      movie.actor.forEach((a) => {
+        if (a && a.trim() && !list.some((item) => item.name === a.trim())) {
+          list.push({ name: a.trim(), role: 'Diễn viên' });
+        }
+      });
+    }
+    return list;
+  }, [movie]);
+
   // Episode range calculation
   const totalRanges = Math.ceil(allEpisodes.length / CHUNK_SIZE);
   const currentChunkEpisodes = useMemo(() => {
@@ -374,26 +400,201 @@ export const WatchPage: React.FC = () => {
       <div className={`space-y-6 relative z-40 pb-20 select-none ${isTheaterMode ? 'max-w-none px-2 sm:px-4' : 'max-w-[1560px] mx-auto px-3 sm:px-6'}`}>
         {/* 1. TOP ROW: VIDEO PLAYER (LEFT) + PLAYLIST SIDEBAR (RIGHT) */}
         {/* Uses items-stretch and flex-1 so the right sidebar matches the exact height of the video player */}
-        <div className={isTheaterMode ? 'space-y-5' : 'flex flex-col lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-4 xl:gap-5 items-stretch'}>
-          {/* CỘT TRÁI: VIDEO PLAYER */}
-          <div className="min-w-0">
-            <ArtVideoPlayer
-              m3u8Url={currentEpisode?.link_m3u8}
-              embedUrl={currentEpisode?.link_embed}
-              poster={movie.poster_url || movie.thumb_url}
-              movieName={movie.name}
-              episodeName={currentEpisode?.name || 'Tập 1'}
-              episodes={movie.episodes}
-              currentServerIndex={currentServerIndex}
-              currentEpisodeSlug={currentEpisode?.slug || ''}
-              currentChannel={currentChannel}
-              onSelectEpisode={handleSelectEpisode}
-              onChannelChange={handleChannelChange}
-              onNextEpisode={handleNextEpisode}
-              onEnded={() => {
-                if (autoNext) handleNextEpisode();
-              }}
-            />
+        <div className={isTheaterMode ? 'space-y-4' : 'flex flex-col lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-4 xl:gap-5 items-stretch'}>
+          {/* CỘT TRÁI: VIDEO PLAYER & THANH ĐIỀU KHIỂN DƯỚI VIDEO (MATCHING ẢNH 3) */}
+          <div className="flex flex-col min-w-0">
+            <div className="relative w-full bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10">
+              <ArtVideoPlayer
+                m3u8Url={currentEpisode?.link_m3u8}
+                embedUrl={currentEpisode?.link_embed}
+                poster={movie.poster_url || movie.thumb_url}
+                movieName={movie.name}
+                episodeName={currentEpisode?.name || 'Tập 1'}
+                episodes={movie.episodes}
+                currentServerIndex={currentServerIndex}
+                currentEpisodeSlug={currentEpisode?.slug || ''}
+                currentChannel={currentChannel}
+                onSelectEpisode={handleSelectEpisode}
+                onChannelChange={handleChannelChange}
+                onNextEpisode={handleNextEpisode}
+                onEnded={() => {
+                  if (autoNext) handleNextEpisode();
+                }}
+              />
+            </div>
+
+            {/* THANH ĐIỀU KHIỂN DƯỚI VIDEO (MATCHING ẢNH 3 CỦA NGƯỜI DÙNG) */}
+            <div className="flex flex-wrap items-center justify-between gap-y-2.5 py-2.5 px-2 mt-1 border-b border-white/10 text-white/70 select-none">
+              {/* Các nút điều khiển chính có icon & chữ bên dưới (Ảnh 3) */}
+              <div className="flex items-center gap-3.5 sm:gap-5">
+                {/* 1. Theo dõi */}
+                <button
+                  type="button"
+                  onClick={handleToggleBookmark}
+                  className={`flex flex-col items-center gap-1 group cursor-pointer transition-colors ${
+                    isBookmarked ? 'text-white' : 'text-white/60 hover:text-white'
+                  }`}
+                  title={isBookmarked ? 'Đã lưu vào danh sách' : 'Lưu xem sau'}
+                >
+                  <Heart className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110 ${isBookmarked ? 'fill-current text-white' : ''}`} />
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Theo dõi</span>
+                </button>
+
+                {/* 2. Đánh giá */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowComments(true);
+                    setTimeout(() => {
+                      document.getElementById('comments-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 50);
+                  }}
+                  className="flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white transition-colors"
+                  title="Xem đánh giá & bình luận"
+                >
+                  <Star className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Đánh giá</span>
+                </button>
+
+                {/* Divider */}
+                <div className="w-[1px] h-5 bg-white/10 hidden xs:block" />
+
+                {/* 3. Trước (Tập trước) */}
+                <button
+                  type="button"
+                  onClick={handlePrevEpisode}
+                  disabled={!prevEp}
+                  className="flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  title="Tập trước"
+                >
+                  <SkipBack className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Trước</span>
+                </button>
+
+                {/* 4. Tiếp (Tập tiếp theo) */}
+                <button
+                  type="button"
+                  onClick={handleNextEpisode}
+                  disabled={!nextEp}
+                  className="flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  title="Tập tiếp theo"
+                >
+                  <SkipForward className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Tiếp</span>
+                </button>
+
+                {/* Divider */}
+                <div className="w-[1px] h-5 bg-white/10 hidden sm:block" />
+
+                {/* 5. Đèn (Bật / Tắt đèn) */}
+                <button
+                  type="button"
+                  onClick={() => setIsLightsOff(!isLightsOff)}
+                  className="flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white transition-colors"
+                  title="Bật/Tắt đèn phòng chiếu"
+                >
+                  {isLightsOff ? (
+                    <Sun className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-white transition-transform group-hover:scale-110" />
+                  ) : (
+                    <Moon className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                  )}
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Đèn</span>
+                </button>
+
+                {/* 6. Rạp phim (Chế độ rạp chiếu) */}
+                <button
+                  type="button"
+                  onClick={() => setIsTheaterMode(!isTheaterMode)}
+                  className={`flex flex-col items-center gap-1 group cursor-pointer transition-colors ${
+                    isTheaterMode ? 'text-white' : 'text-white/60 hover:text-white'
+                  }`}
+                  title="Chế độ rạp chiếu toàn cảnh"
+                >
+                  {isTheaterMode ? (
+                    <Minimize2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                  ) : (
+                    <Maximize2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                  )}
+                  <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Rạp phim</span>
+                </button>
+
+                {/* 7. Khác (More: Báo lỗi, Trailer, Chia sẻ) */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowMoreActions(!showMoreActions)}
+                    className="flex flex-col items-center gap-1 group cursor-pointer text-white/60 hover:text-white transition-colors"
+                    title="Tuỳ chọn khác"
+                  >
+                    <MoreHorizontal className="w-4 h-4 sm:w-4.5 sm:h-4.5 transition-transform group-hover:scale-110" />
+                    <span className="text-[10px] sm:text-[11px] font-medium tracking-tight">Khác</span>
+                  </button>
+
+                  {showMoreActions && (
+                    <div className="absolute bottom-full left-0 mb-2 w-44 rounded-xl bg-[#141419]/95 backdrop-blur-xl border border-white/10 shadow-2xl p-1.5 z-50 animate-in fade-in zoom-in-95 duration-150">
+                      {movie.trailer_url && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsTrailerOpen(true);
+                            setShowMoreActions(false);
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+                        >
+                          <Film className="w-3.5 h-3.5" />
+                          <span>Xem Trailer</span>
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleReport();
+                          setShowMoreActions(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+                      >
+                        <AlertTriangle className="w-3.5 h-3.5 text-white/60" />
+                        <span>{reportSent ? 'Đã báo lỗi' : 'Báo lỗi phim'}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleShare();
+                          setShowMoreActions(false);
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+                      >
+                        {copied ? <Check className="w-3.5 h-3.5 text-white" /> : <Share2 className="w-3.5 h-3.5" />}
+                        <span>{copied ? 'Đã sao chép' : 'Chia sẻ phim'}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Đổi Server: VIP 1, VIP 2... (như ảnh 3 của người dùng) */}
+              {movie.episodes.length > 1 && (
+                <div className="flex items-center gap-2 shrink-0 text-xs">
+                  <span className="text-white/40 hidden sm:inline font-medium">Đổi Server:</span>
+                  <div className="flex items-center gap-1.5">
+                    {movie.episodes.map((s, idx) => (
+                      <button
+                        key={`${s.server_name}-${idx}`}
+                        type="button"
+                        onClick={() => handleSelectEpisode(idx, s.server_data[0] || currentEpisode)}
+                        className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+                          currentServerIndex === idx
+                            ? 'bg-white text-black shadow-sm'
+                            : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        VIP {idx + 1}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* CỘT PHẢI: PLAYLIST SIDEBAR (CÂN ĐỐI & KHỚP CHIỀU CAO VỚI VIDEO) */}
@@ -525,200 +726,136 @@ export const WatchPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. REORGANIZED & STREAMLINED MOVIE INFO (GỌN GÀNG, HỢP LÝ, KHÔNG RỐI MẮT) */}
-        <div className="space-y-3 pt-1">
-          {/* Main Title Row: Clean Heading + Next/Prev & Key Actions */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2 flex-wrap text-xs text-white/50 mb-1">
-                <span className="px-2 py-0.5 rounded font-bold bg-white/10 text-white border border-white/15">
-                  {ageRating}
+        {/* 2. THÔNG TIN PHIM CHUẨN WETV (NGẮN GỌN, KHÔNG ĐÓNG KHUNG NHƯ ẢNH 2) */}
+        <div className="space-y-2.5 pt-1">
+          {/* Dòng 1: Tiêu đề phim + Tập xx + Nút Chia sẻ */}
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              {movie.name}
+            </h1>
+            <span className="text-base sm:text-lg text-white/50 font-medium">
+              {currentEpisode?.name || 'Tập 01'}
+            </span>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors cursor-pointer ml-auto sm:ml-2"
+              title="Chia sẻ phim"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>{copied ? 'Đã sao chép' : 'Chia sẻ'}</span>
+            </button>
+          </div>
+
+          {/* Dòng 2: Tags metadata cách nhau bằng dấu gạch đứng | (Ảnh 2 WeTV) */}
+          <div className="flex items-center gap-2 flex-wrap text-xs text-white/60">
+            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/10 text-white border border-white/15">
+              {ageRating}
+            </span>
+            {movie.year && (
+              <>
+                <span className="text-white/20">|</span>
+                <span>{movie.year}</span>
+              </>
+            )}
+            {movie.country?.[0] && (
+              <>
+                <span className="text-white/20">|</span>
+                <span>{movie.country[0].name}</span>
+              </>
+            )}
+            <span className="text-white/20">|</span>
+            <span>Trọn bộ {allEpisodes.length || movie.episode_total || '??'} tập</span>
+            {movie.category && movie.category.length > 0 && (
+              <>
+                <span className="text-white/20">|</span>
+                <span className="text-white/80">
+                  {movie.category.map((c) => c.name).join(' · ')}
                 </span>
-                {movie.year && <span>{movie.year}</span>}
-                {movie.quality && <span>• {movie.quality}</span>}
-                {movie.lang && <span>• {movie.lang}</span>}
-                {movie.country?.[0] && <span>• {movie.country[0].name}</span>}
-              </div>
-
-              <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                <Link to={`/phim/${movie.slug}`} className="hover:underline">
-                  {movie.name}
-                </Link>{' '}
-                <span className="text-white/80 font-bold">– {currentEpisode?.name || 'Tập 1'}</span>
-              </h1>
-              {movie.origin_name && (
-                <p className="text-xs sm:text-sm text-white/50 font-medium mt-0.5">
-                  {movie.origin_name}
-                </p>
-              )}
-            </div>
-
-            {/* Quick Action Toolbar */}
-            <div className="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap">
-              <button
-                type="button"
-                onClick={handlePrevEpisode}
-                disabled={!prevEp}
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 flex items-center gap-1.5 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Tập Trước</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleNextEpisode}
-                disabled={!nextEp}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-black hover:bg-white/90 flex items-center gap-1.5 disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer shadow-sm"
-              >
-                <span>Tập Kế Tiếp</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleToggleBookmark}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border transition-colors cursor-pointer ${
-                  isBookmarked
-                    ? 'bg-white text-black border-white font-bold'
-                    : 'bg-white/5 hover:bg-white/10 text-white/90 border-white/10'
-                }`}
-              >
-                <Heart className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current text-black' : ''}`} />
-                <span className="hidden sm:inline">{isBookmarked ? 'Đã Lưu' : 'Lưu'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsTheaterMode(!isTheaterMode)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 hidden sm:flex items-center justify-center cursor-pointer transition-colors"
-                title={isTheaterMode ? 'Thu nhỏ chế độ rạp' : 'Chế độ rạp chiếu (Toàn cảnh)'}
-              >
-                {isTheaterMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsLightsOff(!isLightsOff)}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 flex items-center justify-center cursor-pointer transition-colors"
-                title="Bật/Tắt đèn phòng chiếu"
-              >
-                {isLightsOff ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={handleShare}
-                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white border border-white/10 flex items-center justify-center cursor-pointer transition-colors"
-                title="Chia sẻ phim"
-              >
-                {copied ? <Check className="w-4 h-4 text-white" /> : <Share2 className="w-4 h-4" />}
-              </button>
-            </div>
+              </>
+            )}
           </div>
 
-          {/* Collapsible Info Drawer: Gọn gàng, tinh tế, bấm mở rộng khi cần */}
-          <div className="p-3.5 sm:p-4 rounded-xl bg-white/[0.03] border border-white/10 space-y-2.5">
-            {/* Schedule note */}
-            <div className="text-xs text-white/70 flex items-center gap-2">
-              <Calendar className="w-3.5 h-3.5 text-white/50 shrink-0" />
-              <span>
-                {movie.type === 'series' || movie.type === 'hoathinh'
-                  ? 'Lịch phát sóng: Cập nhật tập mới đều đặn hàng tuần • Full HD Vietsub & Thuyết minh.'
-                  : 'Bản Đẹp Vietsub & Thuyết Minh Chuẩn Rạp.'}
-              </span>
-            </div>
-
-            {/* Synopsis Preview */}
-            {movie.content && (
-              <div className="text-xs sm:text-sm text-white/75 leading-relaxed">
-                <div
-                  className={isContentExpanded ? '' : 'line-clamp-2'}
-                  dangerouslySetInnerHTML={{
-                    __html: movie.content.replace(/<[^>]+>/g, ''),
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsContentExpanded(!isContentExpanded)}
-                  className="text-xs font-semibold text-white/80 hover:text-white flex items-center gap-1 mt-1 cursor-pointer"
-                >
-                  <span>{isContentExpanded ? 'Thu gọn thông tin' : 'Xem thêm chi tiết & nội dung'}</span>
-                  {isContentExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                </button>
-              </div>
-            )}
-
-            {/* Extra details when expanded */}
-            {isContentExpanded && (
-              <div className="pt-3 border-t border-white/10 space-y-2.5 text-xs text-white/70 animate-in fade-in duration-200">
-                {movie.category && movie.category.length > 0 && (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-white/40">Thể loại:</span>
-                    {movie.category.map((c) => (
-                      <Link
-                        key={c.slug}
-                        to={`/kham-pha?category=${c.slug}`}
-                        className="px-2 py-0.5 rounded bg-white/5 hover:bg-white/15 text-white/80 hover:text-white transition-colors"
-                      >
-                        {c.name}
-                      </Link>
-                    ))}
+          {/* Dòng 3: Avatar tròn Đạo diễn & Diễn viên (Chuẩn WeTV Ảnh 2) */}
+          {castAndCrew.length > 0 && (
+            <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-2">
+              {castAndCrew.slice(0, 10).map((person, pIdx) => (
+                <div key={pIdx} className="flex flex-col items-center gap-1.5 shrink-0 w-16 text-center">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/15 via-white/10 to-white/5 border border-white/15 flex items-center justify-center text-white/90 font-bold text-sm shadow-md">
+                    {person.name.charAt(0).toUpperCase()}
                   </div>
-                )}
-
-                {movie.director && movie.director.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-white/40">Đạo diễn:</span>
-                    <span className="text-white font-medium">{movie.director.join(', ')}</span>
-                  </div>
-                )}
-
-                {movie.actor && movie.actor.length > 0 && (
-                  <div className="flex items-start gap-2">
-                    <span className="text-white/40 shrink-0">Diễn viên:</span>
-                    <span className="text-white/85 leading-relaxed">{movie.actor.join(', ')}</span>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-3 pt-1">
-                  {movie.trailer_url && (
-                    <button
-                      type="button"
-                      onClick={() => setIsTrailerOpen(true)}
-                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-white/90 border border-white/10 flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Film className="w-3.5 h-3.5 text-white/70" />
-                      <span>Xem Trailer</span>
-                    </button>
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={handleReport}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 flex items-center gap-1.5 cursor-pointer"
-                  >
-                    {reportSent ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
-                        <span>Đã Báo Lỗi</span>
-                      </>
-                    ) : (
-                      <>
-                        <AlertTriangle className="w-3.5 h-3.5 text-white/60" />
-                        <span>Báo Lỗi Phim</span>
-                      </>
-                    )}
-                  </button>
+                  <span className="text-xs text-white font-medium truncate w-full" title={person.name}>
+                    {person.name}
+                  </span>
+                  <span className="text-[10px] text-white/40">
+                    {person.role}
+                  </span>
                 </div>
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Dòng 4: Cốt truyện tóm tắt + Đọc thêm / Thu gọn (Chuẩn WeTV Ảnh 2) */}
+          {movie.content && (
+            <div className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-4xl">
+              <p className={isContentExpanded ? '' : 'line-clamp-2'}>
+                {movie.content.replace(/<[^>]+>/g, '')}
+              </p>
+              <button
+                type="button"
+                onClick={() => setIsContentExpanded(!isContentExpanded)}
+                className="text-xs font-semibold text-white/50 hover:text-white inline-flex items-center gap-1 mt-1 cursor-pointer transition-colors"
+              >
+                <span>{isContentExpanded ? 'Thu gọn' : 'Đọc thêm'}</span>
+                {isContentExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* 3. BÌNH LUẬN & THẢO LUẬN */}
-        <div className="pt-6 border-t border-white/10">
-          <MovieComments movieSlug={movie.slug} movieName={movie.name} />
+        {/* 3. BÌNH LUẬN & ĐÁNH GIÁ (CHỈ HIỆN KHI BẤM XEM BÌNH LUẬN - REQUEST 5) */}
+        <div id="comments-section" className="pt-6 border-t border-white/10">
+          <div className="flex items-center justify-between pb-3">
+            <div className="flex items-center gap-2">
+              <span className="w-1 h-3.5 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+              <h2 className="text-base font-bold text-white tracking-wide">
+                Bình Luận & Đánh Giá
+              </h2>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowComments(!showComments)}
+              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white text-white/80 hover:text-black border border-white/10 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>{showComments ? 'Thu gọn bình luận' : 'Xem bình luận'}</span>
+              {showComments ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+
+          {showComments ? (
+            <div className="pt-2 animate-in fade-in duration-300">
+              <MovieComments movieSlug={movie.slug} movieName={movie.name} />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowComments(true)}
+              className="w-full py-4 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 flex items-center justify-between cursor-pointer transition-colors text-left group"
+            >
+              <div className="flex items-center gap-3 text-white/50 group-hover:text-white/80 transition-colors">
+                <Star className="w-4 h-4 text-white/40" />
+                <span className="text-xs">
+                  Nhấn vào đây để xem nhận xét và đánh giá của khán giả về bộ phim...
+                </span>
+              </div>
+              <span className="text-xs text-white/60 group-hover:text-white font-medium flex items-center gap-1">
+                <span>Xem ngay</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            </button>
+          )}
         </div>
 
         {/* 4. ĐỀ XUẤT PHIM LIÊN QUAN */}
