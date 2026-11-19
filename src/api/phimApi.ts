@@ -162,10 +162,16 @@ export const phimApi = {
       });
     }
 
-    // Nguồn 2: Server dự phòng từ NguonC (StreamC embed & backup)
+    // Nguồn 2: Server dự phòng từ NguonC (chỉ tích hợp khi có link m3u8 hoặc là cứu cánh duy nhất)
     if (nguonCData?.status === 'success' && nguonCData.movie?.episodes?.length > 0) {
       for (const s of nguonCData.movie.episodes) {
-        const epItems: EpisodeData[] = (s.items || []).map((it: any) => {
+        const rawItems = s.items || [];
+        // Nếu đã có máy chủ chính m3u8, chỉ nhận Nguồn C nếu có link m3u8 phát được (tránh embed streamc bị 403/SAMEORIGIN)
+        const validItems = aggregatedServers.length > 0
+          ? rawItems.filter((it: any) => Boolean(it.m3u8 && String(it.m3u8).trim() !== ''))
+          : rawItems;
+
+        const epItems: EpisodeData[] = validItems.map((it: any) => {
           const rawName = String(it.name || '').trim();
           const isFull = rawName.toLowerCase() === 'full';
           const epName = isFull || rawName.toLowerCase().startsWith('tập') ? rawName : `Tập ${rawName}`;
