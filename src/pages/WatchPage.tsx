@@ -54,12 +54,19 @@ export const WatchPage: React.FC = () => {
   const [isTheaterMode, setIsTheaterMode] = useState(false);
   const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const [isContentExpanded, setIsContentExpanded] = useState(false);
+  const [showMobileMovieInfo, setShowMobileMovieInfo] = useState(false);
   const [relatedMovies, setRelatedMovies] = useState<MovieItem[]>([]);
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reportSent, setReportSent] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showMoreActions, setShowMoreActions] = useState(false);
+
+  // Helper to extract compact episode number for mobile (e.g. "Tập 01" -> "01")
+  const getMobileEpisodeLabel = (name: string) => {
+    const clean = name.replace(/^Tập\s*/i, '').trim();
+    return clean || name;
+  };
 
   // WeTV Episode Range Switcher state (e.g. 1-40, 41-80)
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(0);
@@ -356,10 +363,12 @@ export const WatchPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="py-6 space-y-4 animate-pulse max-w-[1560px] mx-auto px-4">
-        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-5 items-stretch">
-          <div className="w-full aspect-video bg-white/5 rounded-xl" />
-          <div className="w-full h-full min-h-[460px] bg-white/5 rounded-xl" />
+      <div className="space-y-4 animate-pulse max-w-[1560px] mx-auto px-0 sm:px-4 lg:px-6">
+        <div className="flex flex-col lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-4 xl:gap-5 items-stretch">
+          <div className="w-full aspect-video bg-white/5 rounded-none sm:rounded-xl" />
+          <div className="px-3 sm:px-0 lg:px-0">
+            <div className="w-full h-32 lg:h-full bg-white/5 rounded-xl" />
+          </div>
         </div>
       </div>
     );
@@ -397,13 +406,13 @@ export const WatchPage: React.FC = () => {
         />
       )}
 
-      <div className={`space-y-6 relative z-40 pb-20 select-none ${isTheaterMode ? 'max-w-none px-2 sm:px-4' : 'max-w-[1560px] mx-auto px-3 sm:px-6'}`}>
+      <div className={`space-y-4 sm:space-y-6 relative z-40 pb-20 select-none ${isTheaterMode ? 'max-w-none px-0 sm:px-4' : 'max-w-[1560px] mx-auto px-0 sm:px-4 lg:px-6'}`}>
         {/* 1. TOP ROW: VIDEO PLAYER (LEFT) + PLAYLIST SIDEBAR (RIGHT) */}
         {/* Uses items-stretch and flex-1 so the right sidebar matches the exact height of the video player */}
         <div className={isTheaterMode ? 'space-y-4' : 'flex flex-col lg:grid lg:grid-cols-[1fr_360px] xl:grid-cols-[1fr_400px] gap-4 xl:gap-5 items-stretch'}>
           {/* CỘT TRÁI: VIDEO PLAYER & THANH ĐIỀU KHIỂN DƯỚI VIDEO (MATCHING ẢNH 3) */}
           <div className="flex flex-col min-w-0">
-            <div className="relative w-full bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10">
+            <div className="relative w-full bg-black rounded-none sm:rounded-xl overflow-hidden shadow-2xl border-y sm:border border-white/10">
               <ArtVideoPlayer
                 m3u8Url={currentEpisode?.link_m3u8}
                 embedUrl={currentEpisode?.link_embed}
@@ -424,7 +433,7 @@ export const WatchPage: React.FC = () => {
             </div>
 
             {/* THANH ĐIỀU KHIỂN DƯỚI VIDEO (MATCHING ẢNH 3 CỦA NGƯỜI DÙNG) */}
-            <div className="flex flex-wrap items-center justify-between gap-y-2.5 py-2.5 px-2 mt-1 border-b border-white/10 text-white/70 select-none">
+            <div className="flex flex-wrap items-center justify-between gap-y-2.5 py-2.5 px-3 sm:px-2 border-b border-white/10 text-white/70 select-none">
               {/* Các nút điều khiển chính có icon & chữ bên dưới (Ảnh 3) */}
               <div className="flex items-center gap-3.5 sm:gap-5">
                 {/* 1. Theo dõi */}
@@ -597,273 +606,293 @@ export const WatchPage: React.FC = () => {
             </div>
           </div>
 
-          {/* CỘT PHẢI: PLAYLIST SIDEBAR (CÂN ĐỐI & KHỚP CHIỀU CAO VỚI VIDEO) */}
-          <div className={`w-full flex flex-col h-full bg-[#0d0d11]/90 border border-white/10 rounded-xl p-3 sm:p-4 min-h-[380px] lg:min-h-0 ${isTheaterMode ? 'mt-4' : ''}`}>
-            {/* Header: Title & Auto-Next Toggle */}
-            <div className="flex items-center justify-between pb-2.5 border-b border-white/10 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="w-1 h-3.5 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
-                <h2 className="text-sm font-bold text-white uppercase tracking-wide">
-                  Danh Sách Tập
-                </h2>
-                <span className="text-xs text-white/40 font-medium">
-                  ({allEpisodes.length} tập)
-                </span>
+          {/* CỘT PHẢI: PLAYLIST SIDEBAR (CÂN ĐỐI & KHỚP CHIỀU CAO VỚI VIDEO TRÊN DESKTOP, CO GỌN THEO TẬP TRÊN MOBILE) */}
+          <div className="px-3 sm:px-0 lg:px-0 flex flex-col h-full">
+            <div className={`w-full flex flex-col bg-[#0d0d11]/90 border border-white/10 rounded-xl p-3 sm:p-4 h-auto lg:h-full lg:min-h-0 ${isTheaterMode ? 'mt-4' : ''}`}>
+              {/* Header: Title & Auto-Next Toggle */}
+              <div className="flex items-center justify-between pb-2.5 border-b border-white/10 shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="w-1 h-3.5 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+                  <h2 className="text-sm font-bold text-white uppercase tracking-wide">
+                    Danh Sách Tập
+                  </h2>
+                  <span className="text-xs text-white/40 font-medium">
+                    ({allEpisodes.length} tập)
+                  </span>
+                </div>
+
+                <label className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={autoNext}
+                    onChange={(e) => setAutoNext(e.target.checked)}
+                    className="rounded accent-white cursor-pointer w-3.5 h-3.5"
+                  />
+                  <span>Tự chuyển tập</span>
+                </label>
               </div>
 
-              <label className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={autoNext}
-                  onChange={(e) => setAutoNext(e.target.checked)}
-                  className="rounded accent-white cursor-pointer w-3.5 h-3.5"
-                />
-                <span>Tự chuyển tập</span>
-              </label>
+              {/* Server Tabs (if multiple servers exist) */}
+              {movie.episodes.length > 1 && (
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 shrink-0 border-b border-white/5">
+                  {movie.episodes.map((s, idx) => (
+                    <button
+                      key={`${s.server_name}-${idx}`}
+                      type="button"
+                      onClick={() => handleSelectEpisode(idx, s.server_data[0] || currentEpisode)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors shrink-0 flex items-center gap-1 cursor-pointer ${
+                        currentServerIndex === idx
+                          ? 'bg-white text-black font-bold'
+                          : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
+                      }`}
+                    >
+                      <Tv className="w-3 h-3" />
+                      <span>{s.server_name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* WeTV Range Switcher (Có nút bấm cuộn trái/phải và hỗ trợ kéo chuột) */}
+              {totalRanges > 1 && (
+                <div className="flex items-center gap-1 py-2 shrink-0 border-b border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => scrollRange('left')}
+                    className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 transition-colors shrink-0 cursor-pointer"
+                    title="Cuộn sang trái"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div
+                    ref={rangeListRef}
+                    onWheel={onWheelRange}
+                    className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5"
+                  >
+                    {Array.from({ length: totalRanges }).map((_, rIdx) => {
+                      const start = rIdx * CHUNK_SIZE + 1;
+                      const end = Math.min((rIdx + 1) * CHUNK_SIZE, allEpisodes.length);
+                      const isCurrentRange = selectedRangeIndex === rIdx;
+                      return (
+                        <button
+                          key={rIdx}
+                          data-range-idx={rIdx}
+                          type="button"
+                          onClick={() => setSelectedRangeIndex(rIdx)}
+                          className={`px-2.5 py-1 rounded-md text-xs font-semibold shrink-0 transition-colors cursor-pointer ${
+                            isCurrentRange
+                              ? 'bg-white text-black font-bold shadow-sm'
+                              : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
+                          }`}
+                        >
+                          {start} - {end}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => scrollRange('right')}
+                    className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 transition-colors shrink-0 cursor-pointer"
+                    title="Cuộn sang phải"
+                  >
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Episode Grid (Fills remaining height on desktop, hugs content & scrolls smoothly on mobile) */}
+              <div className="flex-1 min-h-0 max-h-[300px] sm:max-h-[360px] lg:max-h-none overflow-y-auto pr-1 pt-2.5">
+                {currentChunkEpisodes.length > 0 ? (
+                  <div className="grid grid-cols-5 gap-1.5 pb-2">
+                    {currentChunkEpisodes.map((ep) => {
+                      const isCurrent = currentEpisode?.slug === ep.slug;
+                      return (
+                        <button
+                          key={ep.slug}
+                          type="button"
+                          onClick={() => handleSelectEpisode(currentServerIndex, ep)}
+                          className={`h-9 sm:h-10 rounded-md text-xs font-semibold flex items-center justify-center transition-colors truncate px-1 cursor-pointer border ${
+                            isCurrent
+                              ? 'bg-white text-black font-black border-white shadow-sm'
+                              : 'bg-white/5 hover:bg-white text-white/80 hover:text-black border-white/10'
+                          }`}
+                          title={ep.name}
+                        >
+                          {isCurrent && <Play className="w-2.5 h-2.5 fill-current mr-0.5 shrink-0" />}
+                          <span className="sm:hidden font-bold">{getMobileEpisodeLabel(ep.name)}</span>
+                          <span className="hidden sm:inline truncate">{ep.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center text-xs text-white/40">
+                    Đang cập nhật danh sách tập...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CÁC PHẦN DƯỚI VIDEO (THÔNG TIN PHIM, BÌNH LUẬN, ĐỀ XUẤT) - CÓ ĐỆM LỀ px-3 sm:px-0 */}
+        <div className="px-3 sm:px-0 space-y-6">
+          {/* 2. THÔNG TIN PHIM CHUẨN WETV (GỌN GÀNG TRÊN MOBILE NHƯ HH3D) */}
+          <div className="space-y-2.5 pt-1">
+            {/* Dòng 1: Tiêu đề phim + Tập xx + Nút Chia sẻ */}
+            <div className="flex items-baseline gap-3 flex-wrap">
+              <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                {movie.name}
+              </h1>
+              <span className="text-base sm:text-lg text-white/50 font-medium">
+                {currentEpisode?.name || 'Tập 01'}
+              </span>
+              <button
+                type="button"
+                onClick={handleShare}
+                className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors cursor-pointer ml-auto sm:ml-2"
+                title="Chia sẻ phim"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>{copied ? 'Đã sao chép' : 'Chia sẻ'}</span>
+              </button>
             </div>
 
-            {/* Server Tabs (if multiple servers exist) */}
-            {movie.episodes.length > 1 && (
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 shrink-0 border-b border-white/5">
-                {movie.episodes.map((s, idx) => (
+            {/* Mobile Toggle: Xem thông tin phim (Chuẩn HH3D theo ảnh đính kèm của người dùng) */}
+            <button
+              type="button"
+              onClick={() => setShowMobileMovieInfo(!showMobileMovieInfo)}
+              className="flex items-center gap-1.5 text-xs text-white/60 hover:text-white font-medium py-0.5 sm:hidden cursor-pointer transition-colors"
+            >
+              <Info className="w-3.5 h-3.5 text-white/50" />
+              <span>{showMobileMovieInfo ? 'Thu gọn thông tin phim' : 'Xem thông tin phim'}</span>
+              {showMobileMovieInfo ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+            </button>
+
+            {/* Chi tiết thông tin phim: Mặc định hiện trên Desktop, rút gọn/mở rộng trên Mobile */}
+            <div className={`space-y-2.5 pt-0.5 ${showMobileMovieInfo ? 'block' : 'hidden sm:block'}`}>
+              {/* Dòng 2: Tags metadata cách nhau bằng dấu gạch đứng | (Ảnh 2 WeTV) */}
+              <div className="flex items-center gap-2 flex-wrap text-xs text-white/60">
+                <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/10 text-white border border-white/15">
+                  {ageRating}
+                </span>
+                {movie.year && (
+                  <>
+                    <span className="text-white/20">|</span>
+                    <span>{movie.year}</span>
+                  </>
+                )}
+                {movie.country?.[0] && (
+                  <>
+                    <span className="text-white/20">|</span>
+                    <span>{movie.country[0].name}</span>
+                  </>
+                )}
+                <span className="text-white/20">|</span>
+                <span>Trọn bộ {allEpisodes.length || movie.episode_total || '??'} tập</span>
+                {movie.category && movie.category.length > 0 && (
+                  <>
+                    <span className="text-white/20">|</span>
+                    <span className="text-white/80">
+                      {movie.category.map((c) => c.name).join(' · ')}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Dòng 3: Avatar tròn Đạo diễn & Diễn viên (Chuẩn WeTV Ảnh 2) */}
+              {castAndCrew.length > 0 && (
+                <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-2">
+                  {castAndCrew.slice(0, 10).map((person, pIdx) => (
+                    <div key={pIdx} className="flex flex-col items-center gap-1.5 shrink-0 w-16 text-center">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/15 via-white/10 to-white/5 border border-white/15 flex items-center justify-center text-white/90 font-bold text-sm shadow-md">
+                        {person.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="text-xs text-white font-medium truncate w-full" title={person.name}>
+                        {person.name}
+                      </span>
+                      <span className="text-[10px] text-white/40">
+                        {person.role}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Dòng 4: Cốt truyện tóm tắt + Đọc thêm / Thu gọn (Chuẩn WeTV Ảnh 2) */}
+              {movie.content && (
+                <div className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-4xl">
+                  <p className={isContentExpanded ? '' : 'line-clamp-2'}>
+                    {movie.content.replace(/<[^>]+>/g, '')}
+                  </p>
                   <button
-                    key={`${s.server_name}-${idx}`}
                     type="button"
-                    onClick={() => handleSelectEpisode(idx, s.server_data[0] || currentEpisode)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-semibold transition-colors shrink-0 flex items-center gap-1 cursor-pointer ${
-                      currentServerIndex === idx
-                        ? 'bg-white text-black font-bold'
-                        : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10'
-                    }`}
+                    onClick={() => setIsContentExpanded(!isContentExpanded)}
+                    className="text-xs font-semibold text-white/50 hover:text-white inline-flex items-center gap-1 mt-1 cursor-pointer transition-colors"
                   >
-                    <Tv className="w-3 h-3" />
-                    <span>{s.server_name}</span>
+                    <span>{isContentExpanded ? 'Thu gọn' : 'Đọc thêm'}</span>
+                    {isContentExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                   </button>
-                ))}
-              </div>
-            )}
-
-            {/* WeTV Range Switcher (Có nút bấm cuộn trái/phải và hỗ trợ kéo chuột) */}
-            {totalRanges > 1 && (
-              <div className="flex items-center gap-1 py-2 shrink-0 border-b border-white/10">
-                <button
-                  type="button"
-                  onClick={() => scrollRange('left')}
-                  className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 transition-colors shrink-0 cursor-pointer"
-                  title="Cuộn sang trái"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5" />
-                </button>
-
-                <div
-                  ref={rangeListRef}
-                  onWheel={onWheelRange}
-                  className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5"
-                >
-                  {Array.from({ length: totalRanges }).map((_, rIdx) => {
-                    const start = rIdx * CHUNK_SIZE + 1;
-                    const end = Math.min((rIdx + 1) * CHUNK_SIZE, allEpisodes.length);
-                    const isCurrentRange = selectedRangeIndex === rIdx;
-                    return (
-                      <button
-                        key={rIdx}
-                        data-range-idx={rIdx}
-                        type="button"
-                        onClick={() => setSelectedRangeIndex(rIdx)}
-                        className={`px-2.5 py-1 rounded-md text-xs font-semibold shrink-0 transition-colors cursor-pointer ${
-                          isCurrentRange
-                            ? 'bg-white text-black font-bold shadow-sm'
-                            : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
-                        }`}
-                      >
-                        {start} - {end}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => scrollRange('right')}
-                  className="w-6 h-6 rounded flex items-center justify-center bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 transition-colors shrink-0 cursor-pointer"
-                  title="Cuộn sang phải"
-                >
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-
-            {/* Episode Grid (Fills remaining vertical height naturally) */}
-            <div className="flex-1 min-h-0 overflow-y-auto pr-1 pt-2.5">
-              {currentChunkEpisodes.length > 0 ? (
-                <div className="grid grid-cols-5 gap-1.5 pb-2">
-                  {currentChunkEpisodes.map((ep) => {
-                    const isCurrent = currentEpisode?.slug === ep.slug;
-                    return (
-                      <button
-                        key={ep.slug}
-                        type="button"
-                        onClick={() => handleSelectEpisode(currentServerIndex, ep)}
-                        className={`h-10 rounded-md text-xs font-semibold flex items-center justify-center transition-colors truncate px-1 cursor-pointer border ${
-                          isCurrent
-                            ? 'bg-white text-black font-black border-white shadow-sm'
-                            : 'bg-white/5 hover:bg-white text-white/80 hover:text-black border-white/10'
-                        }`}
-                        title={ep.name}
-                      >
-                        {isCurrent && <Play className="w-2.5 h-2.5 fill-current mr-0.5 shrink-0" />}
-                        <span className="truncate">{ep.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="py-8 text-center text-xs text-white/40">
-                  Đang cập nhật danh sách tập...
                 </div>
               )}
             </div>
           </div>
-        </div>
 
-        {/* 2. THÔNG TIN PHIM CHUẨN WETV (NGẮN GỌN, KHÔNG ĐÓNG KHUNG NHƯ ẢNH 2) */}
-        <div className="space-y-2.5 pt-1">
-          {/* Dòng 1: Tiêu đề phim + Tập xx + Nút Chia sẻ */}
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              {movie.name}
-            </h1>
-            <span className="text-base sm:text-lg text-white/50 font-medium">
-              {currentEpisode?.name || 'Tập 01'}
-            </span>
-            <button
-              type="button"
-              onClick={handleShare}
-              className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors cursor-pointer ml-auto sm:ml-2"
-              title="Chia sẻ phim"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span>{copied ? 'Đã sao chép' : 'Chia sẻ'}</span>
-            </button>
-          </div>
+          {/* 3. BÌNH LUẬN & ĐÁNH GIÁ (CHỈ HIỆN KHI BẤM XEM BÌNH LUẬN - REQUEST 5) */}
+          <div id="comments-section" className="pt-6 border-t border-white/10">
+            <div className="flex items-center justify-between pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-3.5 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+                <h2 className="text-base font-bold text-white tracking-wide">
+                  Bình Luận & Đánh Giá
+                </h2>
+              </div>
 
-          {/* Dòng 2: Tags metadata cách nhau bằng dấu gạch đứng | (Ảnh 2 WeTV) */}
-          <div className="flex items-center gap-2 flex-wrap text-xs text-white/60">
-            <span className="px-1.5 py-0.5 rounded text-[11px] font-bold bg-white/10 text-white border border-white/15">
-              {ageRating}
-            </span>
-            {movie.year && (
-              <>
-                <span className="text-white/20">|</span>
-                <span>{movie.year}</span>
-              </>
-            )}
-            {movie.country?.[0] && (
-              <>
-                <span className="text-white/20">|</span>
-                <span>{movie.country[0].name}</span>
-              </>
-            )}
-            <span className="text-white/20">|</span>
-            <span>Trọn bộ {allEpisodes.length || movie.episode_total || '??'} tập</span>
-            {movie.category && movie.category.length > 0 && (
-              <>
-                <span className="text-white/20">|</span>
-                <span className="text-white/80">
-                  {movie.category.map((c) => c.name).join(' · ')}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Dòng 3: Avatar tròn Đạo diễn & Diễn viên (Chuẩn WeTV Ảnh 2) */}
-          {castAndCrew.length > 0 && (
-            <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto no-scrollbar py-2">
-              {castAndCrew.slice(0, 10).map((person, pIdx) => (
-                <div key={pIdx} className="flex flex-col items-center gap-1.5 shrink-0 w-16 text-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-white/15 via-white/10 to-white/5 border border-white/15 flex items-center justify-center text-white/90 font-bold text-sm shadow-md">
-                    {person.name.charAt(0).toUpperCase()}
-                  </div>
-                  <span className="text-xs text-white font-medium truncate w-full" title={person.name}>
-                    {person.name}
-                  </span>
-                  <span className="text-[10px] text-white/40">
-                    {person.role}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Dòng 4: Cốt truyện tóm tắt + Đọc thêm / Thu gọn (Chuẩn WeTV Ảnh 2) */}
-          {movie.content && (
-            <div className="text-xs sm:text-sm text-white/70 leading-relaxed max-w-4xl">
-              <p className={isContentExpanded ? '' : 'line-clamp-2'}>
-                {movie.content.replace(/<[^>]+>/g, '')}
-              </p>
               <button
                 type="button"
-                onClick={() => setIsContentExpanded(!isContentExpanded)}
-                className="text-xs font-semibold text-white/50 hover:text-white inline-flex items-center gap-1 mt-1 cursor-pointer transition-colors"
+                onClick={() => setShowComments(!showComments)}
+                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white text-white/80 hover:text-black border border-white/10 transition-all flex items-center gap-1.5 cursor-pointer"
               >
-                <span>{isContentExpanded ? 'Thu gọn' : 'Đọc thêm'}</span>
-                {isContentExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>{showComments ? 'Thu gọn bình luận' : 'Xem bình luận'}</span>
+                {showComments ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
             </div>
-          )}
-        </div>
 
-        {/* 3. BÌNH LUẬN & ĐÁNH GIÁ (CHỈ HIỆN KHI BẤM XEM BÌNH LUẬN - REQUEST 5) */}
-        <div id="comments-section" className="pt-6 border-t border-white/10">
-          <div className="flex items-center justify-between pb-3">
-            <div className="flex items-center gap-2">
-              <span className="w-1 h-3.5 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
-              <h2 className="text-base font-bold text-white tracking-wide">
-                Bình Luận & Đánh Giá
-              </h2>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setShowComments(!showComments)}
-              className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-white/5 hover:bg-white text-white/80 hover:text-black border border-white/10 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span>{showComments ? 'Thu gọn bình luận' : 'Xem bình luận'}</span>
-              {showComments ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-
-          {showComments ? (
-            <div className="pt-2 animate-in fade-in duration-300">
-              <MovieComments movieSlug={movie.slug} movieName={movie.name} hideHeader />
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowComments(true)}
-              className="w-full py-4 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 flex items-center justify-between cursor-pointer transition-colors text-left group"
-            >
-              <div className="flex items-center gap-3 text-white/50 group-hover:text-white/80 transition-colors">
-                <Star className="w-4 h-4 text-white/40" />
-                <span className="text-xs">
-                  Nhấn vào đây để xem nhận xét và đánh giá của khán giả về bộ phim...
-                </span>
+            {showComments ? (
+              <div className="pt-2 animate-in fade-in duration-300">
+                <MovieComments movieSlug={movie.slug} movieName={movie.name} hideHeader />
               </div>
-              <span className="text-xs text-white/60 group-hover:text-white font-medium flex items-center gap-1">
-                <span>Xem ngay</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </span>
-            </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowComments(true)}
+                className="w-full py-4 px-4 rounded-xl bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 flex items-center justify-between cursor-pointer transition-colors text-left group"
+              >
+                <div className="flex items-center gap-3 text-white/50 group-hover:text-white/80 transition-colors">
+                  <Star className="w-4 h-4 text-white/40" />
+                  <span className="text-xs">
+                    Nhấn vào đây để xem nhận xét và đánh giá của khán giả về bộ phim...
+                  </span>
+                </div>
+                <span className="text-xs text-white/60 group-hover:text-white font-medium flex items-center gap-1">
+                  <span>Xem ngay</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            )}
+          </div>
+
+          {/* 4. ĐỀ XUẤT PHIM LIÊN QUAN */}
+          {relatedMovies.length > 0 && (
+            <div className="pt-6 border-t border-white/10">
+              <MovieCarousel title="Phim Cùng Thể Loại Đề Xuất" movies={relatedMovies} />
+            </div>
           )}
         </div>
-
-        {/* 4. ĐỀ XUẤT PHIM LIÊN QUAN */}
-        {relatedMovies.length > 0 && (
-          <div className="pt-6 border-t border-white/10">
-            <MovieCarousel title="Phim Cùng Thể Loại Đề Xuất" movies={relatedMovies} />
-          </div>
-        )}
       </div>
 
       {/* Trailer Modal Dialog */}

@@ -24,6 +24,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   const isHomePage = pathname === '/';
+  const isWatchPage = pathname.startsWith('/xem');
 
   return (
     <div className="relative flex flex-col min-h-screen bg-[#050507] text-[#FFFFFF] overflow-x-hidden selection:bg-white selection:text-[#070709]">
@@ -48,6 +49,8 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         className={`relative z-10 flex-1 w-full ${
           isHomePage
             ? 'w-full'
+            : isWatchPage
+            ? 'w-full pt-16 sm:pt-20 md:pt-24 pb-12'
             : 'max-w-[1680px] mx-auto px-4 sm:px-8 md:px-12 pt-24 sm:pt-28 pb-12'
         }`}
       >

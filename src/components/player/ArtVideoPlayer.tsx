@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import Hls from 'hls.js';
 import { EpisodeData, EpisodeServer } from '../../types/movie';
 import {
@@ -87,6 +88,17 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   });
   const isEmbed = currentChannel === 1;
   const [retryKey, setRetryKey] = useState(0);
+
+  // Responsive mobile state (< 640px)
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Popups state (Image 2, 3, 4 + Image 3 Episode Drawer)
   const [showServerMenu, setShowServerMenu] = useState(false);
@@ -516,13 +528,69 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   // Show Skip Intro button between 10s and 90s
   const showSkipIntro = currentTime >= 10 && currentTime <= 90 && !autoSkipIntro;
 
+  // Helper to render mobile bottom sheet drawer (immune to player container clipping)
+  const renderMobileBottomSheet = (
+    isOpen: boolean,
+    onClose: () => void,
+    title: string,
+    children: React.ReactNode,
+    headerRight?: React.ReactNode
+  ) => {
+    if (!isOpen || !isMobile) return null;
+    const portalTarget =
+      isFullscreen && playerWrapperRef.current
+        ? playerWrapperRef.current
+        : typeof document !== 'undefined'
+        ? document.body
+        : null;
+    if (!portalTarget) return null;
+
+    return createPortal(
+      <>
+        {/* Backdrop overlay */}
+        <div
+          className="fixed inset-0 bg-black/75 backdrop-blur-[2px] z-[999998] animate-in fade-in duration-200"
+          onClick={onClose}
+        />
+        {/* Mobile Bottom Sheet Drawer */}
+        <div
+          className="fixed inset-x-0 bottom-0 max-h-[82vh] bg-[#141419]/98 backdrop-blur-2xl border-t border-white/20 rounded-t-2xl z-[999999] p-4 pb-7 overflow-y-auto shadow-2xl animate-in slide-in-from-bottom duration-250 text-white select-none"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Drag pill handle */}
+          <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mb-3" />
+
+          {/* Header */}
+          <div className="flex items-center justify-between pb-3 border-b border-white/10 shrink-0">
+            <h3 className="font-bold text-white text-base">{title}</h3>
+            <div className="flex items-center gap-2">
+              {headerRight}
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
+                title="Đóng"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="mt-2">{children}</div>
+        </div>
+      </>,
+      portalTarget
+    );
+  };
+
   return (
     <div
       ref={playerWrapperRef}
       onMouseMove={handleMouseMove}
       onMouseEnter={resetControlsTimer}
       onTouchEnd={handleTouchEnd}
-      className={`relative w-full aspect-video bg-black rounded-xl overflow-hidden shadow-2xl border border-white/10 group select-none ${
+      className={`relative w-full aspect-video bg-black rounded-none sm:rounded-xl overflow-hidden shadow-2xl border-0 sm:border sm:border-white/10 group select-none ${
         isFullscreen
           ? 'fixed inset-0 z-[999999] w-screen h-screen rounded-none border-none aspect-auto'
           : ''
@@ -722,8 +790,97 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
       {/* ========================================================
           IMAGE 2: POPUP MÁY CHỦ (SERVER SELECTOR MODAL)
+          Responsive: Mobile Bottom Sheet + Desktop Floating Popover
           ======================================================== */}
-      {showServerMenu && (
+      {renderMobileBottomSheet(
+        showServerMenu,
+        () => setShowServerMenu(false),
+        'Máy chủ phát',
+        <div className="py-2.5 space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+          {episodes.map((server, sIdx) => {
+            const isSelected = sIdx === currentServerIndex;
+            const ping = sIdx === 0 ? '88 ms' : sIdx === 1 ? '148 ms' : '251 ms';
+            const pingColor = sIdx === 0 || sIdx === 1 ? 'text-[#22C55E]' : 'text-[#EAB308]';
+            const statusText = sIdx === 0 || sIdx === 1 ? 'Mượt' : 'Ổn';
+
+            return (
+              <div
+                key={sIdx}
+                onClick={() => {
+                  const sameEp =
+                    server.server_data.find((e) => e.slug === currentEpisodeSlug) ||
+                    server.server_data[0];
+                  if (sameEp) onSelectEpisode(sIdx, sameEp);
+                  setShowServerMenu(false);
+                }}
+                className={`p-2.5 rounded-xl flex items-center justify-between cursor-pointer transition-all border ${
+                  isSelected
+                    ? 'bg-white/[0.08] border-[#FECF59]/40 shadow-sm'
+                    : 'bg-white/[0.03] hover:bg-white/[0.07] border-transparent'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-black/40 flex items-center justify-center shrink-0">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="15"
+                      height="15"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#22C55E"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M2 20h.01" />
+                      <path d="M7 20v-4" />
+                      <path d="M12 20v-8" />
+                      <path d="M17 20V4" />
+                    </svg>
+                  </div>
+
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`text-xs font-bold truncate ${
+                          isSelected ? 'text-[#FECF59]' : 'text-white'
+                        }`}
+                      >
+                        {server.server_name}
+                      </span>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-[#FECF59] stroke-[3]" />}
+                    </div>
+                    <span className="text-[11px] text-white/50 block">
+                      {server.server_data.length} tập •{' '}
+                      <span className={pingColor}>{statusText}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <span className={`text-xs font-bold shrink-0 ml-2 ${pingColor}`}>{ping}</span>
+              </div>
+            );
+          })}
+        </div>,
+        <button
+          onClick={() => {
+            const hls = hlsRef.current;
+            if (hls && m3u8Url) {
+              hls.loadSource(m3u8Url);
+              hls.startLoad();
+            } else if (videoRef.current && m3u8Url) {
+              videoRef.current.src = m3u8Url;
+              videoRef.current.play().catch(() => {});
+            }
+          }}
+          title="Làm mới máy chủ"
+          className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+        </button>
+      )}
+
+      {!isMobile && showServerMenu && (
         <div className="player-floating-panel absolute bottom-16 right-16 sm:right-28 w-80 rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-40 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
             <h3 className="font-bold text-white text-base">Máy chủ</h3>
@@ -816,8 +973,162 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
       {/* ========================================================
           IMAGE 3: POPUP CÀI ĐẶT (SETTINGS MODAL - FULLY FUNCTIONAL)
+          Responsive: Mobile Bottom Sheet + Desktop Floating Popover
           ======================================================== */}
-      {showSettingsMenu && (
+      {renderMobileBottomSheet(
+        showSettingsMenu,
+        () => setShowSettingsMenu(false),
+        settingsTab === 'quality' ? 'Chất lượng video' : settingsTab === 'speed' ? 'Tốc độ phát' : 'Cài đặt phát',
+        <div className="space-y-1">
+          {settingsTab === 'main' && (
+            <div className="py-2 space-y-1">
+              {/* 1. Chất lượng */}
+              <div
+                onClick={() => setSettingsTab('quality')}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-2.5 text-white/90">
+                  <Sliders className="w-4 h-4 text-white/70" />
+                  <span className="text-xs font-semibold">Chất lượng</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/50 text-xs">
+                  <span className="truncate max-w-[100px] text-[#FECF59] font-semibold">{quality}</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* 2. Tốc độ */}
+              <div
+                onClick={() => setSettingsTab('speed')}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-2.5 text-white/90">
+                  <Gauge className="w-4 h-4 text-white/70" />
+                  <span className="text-xs font-semibold">Tốc độ</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/50 text-xs">
+                  <span className="text-[#FECF59] font-semibold">{playbackSpeed}x</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* 3. Tỉ lệ màn hình */}
+              <div
+                onClick={() => {
+                  const ratios: Array<'contain' | '16:9' | 'cover'> = ['contain', '16:9', 'cover'];
+                  const nextIdx = (ratios.indexOf(aspectRatio) + 1) % ratios.length;
+                  setAspectRatio(ratios[nextIdx]);
+                }}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-2.5 text-white/90">
+                  <Maximize className="w-4 h-4 text-white/70" />
+                  <span className="text-xs font-semibold">Tỉ lệ màn hình</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/50 text-xs">
+                  <span>
+                    {aspectRatio === 'contain'
+                      ? 'Vừa màn hình'
+                      : aspectRatio === '16:9'
+                      ? '16:9'
+                      : 'Phóng to'}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* 4. Ánh sáng môi trường */}
+              <div
+                onClick={() => setAmbientLight((prev) => !prev)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-2.5 text-white/90">
+                  <Lightbulb className="w-4 h-4 text-white/70" />
+                  <span className="text-xs font-semibold">Ánh sáng môi trường</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/50 text-xs">
+                  <span className={ambientLight ? 'text-[#FECF59] font-bold' : ''}>
+                    {ambientLight ? 'Bật' : 'Tắt'}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+
+              {/* 5. Tự động bỏ qua giới thiệu */}
+              <div
+                onClick={() => setAutoSkipIntro((prev) => !prev)}
+                className="flex items-center justify-between p-2.5 rounded-xl hover:bg-white/10 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-2.5 text-white/90">
+                  <Sparkles className="w-4 h-4 text-white/70" />
+                  <span className="text-xs font-semibold">Bỏ qua giới thiệu</span>
+                </div>
+                <div className="flex items-center gap-1 text-white/50 text-xs">
+                  <span className={autoSkipIntro ? 'text-[#FECF59] font-bold' : ''}>
+                    {autoSkipIntro ? 'Tự động' : 'Tắt'}
+                  </span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Quality Submenu */}
+          {settingsTab === 'quality' && (
+            <div className="py-2 space-y-1">
+              {availableQualities.map((q, idx) => (
+                <button
+                  key={q}
+                  onClick={() => {
+                    setQuality(q);
+                    if (hlsRef.current) {
+                      hlsRef.current.currentLevel = idx === 0 ? -1 : idx - 1;
+                    }
+                    setSettingsTab('main');
+                  }}
+                  className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                    quality === q ? 'bg-white/15 text-[#FECF59]' : 'text-white/80 hover:bg-white/5'
+                  }`}
+                >
+                  <span>{q}</span>
+                  {quality === q && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Speed Submenu */}
+          {settingsTab === 'speed' && (
+            <div className="py-2 space-y-1">
+              {[0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((s) => (
+                <button
+                  key={s}
+                  onClick={() => {
+                    setPlaybackSpeed(s);
+                    setSettingsTab('main');
+                  }}
+                  className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                    playbackSpeed === s ? 'bg-white/15 text-[#FECF59]' : 'text-white/80 hover:bg-white/5'
+                  }`}
+                >
+                  <span>{s === 1.0 ? '1.0x (Chuẩn)' : `${s}x`}</span>
+                  {playbackSpeed === s && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>,
+        settingsTab !== 'main' ? (
+          <button
+            onClick={() => setSettingsTab('main')}
+            className="text-xs text-[#FECF59] font-bold hover:underline"
+          >
+            Quay lại
+          </button>
+        ) : undefined
+      )}
+
+      {!isMobile && showSettingsMenu && (
         <div className="player-floating-panel absolute bottom-16 right-6 sm:right-16 w-72 rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-40 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
           <div className="pb-3 border-b border-white/10 flex items-center justify-between">
             <h3 className="font-bold text-white text-base">Cài đặt</h3>
@@ -973,8 +1284,229 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
 
       {/* ========================================================
           IMAGE 4: POPUP PHỤ ĐỀ (SUBTITLES CONFIG MODAL - FULLY FUNCTIONAL)
+          Responsive: Mobile Bottom Sheet + Desktop Floating Popover
           ======================================================== */}
-      {showSubtitleMenu && (
+      {renderMobileBottomSheet(
+        showSubtitleMenu,
+        () => setShowSubtitleMenu(false),
+        'Cài đặt Phụ đề (CC)',
+        <div className="space-y-3">
+          {/* Two Columns: Phụ đề 1 & Phụ đề 2 */}
+          <div className="grid grid-cols-2 gap-3 py-2 border-b border-white/10">
+            <div>
+              <span className="text-[11px] font-semibold text-white/50 block mb-1.5">Phụ đề 1</span>
+              <div className="bg-black/35 rounded-xl p-1.5 border border-white/5 space-y-1">
+                {['Tiếng Việt', 'Tiếng Trung', 'Tiếng Anh'].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setSubLang1(lang)}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                      subLang1 === lang
+                        ? 'bg-white/10 text-[#FECF59]'
+                        : 'text-white/70 hover:bg-white/5'
+                    }`}
+                  >
+                    <span>{lang}</span>
+                    {subLang1 === lang && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <span className="text-[11px] font-semibold text-white/50 block mb-1.5">
+                Phụ đề 2 (Song ngữ)
+              </span>
+              <div className="bg-black/35 rounded-xl p-1.5 border border-white/5 space-y-1">
+                {['Tiếng Việt', 'Tiếng Trung', 'Tiếng Anh'].map((lang) => (
+                  <button
+                    key={lang}
+                    onClick={() => setSubLang2(lang)}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
+                      subLang2 === lang
+                        ? 'bg-white/10 text-[#FECF59]'
+                        : 'text-white/70 hover:bg-white/5'
+                    }`}
+                  >
+                    <span>{lang}</span>
+                    {subLang2 === lang && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Customization Details (Tabs: Chính / Song ngữ) */}
+          <div className="space-y-3">
+            <div className="flex bg-white/10 rounded-xl p-0.5 border border-white/10">
+              <button
+                onClick={() => setSubCustomTab('main')}
+                className={`flex-1 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  subCustomTab === 'main' ? 'bg-white text-black shadow-sm' : 'text-white/60'
+                }`}
+              >
+                Chính
+              </button>
+              <button
+                onClick={() => setSubCustomTab('bilingual')}
+                className={`flex-1 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  subCustomTab === 'bilingual' ? 'bg-white text-black shadow-sm' : 'text-white/60'
+                }`}
+              >
+                Song ngữ
+              </button>
+            </div>
+
+            {/* Row 1: Màu chữ & Font */}
+            <div className="grid grid-cols-2 gap-3 items-center">
+              <div>
+                <span className="text-[11px] text-white/50 block mb-1 flex items-center gap-1">
+                  <Palette className="w-3 h-3" /> Màu chữ
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { color: '#FFFFFF', name: 'Trắng' },
+                    { color: '#000000', name: 'Đen' },
+                    { color: '#FECF59', name: 'Vàng' },
+                    { color: '#22C55E', name: 'Xanh lá' },
+                    { color: '#06B6D4', name: 'Xanh ngọc' },
+                  ].map((item) => (
+                    <button
+                      key={item.color}
+                      onClick={() => setSubtitleColor(item.color)}
+                      style={{ backgroundColor: item.color }}
+                      className={`w-6 h-6 rounded-full border flex items-center justify-center transition-transform cursor-pointer ${
+                        subtitleColor === item.color
+                          ? 'border-[#FECF59] scale-110 ring-2 ring-[#FECF59]/50'
+                          : 'border-white/30'
+                      }`}
+                      title={item.name}
+                    >
+                      {subtitleColor === item.color && (
+                        <Check
+                          className={`w-3.5 h-3.5 ${
+                            item.color === '#000000' ? 'text-white' : 'text-black'
+                          } stroke-[3]`}
+                        />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[11px] text-white/50 block mb-1 flex items-center gap-1">
+                  <Type className="w-3 h-3" /> Font
+                </span>
+                <select
+                  value={subtitleFont}
+                  onChange={(e) => setSubtitleFont(e.target.value)}
+                  className="w-full bg-black/40 border border-white/15 rounded-lg px-2.5 py-1 text-xs text-white font-medium focus:outline-none focus:border-[#FECF59]"
+                >
+                  <option value="Mặc định">Mặc định</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Arial">Arial</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Row 2: Cỡ chữ chính slider */}
+            <div>
+              <div className="flex items-center justify-between text-[11px] text-white/50 mb-1">
+                <span>Cỡ chữ chính</span>
+                <span className="text-white font-bold">{subtitleSize}px</span>
+              </div>
+              <input
+                type="range"
+                min="16"
+                max="36"
+                value={subtitleSize}
+                onChange={(e) => setSubtitleSize(Number(e.target.value))}
+                className="w-full accent-[#FECF59] cursor-pointer"
+              />
+            </div>
+
+            {/* Row 3: Nền & Vị trí */}
+            <div className="grid grid-cols-2 gap-3 items-center">
+              <div>
+                <span className="text-[11px] text-white/50 block mb-1">Nền</span>
+                <div className="flex items-center gap-2">
+                  {[
+                    { id: 'none', label: 'Trống' },
+                    { id: 'trans', label: 'Mờ', bg: 'bg-black/40' },
+                    { id: 'navy', label: 'Navy', bg: 'bg-[#0E131F]' },
+                    { id: 'black', label: 'Đen', bg: 'bg-black' },
+                  ].map((bgItem) => (
+                    <button
+                      key={bgItem.id}
+                      onClick={() => setSubtitleBg(bgItem.id as any)}
+                      className={`w-7 h-6 rounded-md border text-[9px] font-bold flex items-center justify-center transition-all cursor-pointer ${
+                        subtitleBg === bgItem.id
+                          ? 'border-[#FECF59] text-[#FECF59] ring-1 ring-[#FECF59]'
+                          : 'border-white/20 text-white/60 hover:border-white/40'
+                      } ${bgItem.bg || ''}`}
+                    >
+                      {bgItem.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between text-[11px] text-white/50 mb-1">
+                  <span>Vị trí</span>
+                  <span className="text-white font-bold">
+                    {subtitlePosition < 15 ? 'Dưới' : subtitlePosition < 30 ? 'Giữa' : 'Trên'}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="45"
+                  value={subtitlePosition}
+                  onChange={(e) => setSubtitlePosition(Number(e.target.value))}
+                  className="w-full accent-[#FECF59] cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Hardsub Notice */}
+            <div className="p-2 rounded-xl bg-white/[0.05] border border-white/10 text-[11px] text-white/60 leading-relaxed flex items-start gap-1.5">
+              <span className="text-[#FECF59] font-bold shrink-0">Lưu ý:</span>
+              <span>Một số phim có sẵn phụ đề cứng (hardsub) in trực tiếp vào hình ảnh video nên không thể xoá lớp chữ gốc của video.</span>
+            </div>
+          </div>
+        </div>,
+        <div className="flex bg-white/10 rounded-full p-0.5 border border-white/10">
+          <button
+            onClick={() => setSubtitleMode('on')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              subtitleMode === 'on' ? 'bg-white text-black shadow-sm' : 'text-white/70'
+            }`}
+          >
+            Bật
+          </button>
+          <button
+            onClick={() => setSubtitleMode('bilingual')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              subtitleMode === 'bilingual' ? 'bg-white text-black shadow-sm' : 'text-white/70'
+            }`}
+          >
+            Song ngữ
+          </button>
+          <button
+            onClick={() => setSubtitleMode('off')}
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+              subtitleMode === 'off' ? 'bg-white text-black shadow-sm' : 'text-white/70'
+            }`}
+          >
+            Tắt
+          </button>
+        </div>
+      )}
+
+      {!isMobile && showSubtitleMenu && (
         <div className="player-floating-panel absolute bottom-16 right-12 sm:right-32 w-[360px] sm:w-[420px] rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-4 z-40 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
           {/* Header */}
           <div className="flex items-center justify-between pb-3 border-b border-white/10">
