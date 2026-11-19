@@ -31,31 +31,31 @@ export const Footer: React.FC = () => {
           {/* Quick Links */}
           <div>
             <h3 className="text-xs font-black uppercase tracking-wider text-white/90 mb-4 flex items-center gap-2">
-              <Film className="w-3.5 h-3.5 text-white/70" /> Chuyên Mục
+              <Film className="w-3.5 h-3.5 text-white/70" /> Khám Phá Phim
             </h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to="/danh-sach/phim-chieu-rap" className="hover:text-white transition-colors flex items-center gap-1.5">
+                <Link to="/kham-pha?type=phim-chieu-rap" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-white/60" /> Chiếu Rạp Hot
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/phim-bo" className="hover:text-white transition-colors">
+                <Link to="/kham-pha?type=phim-bo" className="hover:text-white transition-colors">
                   Phim Bộ Hay Nhất
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/phim-le" className="hover:text-white transition-colors">
+                <Link to="/kham-pha?type=phim-le" className="hover:text-white transition-colors">
                   Phim Lẻ Mới
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/hoat-hinh" className="hover:text-white transition-colors">
+                <Link to="/kham-pha?type=hoat-hinh" className="hover:text-white transition-colors">
                   Anime Hoạt Hình
                 </Link>
               </li>
               <li>
-                <Link to="/danh-sach/tv-shows" className="hover:text-white transition-colors">
+                <Link to="/kham-pha?type=tv-shows" className="hover:text-white transition-colors">
                   Truyền Hình TV Shows
                 </Link>
               </li>
@@ -71,7 +71,7 @@ export const Footer: React.FC = () => {
               {CATEGORIES.slice(0, 8).map((cat) => (
                 <Link
                   key={cat.slug}
-                  to={`/the-loai/${cat.slug}`}
+                  to={`/kham-pha?category=${cat.slug}`}
                   className="hover:text-white transition-colors truncate"
                 >
                   {cat.name}

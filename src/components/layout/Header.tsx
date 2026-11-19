@@ -11,9 +11,8 @@ import {
   Crown,
   User as UserIcon,
   LogOut,
-  Film,
+  Compass,
 } from 'lucide-react';
-import { CATEGORIES, COUNTRIES } from '../../api/phimApi';
 import { LiveSearchModal } from '../search/LiveSearchModal';
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,7 +23,7 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<'category' | 'country' | 'user' | null>(null);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -34,8 +33,8 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest('.header-dropdown-container')) {
-        setActiveDropdown(null);
+      if (!target.closest('.user-dropdown-container')) {
+        setIsUserDropdownOpen(false);
       }
     };
 
@@ -44,18 +43,15 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
   }, []);
 
   useEffect(() => {
-    setActiveDropdown(null);
+    setIsUserDropdownOpen(false);
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  const navLinks = [
-    { label: 'Trang Chủ', path: '/' },
-    { label: 'Chiếu Rạp', path: '/danh-sach/phim-chieu-rap', highlight: true },
-    { label: 'Phim Bộ', path: '/danh-sach/phim-bo' },
-    { label: 'Phim Lẻ', path: '/danh-sach/phim-le' },
-    { label: 'Anime', path: '/danh-sach/hoat-hinh' },
-    { label: 'Truyền Hình', path: '/danh-sach/tv-shows' },
-  ];
+  const isExploreActive =
+    location.pathname.startsWith('/kham-pha') ||
+    location.pathname.startsWith('/danh-sach') ||
+    location.pathname.startsWith('/the-loai') ||
+    location.pathname.startsWith('/quoc-gia');
 
   return (
     <>
@@ -68,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
           <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white shadow-lg cursor-pointer"
+              className="md:hidden liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/80 hover:text-white shadow-lg cursor-pointer"
               aria-label="Menu"
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -88,109 +84,30 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             </Link>
           </div>
 
-          {/* Cụm 2: Center Segmented Glass Navigation (Floating Liquid Glass Island) */}
-          <nav className="hidden lg:flex items-center p-1 sm:p-1.5 rounded-full liquid-glass border border-white/15 shadow-xl">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
-              return (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`px-3.5 xl:px-4 py-1.5 rounded-full text-xs font-bold transition-all relative ${
-                    isActive
-                      ? 'bg-white text-[#070709] font-extrabold shadow-[0_0_18px_rgba(255,255,255,0.4)]'
-                      : link.highlight
-                      ? 'text-white hover:text-white hover:bg-white/10 flex items-center gap-1.5'
-                      : 'text-white/75 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {link.highlight && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_#ffffff] inline-block" />
-                  )}
-                  {link.label}
-                </Link>
-              );
-            })}
+          {/* Cụm 2: Center Segmented Glass Navigation (Trang Chủ & Khám Phá) */}
+          <nav className="hidden md:flex items-center p-1 sm:p-1.5 rounded-full liquid-glass border border-white/15 shadow-xl">
+            <Link
+              to="/"
+              className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all ${
+                location.pathname === '/'
+                  ? 'bg-white text-[#070709] font-extrabold shadow-[0_0_18px_rgba(255,255,255,0.4)]'
+                  : 'text-white/75 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              Trang Chủ
+            </Link>
 
-            {/* Dropdown Thể Loại */}
-            <div className="relative header-dropdown-container">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveDropdown(activeDropdown === 'category' ? null : 'category');
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  activeDropdown === 'category'
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/75 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <span>Thể Loại</span>
-                <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${
-                    activeDropdown === 'category' ? 'rotate-180 text-white' : 'opacity-70'
-                  }`}
-                />
-              </button>
-
-              {activeDropdown === 'category' && (
-                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="w-80 p-3.5 rounded-3xl liquid-glass grid grid-cols-2 gap-1.5 shadow-2xl border border-white/20">
-                    {CATEGORIES.map((cat) => (
-                      <Link
-                        key={cat.slug}
-                        to={`/the-loai/${cat.slug}`}
-                        onClick={() => setActiveDropdown(null)}
-                        className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/14 rounded-xl transition-all truncate"
-                      >
-                        {cat.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Dropdown Quốc Gia */}
-            <div className="relative header-dropdown-container">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setActiveDropdown(activeDropdown === 'country' ? null : 'country');
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  activeDropdown === 'country'
-                    ? 'bg-white/15 text-white'
-                    : 'text-white/75 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <span>Quốc Gia</span>
-                <ChevronDown
-                  className={`w-3 h-3 transition-transform duration-200 ${
-                    activeDropdown === 'country' ? 'rotate-180 text-white' : 'opacity-70'
-                  }`}
-                />
-              </button>
-
-              {activeDropdown === 'country' && (
-                <div className="absolute top-full left-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                  <div className="w-72 p-3.5 rounded-3xl liquid-glass grid grid-cols-2 gap-1.5 shadow-2xl border border-white/20">
-                    {COUNTRIES.map((cou) => (
-                      <Link
-                        key={cou.slug}
-                        to={`/quoc-gia/${cou.slug}`}
-                        onClick={() => setActiveDropdown(null)}
-                        className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/14 rounded-xl transition-all truncate"
-                      >
-                        {cou.name}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <Link
+              to="/kham-pha"
+              className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                isExploreActive
+                  ? 'bg-white text-[#070709] font-extrabold shadow-[0_0_18px_rgba(255,255,255,0.4)]'
+                  : 'text-white/75 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>Khám Phá</span>
+            </Link>
           </nav>
 
           {/* Cụm 3: Right Action Utilities (Floating Liquid Pills) */}
@@ -198,44 +115,44 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
             {/* ⌘K Command Search Pill */}
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="liquid-pill h-9 sm:h-10 px-3.5 sm:px-4 rounded-full flex items-center gap-2 text-white/85 hover:text-white text-xs font-medium cursor-pointer shadow-lg"
-              title="Tìm kiếm phim (Ctrl+K)"
+              className="liquid-pill h-9 sm:h-10 px-3 sm:px-4 rounded-full flex items-center gap-2 text-white/70 hover:text-white transition-all cursor-pointer shadow-lg group"
+              aria-label="Tìm kiếm phim"
             >
-              <Search className="w-4 h-4 text-white/80" />
-              <span className="hidden sm:inline text-white/70">Tìm kiếm...</span>
-              <kbd className="hidden md:inline-block px-1.5 py-0.5 rounded bg-white/12 border border-white/20 text-[9px] font-bold text-white/80">
+              <Search className="w-3.5 h-3.5 group-hover:text-white transition-colors" />
+              <span className="hidden sm:inline text-xs font-semibold text-white/80">
+                Tìm kiếm...
+              </span>
+              <kbd className="hidden lg:inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold text-white/60 bg-white/10 rounded-md border border-white/10 ml-0.5">
                 ⌘K
               </kbd>
             </button>
 
-            {/* Bookmark Pill */}
+            {/* Bookmark & History Pills */}
             <Link
-              to="/yeu-thich"
-              className="liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/85 hover:text-white shadow-lg"
+              to="/tai-khoan"
+              className="hidden sm:flex liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer shadow-lg"
               title="Phim đã lưu"
+              aria-label="Phim đã lưu"
             >
-              <Bookmark className="w-4 h-4" />
+              <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Link>
 
-            {/* History Pill */}
             <Link
-              to="/lich-su"
-              className="liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-white/85 hover:text-white shadow-lg"
+              to="/tai-khoan"
+              className="hidden sm:flex liquid-pill w-9 h-9 sm:w-10 sm:h-10 rounded-full items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer shadow-lg"
               title="Lịch sử xem"
+              aria-label="Lịch sử xem"
             >
-              <History className="w-4 h-4" />
+              <History className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Link>
 
-            {/* Profile / Auth Button */}
+            {/* User Profile or Login CTA */}
             {isAuthenticated && user ? (
-              <div className="relative header-dropdown-container">
+              <div className="relative user-dropdown-container">
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActiveDropdown(activeDropdown === 'user' ? null : 'user');
-                  }}
-                  className="liquid-pill h-9 sm:h-10 pl-1 pr-3 rounded-full flex items-center gap-2 cursor-pointer shadow-lg"
+                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
+                  className="liquid-pill h-9 sm:h-10 pl-1.5 pr-2.5 sm:pr-3 rounded-full flex items-center gap-2 cursor-pointer shadow-lg"
                 >
                   <img
                     src={user.avatar}
@@ -248,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                   <ChevronDown className="hidden md:inline w-3 h-3 text-white/60" />
                 </button>
 
-                {activeDropdown === 'user' && (
+                {isUserDropdownOpen && (
                   <div className="absolute top-full right-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
                     <div className="w-64 p-3.5 rounded-3xl liquid-glass space-y-2 border border-white/20 shadow-2xl">
                       <div className="p-2.5 rounded-2xl bg-white/8 border border-white/15">
@@ -268,7 +185,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                       <div className="space-y-1">
                         <Link
                           to="/yeu-thich"
-                          onClick={() => setActiveDropdown(null)}
+                          onClick={() => setIsUserDropdownOpen(false)}
                           className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                         >
                           <Bookmark className="w-3.5 h-3.5 text-white" />
@@ -276,7 +193,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                         </Link>
                         <Link
                           to="/lich-su"
-                          onClick={() => setActiveDropdown(null)}
+                          onClick={() => setIsUserDropdownOpen(false)}
                           className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all"
                         >
                           <History className="w-3.5 h-3.5 text-white" />
@@ -288,7 +205,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
                         <button
                           onClick={() => {
                             logout();
-                            setActiveDropdown(null);
+                            setIsUserDropdownOpen(false);
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
                         >
@@ -315,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
 
         {/* Mobile Dropdown Drawer Menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden liquid-glass mx-auto max-w-[1520px] mt-2 rounded-3xl p-4 space-y-4 max-h-[80vh] overflow-y-auto pointer-events-auto border border-white/20 shadow-2xl">
+          <div className="md:hidden liquid-glass mx-auto max-w-[1520px] mt-2 rounded-3xl p-4 space-y-4 max-h-[85vh] overflow-y-auto pointer-events-auto border border-white/20 shadow-2xl">
             {!isAuthenticated || !user ? (
               <button
                 onClick={() => {
@@ -352,54 +269,90 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
               </div>
             )}
 
+            {/* Main Links */}
             <div className="grid grid-cols-2 gap-2 pb-3 border-b border-white/10">
-              {navLinks.map((link) => (
+              <Link
+                to="/"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+                  location.pathname === '/'
+                    ? 'bg-white text-black font-black'
+                    : 'bg-white/6 text-white/85 hover:text-white hover:bg-white/14'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Trang Chủ
+              </Link>
+
+              <Link
+                to="/kham-pha"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all ${
+                  isExploreActive
+                    ? 'bg-white text-black font-black'
+                    : 'bg-white/6 text-white/85 hover:text-white hover:bg-white/14'
+                }`}
+              >
+                <Compass className="w-3.5 h-3.5" />
+                Khám Phá
+              </Link>
+            </div>
+
+            {/* Quick Filter Shortcuts */}
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-wider text-white/60 mb-2">
+                Bộ Lọc Phổ Biến
+              </p>
+              <div className="grid grid-cols-2 gap-1.5">
                 <Link
-                  key={link.path}
-                  to={link.path}
+                  to="/kham-pha?type=phim-chieu-rap"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-white/6 text-white/85 hover:text-white hover:bg-white/14 flex items-center gap-2"
+                  className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white rounded-lg bg-white/5 hover:bg-white/10 truncate"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-white/75" />
-                  {link.label}
+                  🎬 Phim Chiếu Rạp
                 </Link>
-              ))}
-            </div>
-
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-wider text-white/60 mb-2">
-                Thể Loại
-              </p>
-              <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto no-scrollbar">
-                {CATEGORIES.map((cat) => (
-                  <Link
-                    key={cat.slug}
-                    to={`/the-loai/${cat.slug}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-3 py-2 text-xs font-semibold text-white/75 hover:text-white rounded-lg hover:bg-white/10 truncate"
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
+                <Link
+                  to="/kham-pha?type=phim-bo"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white rounded-lg bg-white/5 hover:bg-white/10 truncate"
+                >
+                  📺 Phim Bộ Đang Hot
+                </Link>
+                <Link
+                  to="/kham-pha?type=phim-le"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white rounded-lg bg-white/5 hover:bg-white/10 truncate"
+                >
+                  🍿 Phim Lẻ Đặc Sắc
+                </Link>
+                <Link
+                  to="/kham-pha?type=hoat-hinh"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white rounded-lg bg-white/5 hover:bg-white/10 truncate"
+                >
+                  🎨 Anime & Hoạt Hình
+                </Link>
               </div>
             </div>
 
-            <div>
-              <p className="text-[11px] font-black uppercase tracking-wider text-white/60 mb-2">
-                Quốc Gia
-              </p>
-              <div className="grid grid-cols-2 gap-1.5 max-h-48 overflow-y-auto no-scrollbar">
-                {COUNTRIES.map((cou) => (
-                  <Link
-                    key={cou.slug}
-                    to={`/quoc-gia/${cou.slug}`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="px-3 py-2 text-xs font-semibold text-white/75 hover:text-white rounded-lg hover:bg-white/10 truncate"
-                  >
-                    {cou.name}
-                  </Link>
-                ))}
-              </div>
+            {/* Quick Links for saved and history */}
+            <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2">
+              <Link
+                to="/yeu-thich"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white rounded-lg bg-white/5 hover:bg-white/10 flex items-center gap-1.5"
+              >
+                <Bookmark className="w-3.5 h-3.5 text-white/70" />
+                <span>Phim Đã Lưu</span>
+              </Link>
+              <Link
+                to="/lich-su"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="px-3 py-2 text-xs font-semibold text-white/80 hover:text-white rounded-lg bg-white/5 hover:bg-white/10 flex items-center gap-1.5"
+              >
+                <History className="w-3.5 h-3.5 text-white/70" />
+                <span>Lịch Sử Xem</span>
+              </Link>
             </div>
           </div>
         )}

@@ -133,9 +133,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <LandscapeCarousel
             title="Mới Lên Sóng Hôm Nay"
-            badge="HOT"
             movies={newMovies}
-            viewAllLink="/danh-sach/phim-bo"
+            viewAllLink="/kham-pha"
           />
         )}
 
@@ -145,9 +144,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <MovieCarousel
             title="K-Drama Hàn Quốc Mới"
-            badge="K-DRAMA"
             movies={kdrama.length > 0 ? kdrama : series}
-            viewAllLink="/quoc-gia/han-quoc"
+            viewAllLink="/kham-pha?country=han-quoc"
           />
         )}
 
@@ -157,9 +155,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <LandscapeCarousel
             title="Cổ Trang & Phim Trung Quốc Mới"
-            badge="HOT"
             movies={chineseMovies.length > 0 ? chineseMovies : series}
-            viewAllLink="/quoc-gia/trung-quoc"
+            viewAllLink="/kham-pha?country=trung-quoc"
           />
         )}
 
@@ -223,9 +220,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <MovieCarousel
             title="Bom Tấn Chiếu Rạp Mới Coóng"
-            badge="VIP"
             movies={theaters}
-            viewAllLink="/danh-sach/phim-chieu-rap"
+            viewAllLink="/kham-pha?type=phim-chieu-rap"
           />
         )}
 
@@ -235,9 +231,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <MovieCarousel
             title="Phim Âu Mỹ & Hollywood Mới"
-            badge="HOLLYWOOD"
             movies={westernMovies.length > 0 ? westernMovies : singles}
-            viewAllLink="/quoc-gia/au-my"
+            viewAllLink="/kham-pha?country=au-my"
           />
         )}
 
@@ -247,9 +242,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <LandscapeCarousel
             title="Thế Giới Anime & Hoạt Hình"
-            badge="ANIME"
             movies={animes}
-            viewAllLink="/danh-sach/hoat-hinh"
+            viewAllLink="/kham-pha?type=hoat-hinh"
           />
         )}
 
@@ -259,9 +253,8 @@ export const HomePage: React.FC = () => {
         ) : (
           <MovieCarousel
             title="Phim Lẻ Đỉnh Cao"
-            badge="FHD"
             movies={singles}
-            viewAllLink="/danh-sach/phim-le"
+            viewAllLink="/kham-pha?type=phim-le"
           />
         )}
 
@@ -271,17 +264,16 @@ export const HomePage: React.FC = () => {
         ) : (
           <MovieCarousel
             title="Phim Bộ Tuyển Chọn Mới Cập Nhật"
-            badge="SERIES"
             movies={series}
-            viewAllLink="/danh-sach/phim-bo"
+            viewAllLink="/kham-pha?type=phim-bo"
           />
         )}
 
-        {/* 12. CATEGORY HUBS (Chuẩn TV360 / VieON trong ảnh dài tham khảo) */}
+        {/* 12. CATEGORY HUBS */}
         <div className="space-y-4 pt-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="w-1.5 h-6 rounded-full bg-gradient-to-b from-[#FECF59] to-amber-500" />
+              <span className="w-1.5 h-6 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
               <h2 className="text-lg sm:text-2xl font-black text-white tracking-tight uppercase">
                 Khám Phá Theo Chủ Đề
               </h2>
@@ -290,20 +282,20 @@ export const HomePage: React.FC = () => {
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {[
-              { name: 'Chiếu Rạp', path: '/danh-sach/phim-chieu-rap', icon: '🎬', gradient: 'from-amber-600/30 to-yellow-600/10' },
-              { name: 'K-Drama Hàn', path: '/quoc-gia/han-quoc', icon: '🇰🇷', gradient: 'from-rose-600/30 to-pink-600/10' },
-              { name: 'Cổ Trang Trung', path: '/quoc-gia/trung-quoc', icon: '🏯', gradient: 'from-red-600/30 to-orange-600/10' },
-              { name: 'Bom Tấn Âu Mỹ', path: '/quoc-gia/au-my', icon: '🇺🇸', gradient: 'from-blue-600/30 to-indigo-600/10' },
-              { name: 'Anime Nhật Bản', path: '/danh-sach/hoat-hinh', icon: '🎌', gradient: 'from-purple-600/30 to-violet-600/10' },
-              { name: 'Phim Bộ Hot', path: '/danh-sach/phim-bo', icon: '📺', gradient: 'from-emerald-600/30 to-teal-600/10' },
+              { name: 'Chiếu Rạp', path: '/kham-pha?type=phim-chieu-rap', icon: '🎬', gradient: 'from-amber-600/30 to-yellow-600/10' },
+              { name: 'K-Drama Hàn', path: '/kham-pha?country=han-quoc', icon: '🇰🇷', gradient: 'from-rose-600/30 to-pink-600/10' },
+              { name: 'Cổ Trang Trung', path: '/kham-pha?country=trung-quoc', icon: '🏯', gradient: 'from-red-600/30 to-orange-600/10' },
+              { name: 'Bom Tấn Âu Mỹ', path: '/kham-pha?country=au-my', icon: '🇺🇸', gradient: 'from-blue-600/30 to-indigo-600/10' },
+              { name: 'Anime Nhật Bản', path: '/kham-pha?type=hoat-hinh', icon: '🎌', gradient: 'from-purple-600/30 to-violet-600/10' },
+              { name: 'Phim Bộ Hot', path: '/kham-pha?type=phim-bo', icon: '📺', gradient: 'from-emerald-600/30 to-teal-600/10' },
             ].map((hub) => (
               <Link
                 key={hub.name}
                 to={hub.path}
-                className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${hub.gradient} border border-white/10 hover:border-[#FECF59]/60 transition-all hover:scale-105 hover:shadow-[0_10px_25px_rgba(254,207,89,0.2)] flex flex-col items-center text-center space-y-2 group liquid-glass`}
+                className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${hub.gradient} border border-white/10 hover:border-white/40 transition-all hover:scale-105 hover:shadow-[0_10px_25px_rgba(255,255,255,0.15)] flex flex-col items-center text-center space-y-2 group liquid-glass`}
               >
                 <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform">{hub.icon}</span>
-                <span className="text-xs sm:text-sm font-black text-white group-hover:text-[#FECF59] transition-colors">
+                <span className="text-xs sm:text-sm font-black text-white group-hover:text-white transition-colors">
                   {hub.name}
                 </span>
               </Link>

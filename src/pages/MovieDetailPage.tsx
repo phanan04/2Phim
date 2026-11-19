@@ -220,7 +220,7 @@ export const MovieDetailPage: React.FC = () => {
                   {movie.country?.map((c) => (
                     <Link
                       key={c.slug}
-                      to={`/quoc-gia/${c.slug}`}
+                      to={`/kham-pha?country=${c.slug}`}
                       className="text-white hover:underline ml-1"
                     >
                       {c.name}
@@ -235,7 +235,7 @@ export const MovieDetailPage: React.FC = () => {
                   {movie.category?.map((cat) => (
                     <Link
                       key={cat.slug}
-                      to={`/the-loai/${cat.slug}`}
+                      to={`/kham-pha?category=${cat.slug}`}
                       className="px-2.5 py-0.5 rounded-full liquid-pill text-white/90 hover:text-white transition-colors text-xs"
                     >
                       {cat.name}

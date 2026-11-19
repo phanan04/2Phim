@@ -1,15 +1,21 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { HomePage } from './pages/HomePage';
 import { MovieDetailPage } from './pages/MovieDetailPage';
 import { WatchPage } from './pages/WatchPage';
-import { CategoryPage } from './pages/CategoryPage';
 import { SearchPage } from './pages/SearchPage';
 import { BookmarkPage } from './pages/BookmarkPage';
 import { HistoryPage } from './pages/HistoryPage';
+import { ExplorePage } from './pages/ExplorePage';
 import { AuthProvider } from './context/AuthContext';
 import { AuthModal } from './components/auth/AuthModal';
+
+function RedirectToExplore({ filterKey }: { filterKey: 'type' | 'category' | 'country' }) {
+  const params = useParams();
+  const val = params.slug || params.type;
+  return <Navigate to={`/kham-pha?${filterKey}=${val}`} replace />;
+}
 
 export function App() {
   return (
@@ -20,6 +26,9 @@ export function App() {
             {/* Trang chủ */}
             <Route path="/" element={<HomePage />} />
 
+            {/* Khám phá & Bộ lọc chuyên sâu */}
+            <Route path="/kham-pha" element={<ExplorePage />} />
+
             {/* Chi tiết phim */}
             <Route path="/phim/:slug" element={<MovieDetailPage />} />
 
@@ -27,14 +36,10 @@ export function App() {
             <Route path="/xem/:slug" element={<WatchPage />} />
             <Route path="/xem/:slug/:episodeSlug" element={<WatchPage />} />
 
-            {/* Danh sách phim theo loại */}
-            <Route path="/danh-sach/:type" element={<CategoryPage sourceType="type" />} />
-
-            {/* Danh sách theo thể loại */}
-            <Route path="/the-loai/:slug" element={<CategoryPage sourceType="category" />} />
-
-            {/* Danh sách theo quốc gia */}
-            <Route path="/quoc-gia/:slug" element={<CategoryPage sourceType="country" />} />
+            {/* Gộp danh sách / thể loại / quốc gia chuyển về trang Khám Phá chung có phần lọc */}
+            <Route path="/danh-sach/:type" element={<RedirectToExplore filterKey="type" />} />
+            <Route path="/the-loai/:slug" element={<RedirectToExplore filterKey="category" />} />
+            <Route path="/quoc-gia/:slug" element={<RedirectToExplore filterKey="country" />} />
 
             {/* Tìm kiếm */}
             <Route path="/tim-kiem" element={<SearchPage />} />

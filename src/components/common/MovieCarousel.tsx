@@ -62,13 +62,8 @@ export const MovieCarousel: React.FC<MovieCarouselProps> = ({
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 bg-white rounded-full shadow-[0_0_12px_rgba(255,255,255,0.85)]" />
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
             {title}
-            {badge && (
-              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20 backdrop-blur-md">
-                {badge}
-              </span>
-            )}
           </h2>
         </div>
 

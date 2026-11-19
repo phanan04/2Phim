@@ -54,11 +54,8 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
       <div className="flex items-center justify-between mb-5 px-1">
         <div className="flex items-center gap-3">
           <div className="w-1 h-6 bg-white rounded-full shadow-[0_0_12px_rgba(255,255,255,0.85)]" />
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
             Top 10 Thịnh Hành Hôm Nay
-            <span className="text-[10px] font-black tracking-wider uppercase px-2.5 py-0.5 rounded-full bg-white/10 text-white/90 border border-white/20 backdrop-blur-md">
-              TOP 10
-            </span>
           </h2>
         </div>
 
@@ -126,24 +123,14 @@ export const TopTenCarousel: React.FC<TopTenCarouselProps> = ({ movies, cdnImage
                   {/* Atmospheric Key-Art Vignette */}
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050507] via-transparent to-black/35 opacity-75 group-hover:opacity-40 transition-opacity" />
 
-                  {/* Minimal Top Badges */}
-                  <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none z-10">
-                    {rank <= 3 ? (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-white text-[#070709] shadow-md tracking-wider">
-                        👑 TOP {rank}
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase bg-black/60 backdrop-blur-md text-white/90 border border-white/20">
-                        #{rank}
-                      </span>
-                    )}
-
-                    {movie.quality && (
+                  {/* Top Quality Badge */}
+                  {movie.quality && (
+                    <div className="absolute top-2 right-2 pointer-events-none z-10">
                       <span className="px-2 py-0.5 text-[8px] font-bold tracking-wider uppercase rounded-full bg-white/15 backdrop-blur-md text-white border border-white/20">
                         {movie.quality}
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
 
                   {/* Play hover (Luminous White Pill Orb) */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
