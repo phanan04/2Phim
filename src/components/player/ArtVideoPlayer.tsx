@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import Hls from 'hls.js';
 import { EpisodeData, EpisodeServer } from '../../types/movie';
+import { findMatchingEpisode } from '../../utils/episodeUtils';
 import {
   Play,
   Pause,
@@ -1212,18 +1213,18 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         <div className="py-2.5 space-y-2 max-h-60 overflow-y-auto no-scrollbar">
           {episodes.map((server, sIdx) => {
             const isSelected = sIdx === currentServerIndex;
-            const ping = sIdx === 0 ? '88 ms' : sIdx === 1 ? '148 ms' : '251 ms';
-            const pingColor = sIdx === 0 || sIdx === 1 ? 'text-[#22C55E]' : 'text-[#EAB308]';
-            const statusText = sIdx === 0 || sIdx === 1 ? 'Mượt' : 'Ổn';
+            const ping = sIdx === 0 ? '65 ms' : sIdx === 1 ? '92 ms' : sIdx === 2 ? '145 ms' : '210 ms';
+            const pingColor = sIdx <= 1 ? 'text-[#22C55E]' : sIdx === 2 ? 'text-[#22C55E]' : 'text-[#EAB308]';
+            const statusText = sIdx <= 1 ? 'Rất mượt' : sIdx === 2 ? 'Mượt' : 'Dự phòng';
 
             return (
               <div
                 key={sIdx}
                 onClick={() => {
-                  const sameEp =
-                    server.server_data.find((e) => e.slug === currentEpisodeSlug) ||
+                  const targetEp =
+                    findMatchingEpisode(server.server_data, currentEpisodeSlug) ||
                     server.server_data[0];
-                  if (sameEp) onSelectEpisode(sIdx, sameEp);
+                  if (targetEp) onSelectEpisode(sIdx, targetEp);
                   setShowServerMenu(false);
                 }}
                 className={`p-2.5 rounded-xl flex items-center justify-between cursor-pointer transition-all border ${
@@ -1322,18 +1323,18 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
           <div className="py-2.5 space-y-2 max-h-60 overflow-y-auto no-scrollbar">
             {episodes.map((server, sIdx) => {
               const isSelected = sIdx === currentServerIndex;
-              const ping = sIdx === 0 ? '88 ms' : sIdx === 1 ? '148 ms' : '251 ms';
-              const pingColor = sIdx === 0 || sIdx === 1 ? 'text-[#22C55E]' : 'text-[#EAB308]';
-              const statusText = sIdx === 0 || sIdx === 1 ? 'Mượt' : 'Ổn';
+              const ping = sIdx === 0 ? '65 ms' : sIdx === 1 ? '92 ms' : sIdx === 2 ? '145 ms' : '210 ms';
+              const pingColor = sIdx <= 1 ? 'text-[#22C55E]' : sIdx === 2 ? 'text-[#22C55E]' : 'text-[#EAB308]';
+              const statusText = sIdx <= 1 ? 'Rất mượt' : sIdx === 2 ? 'Mượt' : 'Dự phòng';
 
               return (
                 <div
                   key={sIdx}
                   onClick={() => {
-                    const sameEp =
-                      server.server_data.find((e) => e.slug === currentEpisodeSlug) ||
+                    const targetEp =
+                      findMatchingEpisode(server.server_data, currentEpisodeSlug) ||
                       server.server_data[0];
-                    if (sameEp) onSelectEpisode(sIdx, sameEp);
+                    if (targetEp) onSelectEpisode(sIdx, targetEp);
                     setShowServerMenu(false);
                   }}
                   className={`p-2.5 rounded-xl flex items-center justify-between cursor-pointer transition-all border ${

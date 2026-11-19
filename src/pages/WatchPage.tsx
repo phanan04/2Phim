@@ -4,6 +4,7 @@ import { phimApi, getPreferredServerIndex } from '../api/phimApi';
 import { MovieDetail, EpisodeData, MovieItem } from '../types/movie';
 import { ArtVideoPlayer } from '../components/player/ArtVideoPlayer';
 import { storage } from '../utils/storage';
+import { findMatchingEpisode } from '../utils/episodeUtils';
 import { MovieCarousel } from '../components/common/MovieCarousel';
 import { TrailerModal } from '../components/common/TrailerModal';
 import { MovieComments } from '../components/movie/MovieComments';
@@ -628,7 +629,7 @@ export const WatchPage: React.FC = () => {
                       <button
                         key={`${s.server_name}-${idx}`}
                         type="button"
-                        onClick={() => handleSelectEpisode(idx, s.server_data[0] || currentEpisode)}
+                        onClick={() => handleSelectEpisode(idx, findMatchingEpisode(s.server_data, currentEpisode))}
                         className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
                           currentServerIndex === idx
                             ? 'bg-white text-black shadow-sm'
@@ -679,7 +680,7 @@ export const WatchPage: React.FC = () => {
                       <button
                         key={`${s.server_name}-${idx}`}
                         type="button"
-                        onClick={() => handleSelectEpisode(idx, s.server_data[0] || currentEpisode)}
+                        onClick={() => handleSelectEpisode(idx, findMatchingEpisode(s.server_data, currentEpisode))}
                         className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
                           isSelected
                             ? 'bg-white/15 text-white font-bold border border-white/30 shadow-sm'

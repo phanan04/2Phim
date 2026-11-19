@@ -1,7 +1,6 @@
-import { MovieDetail, MovieItem, MovieListResponse, EpisodeServer, EpisodeData } from '../types/movie';
+import { MovieDetail, MovieItem, MovieListResponse, EpisodeServer, EpisodeData, MovieCategory } from '../types/movie';
 
 const PRIMARY_API = 'https://phimapi.com';
-const BACKUP_API = 'https://ophim1.com';
 const NGUONC_API = 'https://phim.nguonc.com/api';
 
 // In-memory cache + SessionStorage for extreme speed and load reduction
@@ -82,6 +81,45 @@ export function getPreferredServerIndex(episodes: EpisodeServer[]): number {
   return pool[0]?.idx ?? 0;
 }
 
+// Chuyển đổi dữ liệu từ NguonC sang MovieDetail nếu PhimAPI không có
+function convertNguonCToMovieDetail(nc: any): MovieDetail {
+  const cats: MovieCategory[] = [];
+  if (nc.category) {
+    Object.values(nc.category).forEach((groupObj: any) => {
+      if (Array.isArray(groupObj?.list)) {
+        groupObj.list.forEach((item: any) => {
+          cats.push({ id: String(item.id || item.slug), name: item.name, slug: item.slug });
+        });
+      }
+    });
+  }
+
+  const actors = typeof nc.casts === 'string' ? nc.casts.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+  const directors = typeof nc.director === 'string' ? [nc.director.trim()] : Array.isArray(nc.director) ? nc.director : [];
+
+  return {
+    _id: String(nc.id || nc.slug),
+    name: nc.name || '',
+    origin_name: nc.original_name || nc.name || '',
+    slug: nc.slug || '',
+    type: parseInt(nc.total_episodes, 10) > 1 ? 'series' : 'single',
+    thumb_url: nc.thumb_url || nc.poster_url || '',
+    poster_url: nc.poster_url || nc.thumb_url || '',
+    time: nc.time || '',
+    episode_current: nc.current_episode || '',
+    episode_total: nc.total_episodes || '',
+    quality: nc.quality || 'FHD',
+    lang: nc.language || 'Vietsub',
+    year: parseInt(nc.year, 10) || new Date().getFullYear(),
+    content: nc.description?.replace(/<[^>]+>/g, '') || '',
+    actor: actors,
+    director: directors,
+    category: cats,
+    country: [],
+    episodes: [],
+  };
+}
+
 export const phimApi = {
   // Phim mới cập nhật (Trang chủ)
   async getNewUpdates(page: number = 1): Promise<{ items: MovieItem[]; pagination: any }> {
@@ -92,59 +130,72 @@ export const phimApi = {
     };
   },
 
-  // Chi tiết phim - Đa nguồn (PhimAPI + NguonC + Multi-CDN Servers)
+  // Chi tiết phim - Đa nguồn dự phòng (PhimAPI chính + NguonC phụ)
   async getMovieDetail(slug: string): Promise<{ movie: MovieDetail; episodes: EpisodeServer[] }> {
-    // 1. Fetch chính từ PhimAPI
-    const primaryData = await fetchWithResilience<any>(`${PRIMARY_API}/phim/${slug}`);
-    if (!primaryData.movie) {
-      throw new Error(primaryData.msg || 'Không tìm thấy phim');
+    // 1. Fetch song song cả PhimAPI (chính) và NguonC (dự phòng)
+    const [primaryResult, nguonCResult] = await Promise.allSettled([
+      fetchWithResilience<any>(`${PRIMARY_API}/phim/${slug}`),
+      fetch(`${NGUONC_API}/film/${slug}`, { signal: AbortSignal.timeout(4500) }).then((r) =>
+        r.ok ? r.json() : null
+      ),
+    ]);
+
+    const primaryData = primaryResult.status === 'fulfilled' ? primaryResult.value : null;
+    const nguonCData = nguonCResult.status === 'fulfilled' ? nguonCResult.value : null;
+
+    if (!primaryData?.movie && !nguonCData?.movie) {
+      throw new Error('Không tìm thấy dữ liệu phim từ các nguồn máy chủ');
     }
 
-    const baseEpisodes: EpisodeServer[] = primaryData.episodes || [];
     const aggregatedServers: EpisodeServer[] = [];
 
-    // Chuẩn hóa server chính từ PhimAPI
+    // Nguồn 1: Server chính từ PhimAPI (HLS siêu tốc m3u8)
+    const baseEpisodes: EpisodeServer[] = primaryData?.episodes || [];
     for (const s of baseEpisodes) {
+      const serverLabel = s.server_name.includes('HLS')
+        ? s.server_name
+        : `${s.server_name} (HLS Siêu Tốc)`;
+
       aggregatedServers.push({
-        server_name: s.server_name.includes('HLS') ? s.server_name : `${s.server_name} (HLS Siêu Tốc)`,
+        server_name: serverLabel,
         server_data: s.server_data,
       });
     }
 
-    // 2. Fetch dự phòng từ NguonC nếu có
-    try {
-      const nguonCRes = await fetch(`${NGUONC_API}/film/${slug}`, { signal: AbortSignal.timeout(4000) });
-      if (nguonCRes.ok) {
-        const nguonCData = await nguonCRes.json();
-        if (nguonCData.status === 'success' && nguonCData.movie?.episodes?.length > 0) {
-          for (const s of nguonCData.movie.episodes) {
-            const serverLabel = `Nguồn C (${s.server_name || 'Vietsub'})`;
-            const epItems: EpisodeData[] = (s.items || []).map((it: any) => ({
-              name: String(it.name).startsWith('Tập') ? String(it.name) : `Tập ${it.name}`,
-              slug: String(it.slug),
-              filename: String(it.name),
-              link_embed: it.embed || '',
-              link_m3u8: it.m3u8 || '',
-            }));
+    // Nguồn 2: Server dự phòng từ NguonC (StreamC embed & backup)
+    if (nguonCData?.status === 'success' && nguonCData.movie?.episodes?.length > 0) {
+      for (const s of nguonCData.movie.episodes) {
+        const epItems: EpisodeData[] = (s.items || []).map((it: any) => {
+          const rawName = String(it.name || '').trim();
+          const isFull = rawName.toLowerCase() === 'full';
+          const epName = isFull || rawName.toLowerCase().startsWith('tập') ? rawName : `Tập ${rawName}`;
+          return {
+            name: epName,
+            slug: String(it.slug || (isFull ? 'tap-full' : `tap-${rawName}`)),
+            filename: String(it.name || ''),
+            link_embed: it.embed || '',
+            link_m3u8: it.m3u8 || '',
+          };
+        });
 
-            // Chỉ thêm Nguồn C nếu có luồng m3u8 hoặc server chính chưa có tập nào
-            const hasM3u8 = epItems.some((e) => e.link_m3u8 && e.link_m3u8.trim() !== '');
-            if (epItems.length > 0 && (hasM3u8 || baseEpisodes.length === 0)) {
-              aggregatedServers.push({
-                server_name: serverLabel,
-                server_data: epItems,
-              });
-            }
-          }
+        if (epItems.length > 0) {
+          const label = aggregatedServers.length > 0
+            ? `Dự phòng Nguồn C (${s.server_name || 'Vietsub'})`
+            : `${s.server_name || 'Vietsub'} (Nguồn C)`;
+
+          aggregatedServers.push({
+            server_name: label,
+            server_data: epItems,
+          });
         }
       }
-    } catch {
-      // Bỏ qua nếu Nguồn C không có
     }
+
+    const baseMovie = primaryData?.movie || convertNguonCToMovieDetail(nguonCData.movie);
 
     return {
       movie: {
-        ...primaryData.movie,
+        ...baseMovie,
         episodes: aggregatedServers,
       },
       episodes: aggregatedServers,
