@@ -86,7 +86,7 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
       onMouseLeave={() => setIsPaused(false)}
     >
       {/* 1. Edge-to-Edge High-Res Backdrop with Smooth 700ms Cross-Fade Stack */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden z-0 pointer-events-none">
         {displayMovies.map((movie, idx) => {
           const isActive = idx === currentIndex;
           const bgUrl = getImageUrl(movie.thumb_url || movie.poster_url, cdnImage);
@@ -114,8 +114,8 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({ movies, cdnImage }) => {
       </div>
 
       {/* 2. Hero Content Container */}
-      <div className="absolute inset-0 px-4 sm:px-8 lg:px-12 pt-28 pb-10 flex flex-col justify-end">
-        <div className="max-w-[1520px] w-full mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+      <div className="absolute inset-0 z-30 px-4 sm:px-8 lg:px-12 pt-28 pb-10 flex flex-col justify-end pointer-events-none">
+        <div className="max-w-[1520px] w-full mx-auto flex flex-col lg:flex-row lg:items-end justify-between gap-8 pointer-events-auto">
           
           {/* Left Editorial Info & Pure White Actions */}
           <div className="max-w-2xl space-y-4">
