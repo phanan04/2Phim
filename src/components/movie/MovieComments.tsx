@@ -16,9 +16,10 @@ export interface Comment {
 interface MovieCommentsProps {
   movieSlug: string;
   movieName: string;
+  hideHeader?: boolean;
 }
 
-export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieName }) => {
+export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieName, hideHeader = false }) => {
   const { user, isAuthenticated, openAuthModal } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newContent, setNewContent] = useState('');
@@ -86,27 +87,29 @@ export const MovieComments: React.FC<MovieCommentsProps> = ({ movieSlug, movieNa
   return (
     <div className="space-y-5">
       {/* 1. Header (Đồng bộ chủ đề Obsidian & White Glass) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
-        <div className="flex items-center gap-2">
-          <span className="w-1 h-4 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
-          <h2 className="text-base font-bold text-white uppercase tracking-wide">
-            Bình Luận & Đánh Giá
-          </h2>
-          <span className="text-xs text-white/50 font-medium">({comments.length})</span>
-        </div>
-
-        {comments.length > 0 && (
-          <div className="flex items-center gap-2 text-xs">
-            <div className="flex items-center text-white/90">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="w-3.5 h-3.5 fill-current" />
-              ))}
-            </div>
-            <span className="font-bold text-white">{avgRating}</span>
-            <span className="text-white/40">/ 5.0</span>
+      {!hideHeader && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
+          <div className="flex items-center gap-2">
+            <span className="w-1 h-4 rounded-sm bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+            <h2 className="text-base font-bold text-white uppercase tracking-wide">
+              Bình Luận & Đánh Giá
+            </h2>
+            <span className="text-xs text-white/50 font-medium">({comments.length})</span>
           </div>
-        )}
-      </div>
+
+          {comments.length > 0 && (
+            <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center text-white/90">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className="w-3.5 h-3.5 fill-current" />
+                ))}
+              </div>
+              <span className="font-bold text-white">{avgRating}</span>
+              <span className="text-white/40">/ 5.0</span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 2. Post Comment Form */}
       <form onSubmit={handleSubmit} className="space-y-3">

@@ -836,7 +836,7 @@ export const WatchPage: React.FC = () => {
 
           {showComments ? (
             <div className="pt-2 animate-in fade-in duration-300">
-              <MovieComments movieSlug={movie.slug} movieName={movie.name} />
+              <MovieComments movieSlug={movie.slug} movieName={movie.name} hideHeader />
             </div>
           ) : (
             <button
