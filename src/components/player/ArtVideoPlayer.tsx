@@ -512,6 +512,9 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         enableWorker: true,
         lowLatencyMode: false,
         backBufferLength: 90,
+        maxBufferLength: 60,
+        maxMaxBufferLength: 120,
+        capLevelToPlayerSize: false, // Luôn ưu tiên 1080p Full HD cao nhất, không bị bóp theo kích thước màn hình
       });
       hls.loadSource(m3u8Url);
       hls.attachMedia(video);
