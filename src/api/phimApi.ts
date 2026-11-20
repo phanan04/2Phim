@@ -125,6 +125,16 @@ function convertNguonCToMovieDetail(nc: any): MovieDetail {
   };
 }
 
+export interface MovieFilterOptions {
+  type?: string;
+  category?: string;
+  country?: string;
+  year?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
+
 export const phimApi = {
   // Phim mới cập nhật (Trang chủ)
   async getNewUpdates(page: number = 1): Promise<{ items: MovieItem[]; pagination: any }> {
@@ -236,6 +246,54 @@ export const phimApi = {
     );
 
     const d = data.data;
+    return {
+      title: d?.titlePage || 'Danh sách phim',
+      items: d?.items || [],
+      pagination: d?.params?.pagination,
+      cdnImage: d?.APP_DOMAIN_CDN_IMAGE || 'https://phimimg.com',
+    };
+  },
+
+  // Lấy danh sách phim Khám Phá với đầy đủ bộ lọc phía máy chủ (Server-Side Filtering)
+  async getExploreMovies(options: MovieFilterOptions): Promise<{
+    title: string;
+    items: MovieItem[];
+    pagination: any;
+    cdnImage: string;
+  }> {
+    const page = options.page || 1;
+    const limit = options.limit || 24;
+
+    let base = `${PRIMARY_API}/v1/api/danh-sach/phim-moi-cap-nhat`;
+    if (options.type && options.type !== 'all') {
+      base = `${PRIMARY_API}/v1/api/danh-sach/${options.type}`;
+    } else if (options.category && options.category !== 'all') {
+      base = `${PRIMARY_API}/v1/api/the-loai/${options.category}`;
+    } else if (options.country && options.country !== 'all') {
+      base = `${PRIMARY_API}/v1/api/quoc-gia/${options.country}`;
+    }
+
+    const query = new URLSearchParams();
+    query.set('page', String(page));
+    query.set('limit', String(limit));
+
+    if (options.category && options.category !== 'all' && !base.includes('/the-loai/')) {
+      query.set('category', options.category);
+    }
+    if (options.country && options.country !== 'all' && !base.includes('/quoc-gia/')) {
+      query.set('country', options.country);
+    }
+    if (options.year && options.year !== 'all') {
+      query.set('year', options.year);
+    }
+    if (options.sort === 'year') {
+      query.set('sort_field', 'year');
+      query.set('sort_type', 'desc');
+    }
+
+    const data = await fetchWithResilience<MovieListResponse>(`${base}?${query.toString()}`);
+    const d = data.data;
+
     return {
       title: d?.titlePage || 'Danh sách phim',
       items: d?.items || [],

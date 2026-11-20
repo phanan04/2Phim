@@ -28,7 +28,9 @@ export const YEARS = [
   { label: '2020', value: '2020' },
   { label: '2019', value: '2019' },
   { label: '2018', value: '2018' },
-  { label: 'Trước 2018', value: 'truoc-2018' },
+  { label: '2017', value: '2017' },
+  { label: '2016', value: '2016' },
+  { label: '2015', value: '2015' },
 ];
 
 export const SORT_OPTIONS = [
@@ -61,6 +63,11 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
     totalItems: 0,
     totalItemsPerPage: 24,
   });
+  const [jumpPageInput, setJumpPageInput] = useState(activePage.toString());
+
+  useEffect(() => {
+    setJumpPageInput(activePage.toString());
+  }, [activePage]);
 
   // Section meta information
   const sectionMeta = useMemo(() => {
@@ -138,60 +145,24 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
 
     async function fetchMovies() {
       try {
-        let res;
-        // Smart routing to API based on primary selected filter
-        if (activeCategory !== 'all') {
-          res = await phimApi.getMoviesByCategory(activeCategory, activePage, 24);
-        } else if (activeCountry !== 'all') {
-          res = await phimApi.getMoviesByCountry(activeCountry, activePage, 24);
-        } else if (activeType !== 'all') {
-          res = await phimApi.getMoviesByType(activeType, activePage, 24);
-        } else {
-          const raw = await phimApi.getNewUpdates(activePage);
-          res = {
-            items: raw.items,
-            cdnImage: 'https://phimimg.com',
-            pagination: raw.pagination || {
-              currentPage: activePage,
-              totalPages: 50,
-              totalItems: 1200,
-              totalItemsPerPage: 24,
-            },
-          };
-        }
+        // Gọi API với đầy đủ các bộ lọc phía máy chủ (Server-Side Filtering)
+        // Đảm bảo mỗi trang luôn tải đủ số phim đồng đều, không bị lọc thiếu ở client
+        const res = await phimApi.getExploreMovies({
+          type: activeType,
+          category: activeCategory,
+          country: activeCountry,
+          year: activeYear,
+          sort: activeSort,
+          page: activePage,
+          limit: 24,
+        });
 
         if (!isMounted) return;
 
         let items = res.items || [];
 
-        // Secondary client-side filters
-        if (activeType !== 'all' && activeCategory !== 'all') {
-          items = items.filter((m) => {
-            if (activeType === 'phim-chieu-rap') return m.chieurap;
-            if (activeType === 'phim-bo') return m.type === 'series';
-            if (activeType === 'phim-le') return m.type === 'single';
-            if (activeType === 'hoat-hinh') return m.type === 'hoathinh';
-            return true;
-          });
-        }
-
-        if (activeCountry !== 'all' && activeCategory !== 'all') {
-          items = items.filter((m) =>
-            m.country?.some((c) => c.slug === activeCountry)
-          );
-        }
-
-        if (activeYear !== 'all') {
-          if (activeYear === 'truoc-2018') {
-            items = items.filter((m) => (m.year || 0) < 2018);
-          } else {
-            items = items.filter((m) => String(m.year) === activeYear);
-          }
-        }
-
-        if (activeSort === 'year') {
-          items = [...items].sort((a, b) => (b.year || 0) - (a.year || 0));
-        } else if (activeSort === 'rating') {
+        // Nếu người dùng chọn sắp xếp đánh giá cao
+        if (activeSort === 'rating') {
           items = [...items].sort(
             (a, b) =>
               (b.tmdb?.vote_average || b.imdb?.vote_average || 0) -
@@ -424,65 +395,132 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
 
       {/* 4. PAGINATION CONTROLS */}
       {!loading && movies.length > 0 && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-8">
-          <button
-            type="button"
-            onClick={() => handlePageChange(Math.max(1, activePage - 1))}
-            disabled={activePage <= 1}
-            className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
-              activePage <= 1
-                ? 'opacity-30 cursor-not-allowed bg-white/5 text-white/40'
-                : 'bg-white/10 hover:bg-white/20 text-white'
-            }`}
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Trang trước</span>
-          </button>
-
-          <div className="flex items-center gap-1 text-xs font-semibold">
-            {Array.from({ length: Math.min(5, pagination.totalPages) }).map((_, i) => {
-              let pageNum: number;
-              if (pagination.totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (activePage <= 3) {
-                pageNum = i + 1;
-              } else if (activePage >= pagination.totalPages - 2) {
-                pageNum = pagination.totalPages - 4 + i;
-              } else {
-                pageNum = activePage - 2 + i;
-              }
-
-              const isCurrent = pageNum === activePage;
-              return (
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-8 select-none">
+          <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap justify-center">
+            {/* Về trang đầu (1) nếu trang hiện tại > 3 */}
+            {activePage > 3 && (
+              <>
                 <button
-                  key={pageNum}
                   type="button"
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`w-9 h-9 rounded-lg transition-colors cursor-pointer ${
-                    isCurrent
-                      ? 'bg-white text-black font-bold shadow-sm'
-                      : 'bg-white/5 hover:bg-white/15 text-white/80'
-                  }`}
+                  onClick={() => handlePageChange(1)}
+                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-colors cursor-pointer flex items-center justify-center text-xs font-bold"
+                  title="Trang đầu (1)"
                 >
-                  {pageNum}
+                  1
                 </button>
-              );
-            })}
+                {activePage > 4 && <span className="text-white/40 px-0.5 text-xs">...</span>}
+              </>
+            )}
+
+            {/* Nút Trang trước */}
+            <button
+              type="button"
+              onClick={() => handlePageChange(Math.max(1, activePage - 1))}
+              disabled={activePage <= 1}
+              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+                activePage <= 1
+                  ? 'opacity-30 cursor-not-allowed bg-white/5 text-white/40'
+                  : 'bg-white/10 hover:bg-white/20 text-white'
+              }`}
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Trước</span>
+            </button>
+
+            {/* Các nút số trang */}
+            <div className="flex items-center gap-1 text-xs font-semibold">
+              {Array.from({ length: Math.min(5, pagination.totalPages) }).map((_, i) => {
+                let pageNum: number;
+                if (pagination.totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (activePage <= 3) {
+                  pageNum = i + 1;
+                } else if (activePage >= pagination.totalPages - 2) {
+                  pageNum = pagination.totalPages - 4 + i;
+                } else {
+                  pageNum = activePage - 2 + i;
+                }
+
+                if (pageNum < 1 || pageNum > pagination.totalPages) return null;
+
+                const isCurrent = pageNum === activePage;
+                return (
+                  <button
+                    key={pageNum}
+                    type="button"
+                    onClick={() => handlePageChange(pageNum)}
+                    className={`w-9 h-9 rounded-lg transition-colors cursor-pointer ${
+                      isCurrent
+                        ? 'bg-[#FECF59] text-black font-extrabold shadow-md'
+                        : 'bg-white/5 hover:bg-white/15 text-white/80'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Nút Trang sau */}
+            <button
+              type="button"
+              onClick={() => handlePageChange(Math.min(pagination.totalPages, activePage + 1))}
+              disabled={activePage >= pagination.totalPages}
+              className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
+                activePage >= pagination.totalPages
+                  ? 'opacity-30 cursor-not-allowed bg-white/5 text-white/40'
+                  : 'bg-white/10 hover:bg-white/20 text-white'
+              }`}
+            >
+              <span className="hidden sm:inline">Sau</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Đến trang cuối nếu còn xa trang cuối */}
+            {activePage < pagination.totalPages - 2 && (
+              <>
+                {activePage < pagination.totalPages - 3 && <span className="text-white/40 px-0.5 text-xs">...</span>}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(pagination.totalPages)}
+                  className="w-9 h-9 rounded-lg bg-white/5 hover:bg-white/15 text-white/70 hover:text-white transition-colors cursor-pointer flex items-center justify-center text-xs font-bold"
+                  title={`Trang cuối (${pagination.totalPages})`}
+                >
+                  {pagination.totalPages}
+                </button>
+              </>
+            )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => handlePageChange(Math.min(pagination.totalPages, activePage + 1))}
-            disabled={activePage >= pagination.totalPages}
-            className={`px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer ${
-              activePage >= pagination.totalPages
-                ? 'opacity-30 cursor-not-allowed bg-white/5 text-white/40'
-                : 'bg-white/10 hover:bg-white/20 text-white'
-            }`}
+          {/* Ô nhập trực tiếp trang muốn tới */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const target = parseInt(jumpPageInput, 10);
+              if (!isNaN(target) && target >= 1 && target <= pagination.totalPages) {
+                handlePageChange(target);
+              }
+            }}
+            className="flex items-center gap-1.5 bg-white/[0.04] border border-white/10 px-3 py-1.5 rounded-xl text-xs shrink-0"
           >
-            <span>Trang sau</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+            <span className="text-white/60 text-xs">Đến trang:</span>
+            <input
+              type="number"
+              min={1}
+              max={pagination.totalPages}
+              value={jumpPageInput}
+              onChange={(e) => setJumpPageInput(e.target.value)}
+              placeholder={activePage.toString()}
+              className="w-14 h-8 text-center rounded-lg bg-black/50 border border-white/15 text-white font-bold text-xs focus:outline-none focus:border-[#FECF59] transition-all"
+            />
+            <span className="text-white/40 text-xs">/ {pagination.totalPages}</span>
+            <button
+              type="submit"
+              className="px-3 h-8 rounded-lg bg-[#FECF59] hover:bg-[#FECF59]/90 text-black font-bold text-xs transition-colors cursor-pointer active:scale-95"
+            >
+              Đi
+            </button>
+          </form>
         </div>
       )}
     </div>
