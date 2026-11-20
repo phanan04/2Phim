@@ -119,11 +119,10 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     }
   }, [isFullscreen, isMobile]);
 
-  // Popups state (Image 2, 3, 4 + Image 3 Episode Drawer)
+  // Popups state
   const [showServerMenu, setShowServerMenu] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [settingsTab, setSettingsTab] = useState<'main' | 'quality' | 'speed'>('main');
-  const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
   const [showEpisodeDrawer, setShowEpisodeDrawer] = useState(false);
 
   // Mobile double tap animation
@@ -418,7 +417,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   const isControlsBarVisible =
     !isEmbed &&
     !is2xSpeedActive &&
-    (controlsVisible || showServerMenu || showSettingsMenu || showSubtitleMenu || showEpisodeDrawer);
+    (controlsVisible || showServerMenu || showSettingsMenu || showEpisodeDrawer);
 
   const resetControlsTimer = useCallback(() => {
     setControlsVisible(true);
@@ -427,14 +426,13 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       isPlaying &&
       !showServerMenu &&
       !showSettingsMenu &&
-      !showSubtitleMenu &&
       !showEpisodeDrawer
     ) {
       controlsTimeoutRef.current = setTimeout(() => {
         setControlsVisible(false);
       }, 3500);
     }
-  }, [isPlaying, showServerMenu, showSettingsMenu, showSubtitleMenu, showEpisodeDrawer]);
+  }, [isPlaying, showServerMenu, showSettingsMenu, showEpisodeDrawer]);
 
   const handleMouseMove = () => {
     // Không chạy trên thiết bị cảm ứng để tránh chuột ảo ghi đè
@@ -454,7 +452,6 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
       ) {
         setShowServerMenu(false);
         setShowSettingsMenu(false);
-        setShowSubtitleMenu(false);
         setShowEpisodeDrawer(false);
       }
     };
@@ -665,7 +662,6 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
           if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
           setShowServerMenu(false);
           setShowSettingsMenu(false);
-          setShowSubtitleMenu(false);
           setShowEpisodeDrawer(false);
         }
         return next;
@@ -857,7 +853,6 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         case 'Escape':
           setShowServerMenu(false);
           setShowSettingsMenu(false);
-          setShowSubtitleMenu(false);
           setShowEpisodeDrawer(false);
           break;
         default:
@@ -885,7 +880,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         isFullscreen
           ? '!fixed !inset-0 !z-[9999999] !w-screen !h-screen !max-w-none !max-h-none !rounded-none !border-none !aspect-auto !m-0 !p-0 overflow-hidden'
           : `relative aspect-video rounded-none sm:rounded-xl shadow-2xl border-0 sm:border sm:border-white/10 group ${
-              showSettingsMenu || showServerMenu || showSubtitleMenu ? 'overflow-visible' : 'overflow-hidden'
+              showSettingsMenu || showServerMenu ? 'overflow-visible' : 'overflow-hidden'
             }`
       }`}
     >
@@ -1065,7 +1060,6 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
               setShowEpisodeDrawer((prev) => !prev);
               setShowServerMenu(false);
               setShowSettingsMenu(false);
-              setShowSubtitleMenu(false);
             }}
             className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center border backdrop-blur-md transition-all shadow-lg cursor-pointer ${
               showEpisodeDrawer
@@ -1396,97 +1390,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
         </div>
       )}
 
-      {/* ========================================================
-          POPUP PHỤ ĐỀ (SUBTITLES CC DROPDOWN)
-          Floating Popover nhỏ gọn đồng nhất cho cả Mobile & PC
-          Chỉ giữ lại những gì thật sự hoạt động và chuẩn xác
-          ======================================================== */}
-      {showSubtitleMenu && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          className="player-floating-panel absolute bottom-14 sm:bottom-16 right-2 sm:right-28 w-[280px] sm:w-80 max-w-[calc(100%-1rem)] max-h-[calc(100%-4.5rem)] overflow-y-auto no-scrollbar rounded-2xl bg-[#1C1B20]/95 backdrop-blur-xl p-3.5 sm:p-4 z-50 shadow-2xl border border-white/10 animate-in fade-in zoom-in-95 duration-150 text-white select-none"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-white/10">
-            <div className="flex items-center gap-2">
-              <div className="border-[1.8px] border-white/80 rounded px-1 py-0.5 text-[10px] font-black leading-none">
-                CC
-              </div>
-              <h3 className="font-bold text-white text-sm sm:text-base">Phụ đề & Thuyết minh</h3>
-            </div>
 
-            <button
-              type="button"
-              onClick={() => setShowSubtitleMenu(false)}
-              className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors cursor-pointer"
-              title="Đóng"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="py-2.5 space-y-3">
-            {/* Status Card: Hardsub notice */}
-            <div className="p-3 rounded-xl bg-white/[0.04] border border-white/10 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Check className="w-3.5 h-3.5 text-[#22C55E]" />
-                  Phụ đề Tiếng Việt
-                </span>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#FECF59]/20 text-[#FECF59]">
-                  Mặc định
-                </span>
-              </div>
-              <p className="text-[11px] text-white/60 leading-relaxed">
-                Phim có sẵn phụ đề Tiếng Việt chuẩn (hardsub) in trực tiếp trong luồng video với độ nét cao nhất.
-              </p>
-            </div>
-
-            {/* Quick Switch to Voiceover/Dubbed or other server if available */}
-            {episodes.length > 1 && (
-              <div className="space-y-1.5">
-                <span className="text-[11px] font-semibold text-white/50 block">Phiên bản / Máy chủ khác:</span>
-                <div className="space-y-1.5">
-                  {episodes.map((s, idx) => {
-                    if (idx === currentServerIndex) return null;
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          const targetEp = findMatchingEpisode(s.server_data, currentEpisodeSlug) || s.server_data[0];
-                          if (targetEp) onSelectEpisode(idx, targetEp);
-                          setShowSubtitleMenu(false);
-                        }}
-                        className="w-full p-2.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 flex items-center justify-between text-left transition-colors cursor-pointer"
-                      >
-                        <span className="text-xs font-bold text-white truncate">
-                          Chuyển sang: <span className="text-[#FECF59]">{s.server_name}</span>
-                        </span>
-                        <ChevronRight className="w-3.5 h-3.5 text-white/50 shrink-0 ml-1" />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Quick button to open all servers */}
-            <button
-              type="button"
-              onClick={() => {
-                setShowSubtitleMenu(false);
-                setShowServerMenu(true);
-              }}
-              className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white/90 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-            >
-              <span>Xem danh sách tất cả máy chủ ({episodes.length})</span>
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ========================================================
           SUBTITLES OVERLAY (SAFE CLEARANCE ABOVE CONTROLS)
@@ -1711,44 +1615,17 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
             {/* Subtle Divider | */}
             <div className="hidden sm:block w-[1px] h-4 bg-white/20 mx-0.5" />
 
-            {/* 2. CC Button (Always visible on mobile & desktop) */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowSubtitleMenu((prev) => !prev);
-                setShowServerMenu(false);
-                setShowSettingsMenu(false);
-                setShowEpisodeDrawer(false);
-              }}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchEnd={(e) => e.stopPropagation()}
-              className={`player-toggle-btn w-8 h-8 sm:w-9 sm:h-9 rounded-full flex flex-col items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
-                showSubtitleMenu || subtitleMode !== 'off'
-                  ? 'text-white'
-                  : 'text-white/85 hover:text-white'
-              }`}
-              title="Cài đặt Phụ đề (CC)"
-            >
-              <div className="border-[1.8px] border-current rounded-[3px] px-1 py-[0.5px] text-[10px] font-black leading-tight">
-                CC
-              </div>
-              {subtitleMode !== 'off' && (
-                <div className="w-3 h-[2px] bg-white rounded-full mt-[2px]" />
-              )}
-            </button>
-
-            {/* Server Button: Router box with signal (Desktop) */}
+            {/* Server Button: Router box with signal (Hiển thị cả Mobile & Desktop) */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowServerMenu((prev) => !prev);
                 setShowSettingsMenu(false);
-                setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
               onMouseDown={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}
-              className={`player-toggle-btn hidden md:flex w-8 h-8 sm:w-9 sm:h-9 rounded-full items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
+              className={`player-toggle-btn flex w-8 h-8 sm:w-9 sm:h-9 rounded-full items-center justify-center hover:bg-white/10 transition-colors cursor-pointer ${
                 showServerMenu ? 'text-white' : 'text-white/85 hover:text-white'
               }`}
               title="Đổi Máy chủ (Server)"
@@ -1794,7 +1671,6 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
                 setShowSettingsMenu((prev) => !prev);
                 setSettingsTab('main');
                 setShowServerMenu(false);
-                setShowSubtitleMenu(false);
                 setShowEpisodeDrawer(false);
               }}
               onMouseDown={(e) => e.stopPropagation()}

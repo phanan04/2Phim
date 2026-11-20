@@ -5,6 +5,13 @@ import { MovieItem, PaginationData } from '../types/movie';
 import { MovieCard } from '../components/common/MovieCard';
 import { SkeletonCard } from '../components/common/SkeletonCard';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+import {
   RotateCcw,
   ChevronLeft,
   ChevronRight,
@@ -234,20 +241,22 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
             <label className="text-[11px] font-bold uppercase tracking-wider text-white/50 block">
               Thể Loại
             </label>
-            <select
+            <Select
               value={activeCategory}
-              onChange={(e) => updateFilter('category', e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#111116] hover:bg-[#16161c] border border-white/12 hover:border-white/25 focus:border-white/50 text-xs font-semibold text-white transition-colors cursor-pointer focus:outline-none"
+              onValueChange={(val) => updateFilter('category', val)}
             >
-              <option value="all" className="bg-[#141419] text-white">
-                Tất cả thể loại
-              </option>
-              {CATEGORIES.map((cat) => (
-                <option key={cat.slug} value={cat.slug} className="bg-[#141419] text-white">
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-10 bg-[#111116] hover:bg-[#16161c] border-white/12 hover:border-white/25">
+                <SelectValue placeholder="Tất cả thể loại" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả thể loại</SelectItem>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat.slug} value={cat.slug}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Cột 2: Quốc Gia */}
@@ -255,20 +264,22 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
             <label className="text-[11px] font-bold uppercase tracking-wider text-white/50 block">
               Quốc Gia
             </label>
-            <select
+            <Select
               value={activeCountry}
-              onChange={(e) => updateFilter('country', e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#111116] hover:bg-[#16161c] border border-white/12 hover:border-white/25 focus:border-white/50 text-xs font-semibold text-white transition-colors cursor-pointer focus:outline-none"
+              onValueChange={(val) => updateFilter('country', val)}
             >
-              <option value="all" className="bg-[#141419] text-white">
-                Tất cả quốc gia
-              </option>
-              {COUNTRIES.map((ct) => (
-                <option key={ct.slug} value={ct.slug} className="bg-[#141419] text-white">
-                  {ct.name}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-10 bg-[#111116] hover:bg-[#16161c] border-white/12 hover:border-white/25">
+                <SelectValue placeholder="Tất cả quốc gia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tất cả quốc gia</SelectItem>
+                {COUNTRIES.map((ct) => (
+                  <SelectItem key={ct.slug} value={ct.slug}>
+                    {ct.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Cột 3: Năm Phát Hành */}
@@ -276,17 +287,21 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
             <label className="text-[11px] font-bold uppercase tracking-wider text-white/50 block">
               Năm Phát Hành
             </label>
-            <select
+            <Select
               value={activeYear}
-              onChange={(e) => updateFilter('year', e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#111116] hover:bg-[#16161c] border border-white/12 hover:border-white/25 focus:border-white/50 text-xs font-semibold text-white transition-colors cursor-pointer focus:outline-none"
+              onValueChange={(val) => updateFilter('year', val)}
             >
-              {YEARS.map((y) => (
-                <option key={y.value} value={y.value} className="bg-[#141419] text-white">
-                  {y.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-10 bg-[#111116] hover:bg-[#16161c] border-white/12 hover:border-white/25">
+                <SelectValue placeholder="Tất cả năm" />
+              </SelectTrigger>
+              <SelectContent>
+                {YEARS.map((y) => (
+                  <SelectItem key={y.value} value={y.value}>
+                    {y.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Cột 4: Sắp Xếp Theo */}
@@ -294,17 +309,21 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ sectionType }) => {
             <label className="text-[11px] font-bold uppercase tracking-wider text-white/50 block">
               Sắp Xếp Theo
             </label>
-            <select
+            <Select
               value={activeSort}
-              onChange={(e) => updateFilter('sort', e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#111116] hover:bg-[#16161c] border border-white/12 hover:border-white/25 focus:border-white/50 text-xs font-semibold text-white transition-colors cursor-pointer focus:outline-none"
+              onValueChange={(val) => updateFilter('sort', val)}
             >
-              {SORT_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value} className="bg-[#141419] text-white">
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full h-10 bg-[#111116] hover:bg-[#16161c] border-white/12 hover:border-white/25">
+                <SelectValue placeholder="Sắp xếp" />
+              </SelectTrigger>
+              <SelectContent>
+                {SORT_OPTIONS.map((s) => (
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

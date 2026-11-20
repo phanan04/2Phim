@@ -22,6 +22,13 @@ import {
 import { LiveSearchModal } from '../search/LiveSearchModal';
 import { useAuth } from '../../context/AuthContext';
 import { CATEGORIES, COUNTRIES } from '../../api/phimApi';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
 interface HeaderProps {
   isScrolled?: boolean;
@@ -417,73 +424,68 @@ export const Header: React.FC<HeaderProps> = ({ isScrolled = false }) => {
 
             {/* User Profile Dropdown or Login CTA (Chỉ Icon, không chữ theo yêu cầu User) */}
             {isAuthenticated && user ? (
-              <div className="relative user-dropdown-container">
-                <button
-                  type="button"
-                  onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                  className="w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center cursor-pointer transition-all shadow-sm"
-                  title={user.name}
-                >
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover ring-1 ring-white/30"
-                  />
-                </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className="w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center cursor-pointer transition-all shadow-sm focus:outline-none focus:ring-1 focus:ring-white/30"
+                    title={user.name}
+                  >
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-6 h-6 sm:w-7 sm:h-7 rounded-full object-cover ring-1 ring-white/30"
+                    />
+                  </button>
+                </DropdownMenuTrigger>
 
-                {isUserDropdownOpen && (
-                  <div className="absolute top-full right-0 pt-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                    <div className="w-64 p-3.5 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl space-y-2 border border-white/20 shadow-2xl">
-                      <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
-                        <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-white truncate">{user.name}</p>
-                          {user.isVip ? (
-                            <span className="px-2 py-0.5 rounded-full bg-white text-black text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
-                              <Crown className="w-2.5 h-2.5 fill-current" /> VIP
-                            </span>
-                          ) : (
-                            <span className="text-[10px] text-white/50">Thường</span>
-                          )}
-                        </div>
-                        <p className="text-[10px] text-white/60 truncate mt-0.5">{user.email}</p>
-                      </div>
-
-                      <div className="space-y-1">
-                        <Link
-                          to="/yeu-thich"
-                          onClick={() => setIsUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                        >
-                          <Bookmark className="w-3.5 h-3.5 text-white/70" />
-                          <span>Phim đã lưu</span>
-                        </Link>
-                        <Link
-                          to="/lich-su"
-                          onClick={() => setIsUserDropdownOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all"
-                        >
-                          <History className="w-3.5 h-3.5 text-white/70" />
-                          <span>Lịch sử xem</span>
-                        </Link>
-                      </div>
-
-                      <div className="pt-2 border-t border-white/10">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            logout();
-                            setIsUserDropdownOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
-                        >
-                          <LogOut className="w-3.5 h-3.5" />
-                          <span>Đăng xuất</span>
-                        </button>
-                      </div>
+                <DropdownMenuContent align="end" className="w-64 p-2.5 rounded-2xl bg-[#141419]/95 backdrop-blur-2xl border border-white/20 shadow-2xl">
+                  {/* User info header */}
+                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/10 mb-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-bold text-white truncate">{user.name}</p>
+                      {user.isVip ? (
+                        <span className="px-2 py-0.5 rounded-full bg-white text-black text-[9px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                          <Crown className="w-2.5 h-2.5 fill-current" /> VIP
+                        </span>
+                      ) : (
+                        <span className="text-[10px] text-white/50">Thường</span>
+                      )}
                     </div>
+                    <p className="text-[10px] text-white/60 truncate mt-0.5">{user.email}</p>
                   </div>
-                )}
-              </div>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/yeu-thich"
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+                    >
+                      <Bookmark className="w-3.5 h-3.5 text-white/70" />
+                      <span>Phim đã lưu</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/lich-su"
+                      className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-white/80 hover:text-white hover:bg-white/10 rounded-xl transition-all cursor-pointer"
+                    >
+                      <History className="w-3.5 h-3.5 text-white/70" />
+                      <span>Lịch sử xem</span>
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="my-1.5 bg-white/10" />
+
+                  <DropdownMenuItem
+                    onClick={() => logout()}
+                    className="flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer focus:text-red-300 focus:bg-red-500/10"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <button
                 type="button"
