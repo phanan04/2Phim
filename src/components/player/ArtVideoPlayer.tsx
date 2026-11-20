@@ -673,7 +673,7 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     }, 280);
   };
 
-  // Kích hoạt tốc độ tua 2x khi ấn giữ bên phải màn hình (Chuẩn YouTube)
+  // Kích hoạt tốc độ tua 2x khi ấn giữ toàn màn hình
   const start2xSpeed = useCallback(() => {
     if (!videoRef.current) return;
     is2xTriggeredRef.current = true;
@@ -709,20 +709,15 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
   const handleVideoTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     const touch = e.touches[0];
     if (!touch) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
 
     touchStartPosRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
     is2xTriggeredRef.current = false;
 
-    // Chuẩn YouTube: Ấn giữ ở nửa bên phải màn hình (x > rect.width * 0.48) sẽ kích hoạt tua 2x
-    if (x > rect.width * 0.48) {
-      if (longPress2xTimeoutRef.current) clearTimeout(longPress2xTimeoutRef.current);
-      longPress2xTimeoutRef.current = setTimeout(() => {
-        start2xSpeed();
-      }, 350);
-    }
+    // Ấn giữ bất kỳ vị trí nào trên toàn màn hình sẽ kích hoạt tua 2x
+    if (longPress2xTimeoutRef.current) clearTimeout(longPress2xTimeoutRef.current);
+    longPress2xTimeoutRef.current = setTimeout(() => {
+      start2xSpeed();
+    }, 350);
   };
 
   const handleVideoTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
@@ -755,17 +750,13 @@ export const ArtVideoPlayer: React.FC<ArtVideoPlayerProps> = ({
     stop2xSpeed();
   };
 
-  // Hỗ trợ chuột trên Desktop & Giả lập Mobile DevTools: Nhấn giữ chuột bên phải để tua 2x
-  const handleVideoMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Hỗ trợ chuột trên Desktop & Giả lập Mobile DevTools: Nhấn giữ chuột bất kỳ vị trí nào trên màn hình để tua 2x
+  const handleVideoMouseDown = () => {
     if (Date.now() - lastTouchTimeRef.current < 450) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x > rect.width * 0.48) {
-      if (longPress2xTimeoutRef.current) clearTimeout(longPress2xTimeoutRef.current);
-      longPress2xTimeoutRef.current = setTimeout(() => {
-        start2xSpeed();
-      }, 350);
-    }
+    if (longPress2xTimeoutRef.current) clearTimeout(longPress2xTimeoutRef.current);
+    longPress2xTimeoutRef.current = setTimeout(() => {
+      start2xSpeed();
+    }, 350);
   };
 
   const handleVideoMouseUp = () => {
